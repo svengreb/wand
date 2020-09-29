@@ -1,0 +1,27 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# Configuration to specify paths to ignore.
+# See https://git-scm.com/docs/gitignore for more details.
+
+# +--------------------+
+# + JetBrains Products +
+# +--------------------+
+# +--- IntelliJ IDEA ---+
+.idea/*
+!.idea/runConfigurations
+!.idea/saved-exports
+!.idea/watcherTasks.xml
+
+# +---------+
+# + Node.js +
+# +---------+
+**/node_modules/
+yarn-debug.log*
+yarn-error.log*
+.yarn-integrity
+
+# +-------------------+
+# + Project Structure +
+# +-------------------+
+**/out/

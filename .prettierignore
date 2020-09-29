@@ -1,0 +1,7 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# Configuration to specify paths to ignore.
+# See https://prettier.io/docs/en/ignore for more details.
+
+**/node_modules/*

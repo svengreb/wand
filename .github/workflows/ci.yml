@@ -1,0 +1,76 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# GitHub Action Workflow for continuous integration jobs.
+# See https://docs.github.com/en/actions and https://github.com/features/actions for more details.
+
+name: ci
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  lint-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print metadata and context information
+        run: |
+          echo "Git SHA: $GITHUB_SHA"
+          echo "Git Ref: $GITHUB_REF"
+          echo "Workflow Actor: $GITHUB_ACTOR"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: "Setup Node.js version 14.x"
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+      - name: Install Node modules
+        run: yarn --frozen-lockfile
+      - name: Run linters
+        run: yarn lint
+  lint-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print metadata and context information
+        run: |
+          echo "Git SHA: $GITHUB_SHA"
+          echo "Git Ref: $GITHUB_REF"
+          echo "Workflow Actor: $GITHUB_ACTOR"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.15.x"
+      - name: "Run golangci-lint"
+        # The official golangci-lint action created and maintained by the golangci-lint project.
+        # See https://github.com/golangci/golangci-lint-action for more details.
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.31
+  test:
+    strategy:
+      matrix:
+        go-version: ["1.15.x"]
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    needs:
+      - lint-go
+    steps:
+      - name: Print metadata and context information
+        run: |
+          echo "Git SHA: $GITHUB_SHA"
+          echo "Git Ref: $GITHUB_REF"
+          echo "Workflow Actor: $GITHUB_ACTOR"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: "Run tests with coverage and race detector"
+        run: go test -cover -race -v ./...

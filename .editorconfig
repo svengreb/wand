@@ -1,0 +1,22 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# +--------------------+
+# + Base Configuration +
+# +--------------------+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+max_line_length = 120
+trim_trailing_whitespace = true
+
+# +-----------+
+# + Languages +
+# +-----------+
+# +--- Markdown ---+
+[*.{md}]
+max_line_length = off
+trim_trailing_whitespace = false

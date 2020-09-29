@@ -1,0 +1,146 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# Configuration for golangci-lint.
+# See https://golangci-lint.run/usage/configuration for more details.
+
+issues:
+  exclude-rules:
+    # Prevent issues on `go generate` command directive lines.
+    - linters:
+        - lll
+      source: "^//go:generate "
+    # Allow URLs with any length.
+    - linters:
+        - lll
+      source: (https?):\/\/[^\s\/$.?#].[^\s]*
+    # Exclude some linters from running on test files.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - gosec
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - exhaustive
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - golint
+    - gomnd
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+  # Run all linters, not only fast ones.
+  fast: false
+
+# Configurations for enabled linters.
+# See https://golangci-lint.run/usage/linters for more details.
+linters-settings:
+  depguard:
+    list-type: blacklist
+    # Do not check against the standard library.
+    include-go-root: false
+    packages:
+      - golang.org/x/net/context
+    packages-with-error-message:
+      - golang.org/x/net/context: "As of Go 1.7 this package is available in the standard library under the name context: golang.org/pkg/context"
+
+  dupl:
+    # Minimum count of tokens before triggering as duplicate code.
+    threshold: 100
+
+  errcheck:
+    # Report about not checking of errors in type assertions.
+    # Example: `a := b.(CustomStruct)`
+    check-type-assertions: true
+
+  goconst:
+    min-len: 2
+    min-occurrences: 3
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+      - style
+
+  gofumpt:
+    extra-rules: true
+
+  goheader:
+    values:
+      const:
+        AUTHOR: Sven Greb
+        YEAR: 2020-present
+      regexp:
+        EMAIL: .*@svengreb\.de
+    template: |-
+      Copyright (c) {{ YEAR }} {{ AUTHOR }} <{{ EMAIL }}>
+      This source code is licensed under the MIT license found in the LICENSE file.
+
+  goimports:
+    # A comma-separated list of prefixes for local package imports to be put after 3rd-party packages.
+    local-prefixes: github.com/svengreb/wand
+
+  golint:
+    min-confidence: 0.0
+
+  gomnd:
+    settings:
+      mnd:
+        # The list of enabled checks.
+        # See ttps://github.com/tommy-muehle/go-mnd/#checks for more details.
+        checks: argument,assign,case,condition,operation,return
+
+  govet:
+    check-shadowing: true
+
+  lll:
+    line-length: 160
+
+  misspell:
+    locale: US
+    ignore-words:
+      - magefile
+
+# Options for analysis runs.
+run:
+  deadline: 15m
+
+service:
+  golangci-lint-version: 1.31.x
