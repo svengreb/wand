@@ -19,7 +19,8 @@ func EnvMapToSlice(src map[string]string) []string {
 }
 
 // EnvSliceToMap transforms a slice of environment variables separated by an equal sign into a map.
-func EnvSliceToMap(src []string, dst map[string]string) {
+func EnvSliceToMap(src []string) map[string]string {
+	dst := make(map[string]string, len(src))
 	for _, envVar := range src {
 		kv := strings.Split(envVar, "=")
 		if len(kv) == 1 {
@@ -28,4 +29,5 @@ func EnvSliceToMap(src []string, dst map[string]string) {
 			dst[kv[0]] = kv[1]
 		}
 	}
+	return dst
 }

@@ -22,7 +22,7 @@ The provided [API packages][go-pkg-pkg] allow users to compose their own, reusab
 - **Runs any `main` package of a [Go module][go-docs-ref-mod] without the requirement for the user to install it beforehand** — thanks to the awesome [gobin][] project, there is no need for the user to `go get` the `main` package of a Go module in order to run its compiled executable.
 - **Comes with support for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem** — run common commands like `go build` and `go test` or great tools like [goimports][go-pkg-golang.org/x/tools/cmd/goimports], [golangci-lint][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] and [gox][go-pkg-github.com/mitchellh/gox] in no time.
 
-Please see the [“Design & Usage“](#design--usage) section for more details about the [API](#api) packages and [“Elder Wand“](#elder-wand) reference implementation.
+See the [API](#api) and [“Elder Wand“](#elder-wand) sections for more details. The [user guides](#user-guides) for more information about how to build your own tasks and runners and the [examples](#examples) for different repositories layouts (single or [“monorepo“][trunkbasedev-monorepos]) and use cases.
 
 ## Motivation
 
@@ -31,7 +31,7 @@ Please see the [“Design & Usage“](#design--usage) section for more details a
 ### Why Mage?
 
 Every project involves processes that are often recurring. These can mostly be done with the tools supplied with the respective programming language, which in turn, in many cases, involve more time and the memorizing of longer commands with their flags and parameters.
-In order to reduce this effort or to avoid it completely, project task automation tools are used which often establish a defined standard to enable the widest possible use and unify tasks. They offer a user-friendly and comfortable interface to handle the processes consistently with time savings and without the need for developers to remember many and/or complex commands.
+In order to significantly reduce this effort or to avoid it completely, project task automation tools are used which often establish a defined standard to enable the widest possible use and unify tasks. They offer a user-friendly and comfortable interface to handle the processes consistently with time savings and without the need for developers to remember many and/or complex commands.
 But these tools come with a cost: the introduction of standards and the restriction to predefined ways how to handle tasks is also usually the biggest disadvantage when it comes to adaptability for use cases that are individual for a single project, tasks that deviate from the standard or not covered by it at all.
 
 [Mage][] is a project task automation tool which gives the user complete freedom by **not specifying how tasks are solved, but only how they are started and connected with each other**. This is an absolute advantage over tools that force how how a task has to be solved while leaving out individual and project specific preferences.
@@ -46,118 +46,105 @@ This is where _Mage_ comes in:
 
 - Written in [pure Go without any external dependencies][gh-blob-magefile/mage/go.mod] for fully native compatibility and easy expansion.
 - [No installation][mage-zero_install] required.
-- Allows to [declare dependencies between tasks][mage-deps] in a _makefile_-style tree and optionally [runs them in parallel][mage-deps#paral].
-- Tasks can be defined in shared packages and [imported in any _Magefile_][mage-importing]. No mechanics like plugins or extensions required, just use any Go module and the whole Go ecosystem.
+- Allows to [declare dependencies between targets][mage-deps] in a _makefile_-style tree and optionally [runs them in parallel][mage-deps#paral].
+- Targets can be defined in shared packages and [imported][mage-importing] in any [_Magefile_][mage-files]. No mechanics like plugins or extensions required, just use any Go module and the whole Go ecosystem.
 
 ### Why _wand_?
 
-While _Mage_ is often already sufficient on its own, I‘ve noticed that I had to implement almost identical tasks over and over again when starting a new project or migrating an existing one to _Mage_. Even though the actual [task functions][mage-files] could be moved into their own Go module to allow to simply [import them][mage-importing] in different projects, it was often required to copy & paste code across projects that can not be exported that easily. That was the moment where I decided to create a way that simplifies the integration and usage of _Mage_ without loosing any of its flexibility and dynamic structure.
-
-significantly reduced effort.
+While _Mage_ is often already sufficient on its own, I‘ve noticed that I had to implement almost identical tasks over and over again when starting a new project or migrating an existing one to _Mage_. Even though the actual [target functions][mage-targets] could be moved into their own Go module to allow to simply [import them][mage-importing] in different projects, it was often required to copy & paste code across projects that can not be exported that easily. That was the moment where I decided to create a way that simplifies the integration and usage of _Mage_ without loosing any of its flexibility and dynamic structure.
 
 Please note that this package has mainly been created for my personal use in mind to avoid copying source code between my projects. The default configurations or reference implementation might not fit your needs, but the [API](#api) packages have been designed so that they can be flexibly adapted to different use cases and environments or used to create and compose your own [`wand.Wand`][go-pkg-if-wand#wand].
 
-Please see the [“Design & Usage“](#design--usage) section below to learn about the API and how to adapt or extend _wand_ for your project.
+See the [API](#api) and [“Elder Wand“](#elder-wand) sections to learn how to adapt or extend _wand_ for your project.
 
 <!--lint enable no-heading-punctuation-->
 
-## Design & Usage
+## Wording
 
-_wand_ has been designed as a toolkit for [Mage][] and tries to follow its goal to provide a good developer experience through simple and small interfaces.
+Since _wand_ is a toolkit for [Mage][], is partly makes use of an abstract naming scheme that matches the fantasy of magic which in case of _wand_ has been derived from the fantasy novel [“Harry Potter“][wikip-hp]. This is mainly limited to the [main “Wand“ interface][go-pkg-if-wand#wand] and the [“Elder Wand“](#elder-wand) reference implementation.
+The basic mindset of the API is designed around the concept of **tasks** and the ways to **run** them.
 
-### Wording
+- **Runner** — Components that run a command with parameters in a specific environment, in most cases a (binary) [executable][wikip-exec] of external commands or Go module `main` packages.
+- **Tasks** — Components that are scoped for Mage [“target“][mage-targets] usage in order to run an action.
 
-Since _wand_ is a toolkit for [Mage][], the API has been designed with an abstract naming scheme in mind that matches the fantasy of magic which in case of _wand_ have been derived from the fantasy novel [“Harry Potter“][wikip-hp].
-As this might be a bit confusing for some users this section provides a mapping to the actual functionality and code logic of the different API components:
-
-- **Spell Incantation** — An abstract representation of flags and parameters for a command or action, in most cases a (binary) [executable][wikip-exec].
-  The naming is inspired by the fact that it is almost only possible to [cast a magic spell][wikip-hp_magic#cast] through a [incantation][wikip-inc]. The parameters can be seen as the _formula_.
-- **Caster** — An abstract representation for a command or action, in most cases a (binary) [executable][wikip-exec], that provides corresponding information like the path to the executable.
-  The naming is inspired by the fact that a caster can [cast a magic spell][wikip-hp_magic#cast] through a [incantation][wikip-inc]. Command can be seen as the [magicians][wikip-magic#magicians] that cast a magic spell.
-
-### API
+## API
 
 The public _wand_ API is located in the [`pkg`][go-pkg-pkg] package while the main interface [`wand.Wand`][go-pkg-if-wand#wand], that manages a project and its applications and stores their metadata, is defined in the [`wand`][go-pkg-wand] package.
 
-Please also see the individual documentations of each package for more details.
+Please see the individual documentations of each package for more details.
 
-#### Application Configurations
+### Application Configurations
 
-The [`pkg/app`][go-pkg-app] package provides the functionality for application configurations. The [`Config` struct type][go-pkg-stc-app#config] holds information and metadata of an application which are stored in defined by [the `Store` interface][go-pkg-if-app#store]. The [`NewStore() app.Store`][go-pkg-func-app#newstore] function returns a reference implementation of the `Store` interface.
+The [`app`][go-pkg-app] package provides the functionality for application configurations. A [`Config`][go-pkg-stc-app#config] holds information and metadata of an application that is stored by types that implement the [`Store` interface][go-pkg-if-app#store]. The [`NewStore() app.Store`][go-pkg-func-app#newstore] function returns a reference implementation of this interface.
 
-#### Spell Incantation Casters
+### Command Runners
 
-The [`pkg/cast`][go-pkg-cast] package provides caster for spell incantations. The [`BinaryCaster` interface][go-pkg-if-cast#binarycaster] is a specialized [`Caster`][go-pkg-if-cast#caster] to run commands using a (binary) executable.
+The [`task`][go-pkg-task] package defines the API for runner of commands. [`Runner`][go-pkg-if-task#runner] is the base interface while [`RunnerExec` interface][go-pkg-if-task#runnerexec] is a specialized for (binary) executables of a command.
 
-##### Go Toolchain Caster
+The package already provides runners for the [Go toolchain][go-pkg-cmd/go] and the [gobin][] Go module:
 
-The [`pkg/cast/golang/toolchain`][go-pkg-cast/golang/toolchain] package provides a caster to interact with the [Go toolchain][go-pkg-cmd/go], in most cases the `go` executable.
+- **Go Toolchain** — to interact with the [Go toolchain][go-pkg-cmd/go], also known as the `go` executable, the [`golang.Runner`][go-pkg-stc-task/golang#runner] can be used.
+- **`gobin` Go Module** — to install and run [Go module][go-docs-ref-mod] `main` the [`Runner`][go-pkg-stc-task/gobin#runner] makes use of the [`github.com/myitcv/gobin`][go-pkg-github.com/myitcv/gobin] command.
+  1. **Go Executable Installation** — Using the [`go install`][go-pkg-cmd/go#install] or [`go get`][go-pkg-cmd/go#print_env] command for a [Go module][go-ref-mod] `main` package, the resulting executables are placed in the Go executable search path that is defined by the [`GOBIN` environment variable][go-pkg-cmd/go#env_vars] (see the [`go env` command][go-pkg-cmd/go#print_env] to show or modify the Go toolchain environment).
+     Even though executables are installed “globally“ for the current user, any [`go.mod` file][go-ref-mod#go.mod] in the current working directory will be updated to include the Go module. This is the default behavior of the [`go get` command][go-pkg-cmd/go#print_env] when running in [“module mode“][go-pkg-cmd/go#mod_cmds] (see [`GO111MODULE` environment variable).
+     Next to this problem, installed executables will also overwrite any previously installed executable of the same module/package regardless of the version. Therefore only one version of a executable can be installed at a time which makes it impossible to work on different projects that make use of the same executable but require different versions.
+  2. **History and Future** — The installation concept for `main` package executables has always been a somewhat controversial point which unfortunately, partly for historical reasons, does not offer an optimal and user-friendly solution up to now.
+     The [`go` command][go-pkg-cmd/go] is a fantastic toolchain that provides many great features one would expect to be provided out-of-the-box from a modern and well designed programming language without the requirement to use a third-party solution: from compiling code, running unit/integration/benchmark tests, quality and error analysis, debugging utilities and many more.
+     Unfortunately this does not apply for the [`go install` command][go-pkg-cmd/go#install] of Go versions less or equal to 1.15.
+     The general problem of tool dependencies is a long-time known issue/weak point of the current Go toolchain and is a highly rated change request from the Go community with discussions like [golang/go#30515][gh-golang/go#30515], [golang/go#25922][gh-golang/go#25922] and [golang/go#27653][gh-golang/go#27653] to improve this essential feature, but they've been around for quite a long time without a solution that works without introducing breaking changes and most users and the Go team agree on.
+     Luckily, this topic was finally picked up for the next [upcoming Go release version 1.16][gh-golang/go-ms-145] and [golang/go#40276][gh-golang/go#40276] introduces a way to install executables in module mode outside a module.
+     The [release note preview also already includes details about this change][go-docs-tip-rln-1.16#mods] and how installation of executables from Go modules will be handled in the future.
+  3. **The Workaround** — Beside the great news and anticipation about an official solution for the problem the usage of a workaround is almost inevitable until Go 1.16 is finally released.
+     The [official Go wiki][gh-golang/go-wiki] provides a section on [“How can I track tool dependencies for a module?“][gh-golang/go-wiki-mods#tool_deps] that describes a workaround that tracks tool dependencies. It allows to use the Go module logic by using a file like `tools.go` with a dedicated `tools` build tag that prevents the included module dependencies to be picked up for “normal“ executable builds. This approach works fine for non-main packages, but CLI tools that are only implemented in the `main` package can not be imported in such a file.
+     In order to tackle this problem, a well-known user from the community created [gobin][], an experimental, module-aware command to install and run `main` packages.
+     It allows to install or run `main` package commands without “polluting“ the `go.mod` file. Modules are downloaded in version-aware mode into a cache path within the [users local cache directory][go-pkg-func-os#usercachedir]. This way it prevents problems due to already installed executables by placing each version of an executable in its own directory.
+     The decision to use a cache directory instead of sub-directories within the `GOBIN` path doesn't require to mess with the users setup and keep the Go toolchain specific paths clean and unchanged.
+     `gobin` is still in an early development state, but has already received a lot of positive feedback and is used in many projects. There are also members of the core Go team that have contributed to the project and the chance is high that the changes for Go 1.16 were influenced or partially ported from it. See [gobin‘s FAQ page][gobin-wiki-faq] in the repository wiki for more details about the project.
+     It is currently the best workaround to…
+     1. prevent the Go toolchain to pick up the [`GOMOD` (`go env GOMOD`) environment variable][go-pkg-cmd/go#print_env] that is initialized automatically with the path to the [`go.mod` file][go-ref-mod#go.mod] in the current working directory.
+     2. install `main` package executables locally for the current user without “polluting“ the `go.mod` file.
+     3. install `main` package executables locally for the current user without overriding already installed executables of different versions.
+  4. **The Go Module `Runner`** — To allow to manage the tool dependency problem, this package provides a command runner that uses `gobin` in order to prevent the problems described in the sections above like the “pollution“ of the "go.mod" file and allows to…
+     1. install `gobin` itself into `GOBIN` ([`go env GOBIN`][go-pkg-cmd/go#print_env]).
+     2. run any Go module command by installing `main` package executables locally for the current user into the dedicated `gobin` cache.
 
-##### "gobin" Go Module Caster
+### Project Metadata
 
-The [`pkg/cast/gobin`][go-pkg-cast/gobin] package provides a caster to install and run [Go module][go-docs-ref-mod] executables using the [`github.com/myitcv/gobin`][go-pkg-github.com/myitcv/gobin] module command.
+The [`project`][go-pkg-project] package defines the API for metadata and [VCS][wikip-vcs] information of a project. The [`New(opts ...project.Option) (*project.Metadata, error)`][go-pkg-fn-project#new] function can be used to create a new [project metadata][go-pkg-stc-project#metadata].
 
-1. **Go Executable Installation** — When installing a Go executable from within a [Go module][go-docs-ref-mod] directory using the [`go install` command][go-pkg-cmd/go#install], it is installed into the Go executable search path that is defined through the [`GOBIN` environment variable][go-pkg-cmd/go#env_vars] and can also be shown and modified using the [`go env` command][go-pkg-cmd/go#print_env].
-   Even though the executable gets installed globally, the [`go.mod` file][go-docs-cmd/go#go.mod] will be updated to include the installed packages since this is the default behavior of the [`go get` command][go-pkg-cmd/go#add_deps] when running in [“module“ mode][go-docs-cmd/go#mod_cmds].
-   Next to this problem, the installed executable will also overwrite any executable of the same module/package that was installed already, but maybe from a different version. Therefore only one version of a executable can be installed at a time which makes it impossible to work on different projects that use the same tool but with different versions.
-2. **History and Future** — The local installation of executables built from [Go modules][go-docs-ref-mod]/`main` packages has always been a somewhat controversial point which unfortunately, partly for historical reasons, does not offer an optimal and user-friendly solution up to now. The [`go` command][go-pkg-cmd/go] is a fantastic toolchain that provides many great features one would expect to be provided out-of-the-box from a modern and well designed programming language without the requirement to use a third-party solution: from compiling code, running unit/integration/benchmark tests, quality and error analysis, debugging utilities and many more. Unfortunately the way the [`go install` command][go-pkg-cmd/go#install] of Go versions less or equal to 1.15 handles the installation is still not optimal.
-   The general problem of tool dependencies is a long-time known issue/weak point of the current Go toolchain and is a highly rated change request from the Go community with discussions like [golang/go#30515][gh-golang/go#30515], [golang/go#25922][gh-golang/go#25922] and [golang/go#27653][gh-golang/go#27653] to improve this essential feature, but they‘ve been around for quite a long time without a solution that works without introducing breaking changes and most users and the Go team agree on.
-   Luckily, this topic was finally picked up for the next [upcoming Go release version 1.16][gh-golang/go-ms-145] and [golang/go#40276][gh-golang/go#40276] introduces a way to install executables in module mode outside a module. The [release note preview also already includes details about this change][go-docs-tip-rln-1.16#mods] and how installation of executables from Go modules will be handled in the future.
-3. **The Workaround** — Beside the great news and anticipation about an official solution for the problem the usage of a workaround is almost inevitable until Go 1.16 is finally released.
-   The [official Go wiki][gh-golang/go-wiki] provides a section on [“How can I track tool dependencies for a module?“][gh-golang/go-wiki-mods#tool_deps] that describes a workaround that tracks tool dependencies. It allows to use the Go module logic by using a file like `tools.go` with a dedicated `tools` build tag that prevents the included module dependencies to be picked up included for normal executable builds. This approach works fine for non-main packages, but CLI tools that are only implemented in the `main` package can not be imported in such a file.
-   In order to tackle this problem, a user from the community created [gobin][], an experimental, module-aware command to install/run main packages. It allows to install or run main-package commands without “polluting“ the `go.mod` file by default. It downloads modules in version-aware mode into a binary cache path within the [systems cache directory][go-pkg-func-os#usercachedir]. It prevents problems due to already globally installed executables by placing each version in its own directory. The decision to use a cache directory instead of sub-directories within the `GOBIN` path keeps the system clean.
-   `gobin` is still in an early development state, but has already received a lot of positive feedback and is used in many projects. There are also members of the core Go team that have contributed to the project and the chance is high that the changes for Go 1.16 were influenced or partially ported from it. See [gobin‘s FAQ page in the repository wiki][gobin-wiki-faq] for more details about the project.
-   It is currently the best workaround to…
-   1. prevent the Go toolchain to pick up the [`GOMOD` environment variable][go-pkg-cmd/go#add_deps] (see [`go env GOMOD`][go-pkg-cmd/go#add_deps]) that is initialized automatically with the path to the [`go.mod` file][go-docs-cmd/go#go.mod] in the current working directory.
-   2. install module/package executables globally without “polluting“ the [`go.mod` file][go-docs-cmd/go#go.mod].
-   3. install module/package executables globally without overriding already installed executables of different versions.
-4. **The Go Module `Caster`** — To allow to manage the tool dependency problem, this caster uses `gobin` through to prevent the “pollution“ of the project [`go.mod` file][go-docs-cmd/go#go.mod] and allows to...
-   1. install `gobin` itself into `GOBIN` (see [`go env GOBIN`][go-pkg-cmd/go#print_env]).
-   2. cast any [spell incantation][go-pkg-if-spell#incantation] of kind [`KindGoModule`][go-pkg-const-spell#kindgomodule] by installing the executable globally into the dedicated `gobin` cache.
+The package also already provides a [VCS `Repository` interface reference implementation][go-pkg-if-project/vcs#repository] for [Git][]:
 
-#### Project Metadata
+- **VCS “Git“** — the [`git`][go-pkg-project/vcs/git] package provides VCS utility functions to interact with [Git][] repositories.
 
-The [`pkg/project`][go-pkg-project] package provides metadata and [VCS][wikip-vcs] information of a project.
+### Tasks
 
-##### VCS "Git"
+The [`task`][go-pkg-task] package defines the API for tasks. [`Task`][go-pkg-if-task#task] is the base interface while [`Exec`][go-pkg-if-task#exec] and [`GoModule`][go-pkg-if-task#gomodule] are a specialized to represent the (binary) executable of either an “external“ or Go module based command.
 
-The [`pkg/project/vcs/git`][go-pkg-project/vcs/git] package provides [VCS][wikip-vcs] utility functions to interact with [Git][] repositories.
+The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem:
 
-#### Spell Incantations
+- **`goimports`** — the [`goimports`][go-pkg-task/goimports] package provides a task for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command. `goimports` allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
+- **Go** — The [`golang`][go-pkg-task/golang] package provides tasks for [Go toolchain][go-pkg-cmd/go] commands.
+  - **`build`** — to run the [`build` command of the Go toolchain][go-pkg-cmd/go#build] the task of the [`build`][go-pkg-task/golang/build] package can be used.
+  - **`test`** — to run the [`test` command of the Go toolchain][go-pkg-cmd/go#test] the task of the [`test`][go-pkg-task/golang/test] package can be used.
+- **`golangci-lint`** — the [`golangcilint`][go-pkg-task/golangcilint] package provides a task for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] Go module command. `golangci-lint` is a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][gh-golangci/golangci-lint].
+- **`gox`** — the [`gox`][go-pkg-task/gox] package provides a task for the [`github.com/mitchellh/gox`][go-pkg-github.com/mitchellh/gox] Go module command. `gox` is a dead simple, no frills Go cross compile tool that behaves a lot like the standard [Go toolchain `build` command][go-pkg-cmd/go#build]. The source code of `gox` is [available in the GitHub repository][gh-mitchellh/gox].
 
-The [`pkg/spell`][go-pkg-spell] package provides spell incantations for different kinds.
+There are also tasks that don‘t need to implement the task API but make use of some “loose“ features like information about a project application are shared as well as the dynamic option system. They can be used without a `task.Runner`, just like a “normal“ package, and provide Go functions/methods that can be called directly:
 
-##### Filesystem Cleaning Spell Incantation
+- **Filesystem Cleaning** — The [`clean`][go-pkg-task/fs/clean] package provides a task to remove directories in a filesystem.
 
-The [`pkg/spell/fs/clean`][go-pkg-spell/fs/clean] package provides a spell incantation to remove directories in a filesystem. It implements [`spell.GoCode`][go-pkg-if-spell#gocode] and can be used without a [`cast.Caster`][go-pkg-if-cast#caster].
+## Usage Guides
 
-##### "goimports" Go Module Spell Incantation
-
-The [`pkg/spell/goimports`][go-pkg-spell/goimports] package provides a spell incantation for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command that allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
-
-##### Go Toolchain Spell Incantations
-
-The [`pkg/spell/golang`][go-pkg-spell/golang] package provides spell incantations for [Go toolchain][go-pkg-cmd/go] commands.
-
-###### "build" Go Toolchain Spell Incantation
-
-The [`pkg/spell/golang`][go-pkg-spell/golang/build] package provides a spell incantation for the [`build` command of the Go toolchain][go-pkg-cmd/go#build].
-
-###### "test" Go Toolchain Spell Incantation
-
-The [`pkg/spell/golang/test`][go-pkg-spell/golang/test] package provides a spell incantation for the [`test` command of the Go toolchain][go-pkg-cmd/go#test].
-
-##### "golangci-lint" Go Module Spell Incantation
-
-The [`pkg/spell/golangcilint`][go-pkg-spell/golangcilint] package provides a spell incantation for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] Go module command, a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][gh-golangci/golangci-lint].
-
-##### "gox" Go Module Spell Incantation
-
-The [`pkg/spell/gox`][go-pkg-spell/gox] package provides a spell incantation for the [`github.com/mitchellh/gox`][go-pkg-github.com/mitchellh/gox] Go module command, a dead simple, no frills Go cross compile tool that behaves a lot like the standard [Go toolchain `build` command][go-pkg-cmd/go#build]. The source code of `golangci-lint` is [available in the GitHub repository][gh-mitchellh/gox].
+In the following sections you can learn how to use the _wand_ reference implementation [“elder wand“](#elder-wand), compose/extend it or simply implement your own tasks and runners.
 
 ### Elder Wand
 
-The [`elder`][go-pkg-elder] package contains a reference implementation of the main [`wand.Wand`][go-pkg-if-wand#wand] interface that provides common Mage tasks and stores configurations and metadata for applications of a project. Next to task methods for the Go toolchain and Go module commands, it comes with additional methods like `Bootstrap`, that runs initialization tasks to ensure the _wand_ is operational, or `Validate`, that ensures that all casters are properly initialized and available.
+The [`elder`][go-pkg-elder] package is the reference implementation of the main [`wand.Wand`][go-pkg-if-wand#wand] interface that provides common Mage tasks and stores configurations and metadata for applications of a project. Next to task methods for the Go toolchain and Go module commands, it comes with additional methods like `Bootstrap` to run initialization actions or `Validate` to ensure that the _wand_ is initialized properly.
+
+Create your [_Magefile_][mage-files], e.g `magefile.go`, and use the [`New`][go-pkg-fn-elder#new] function to initialize a new wand and register any amount of applications.
+Create a global variable of type `*elder.Elder` and assign the created “elder wand“ to make it available to all functions in your _Magefile_. Even though global variables are a bad practice and should be avoid at all, it‘s totally fine for your task automation since it is non-production code.
+
+Note that the _Mage_ specific **`// +build mage` [build constraint][go-pkg-pkg/go/build#constraints], also known as a build tag, is important** in order to mark the file as _Magefile_. See the [official _Mage_ documentation][mage-files] for more details.
 
 <!--lint disable no-tabs-->
 
@@ -167,13 +154,22 @@ The [`elder`][go-pkg-elder] package contains a reference implementation of the m
 package main
 
 import (
-  "fmt"
+	"context"
+	"fmt"
 	"os"
 
+	"github.com/svengreb/nib"
 	"github.com/svengreb/nib/inkpen"
+
 	"github.com/svengreb/wand/pkg/elder"
 	wandProj "github.com/svengreb/wand/pkg/project"
+	wandProjVCS "github.com/svengreb/wand/pkg/project/vcs"
+	taskGo "github.com/svengreb/wand/pkg/task/golang"
+	taskGoBuild "github.com/svengreb/wand/pkg/task/golang/build"
 )
+
+var elderWand *elder.Elder
+
 func init() {
 	// Create a new "elder wand".
 	ew, ewErr := elder.New(
@@ -195,17 +191,80 @@ func init() {
 	apps := []struct {
 		name, displayName, pathRel string
 	}{
-		{"cli", "Fruit Mixer CLI", "apps/cli"},
-		{"daemon", "Fruit Mixer Daemon", "apps/daemon"},
-		{"prometheus-exporter", "Fruit Mixer Prometheus Exporter", "apps/promexp"},
+		{"fruitctl", "Fruit CLI", "apps/cli"},
+		{"fruitd", "Fruit Daemon", "apps/daemon"},
+		{"fruitpromexp", "Fruit Prometheus Exporter", "apps/promexp"},
 	}
 	for _, app := range apps {
 		if regErr := ew.RegisterApp(app.name, app.displayName, app.pathRel); regErr != nil {
 			ew.ExitPrintf(1, nib.ErrorVerbosity, "Failed to register application %q: %v", app.name, regErr)
 		}
 	}
+
+	elderWand = ew
 }
 ```
+
+Now you can create [_Mage_ target functions][mage-targets] using the task methods of the “elder wand“.
+
+```go
+func Build(mageCtx context.Context) {
+	buildErr := elderWand.GoBuild(
+		cliAppName,
+		taskGoBuild.WithBinaryArtifactName(cliAppName),
+		taskGoBuild.WithGoOptions(
+			taskGo.WithTrimmedPath(true),
+		),
+	)
+	if buildErr != nil {
+		fmt.Printf("Build incomplete: %v\n", buildErr)
+	}
+}
+```
+
+<!--lint enable no-tabs-->
+
+See the [examples](#examples) to learn about more uses cases and way how to structure your _Mage_ setup.
+
+### Build It Yourself
+
+_wand_ comes with tasks and runners for common [Go toolchain][go-pkg-cmd/go] commands, the [gobin][] and other popular modules from the Go ecosystem, but the chance is high that you want to build your own for your specific use cases.
+
+#### Custom Tasks
+
+To create your own task that is compatible with the _wand_ API, implement the [`Task`][go-pkg-if-task#task] base interface or any of its specialized interfaces. The `Kind() task.Kind` method must return [`KindBase`][go-pkg-al-task#kindbase] while `Options() task.Options` can return anything since [`task.Options`][go-pkg-al-task#options] is just an alias for `interface{}`.
+
+1. If your task is **intended for an executable command** you need to implement the [`Exec`][go-pkg-if-task#exec] interface where…
+   - the `Kind() task.Kind` method must return [`KindExec`][go-pkg-al-task#kindexec].
+   - the `BuildParams() []string` method must return all the parameters that should be passed to the executable.
+2. If your task is **intended for the `main` package of a Go module**, so basically also an executable command, you need to implement the [`GoModule`][go-pkg-if-task#gomodule] interface where…
+   - the `Kind() task.Kind` method must return [`KindGoModule`][go-pkg-al-task#kindgomodule].
+   - the `BuildParams() []string` method must return all the parameters that should be passed to the executable that was compiled from the `main` package of the Go module.
+   - the returned type of the `ID() *project.GoModuleID` method must provide the import path and module version of the target `main` package.
+
+For sample code of a custom task please see the [examples](#examples) section.
+Based on your task kind, you can also either use one of the [already provided command runners](#command-runners), like for the [Go toolchain][go-pkg-task/golang] and [gobin][], or [implement your own custom runner](#custom-runners).
+
+#### Custom Runners
+
+To create your own command runner that is compatible with the _wand_ API, implement the [`Runner`][go-pkg-if-task#runner] base interface or any of its specialized interfaces. The `Handles() Kind` method must return the [`Kind`][go-pkg-al-task#kind] that can be handled while the actual business logic of `Validate() errors` is not bound to any constraint, but like the method names states, should ensure that the runner is configured properly and is operational. The `Run(task.Task) error` method represents the main functionality of the interface and is responsible for running the given [`task.Task`][go-pkg-if-task#task] by passing all task parameters, obtained through the `BuildParams() []string` method, and finally execute the configured file. Optionally you can also inspect and use its [`task.Options`][go-pkg-al-task#options] by casting the type returned from the `Options() task.Options` method.
+
+1. If your runner is **intended for an executable command** you need to implement the [`RunnerExec`][go-pkg-if-task#runnerexec] interface where…
+   - the `Handles() Kind` method can return kinds like [`KindExec`][go-pkg-al-task#kindexec] or [`KindGoModule`][go-pkg-al-task#kindgomodule].
+   - the `Run(task.Task) error` method runs the given [`task.Task`][go-pkg-if-task#task] by passing all task parameters, obtained through the `BuildParams() []string` method, and finally execute the configured file.
+   - it is recommended that the `Validate() error` method tests if the executable file of the command exists at the configured path in the target filesystem or maybe also check other (default) paths if this is not the case. It is also often a good preventative measure to prevent problems to check that the current process actually has permissions to read and execute the file.
+
+For a sample code of a custom command runner please see the [examples](#examples) section.
+Based on the kind your command runner can handle, you can also either use one of the [already provided tasks](#tasks) or [implement your own custom task](#custom-task).
+
+## Examples
+
+To learn how to use the _wand_ API and its packages, the [`examples` repository directory][gh-tree-examples] contains code samples for multiple use cases:
+
+- **Create your own command runner** — The [`custom_runner`][gh-tree-examples/custom_runner] directory contains code samples to demonstrate [how to create a custom command runner](#custom-runners). The `FruitMixerRunner` struct implements the [`RunnerExec`][go-pkg-if-task#runnerexec] interface for the imaginary `fruitctl` application.
+- **Create your own task** — The [`custom_task`][gh-tree-examples/custom_task] directory contains code samples to demonstrate [how to create a custom task](#custom-tasks). The `MixTask` struct implements the [`Exec`][go-pkg-if-task#exec] interface for the imaginary `fruitctl` application.
+- **Usage in a [monorepo][trunkbasedev-monorepos] layout** — The [`monorepo`][gh-tree-examples/monorepo] directory contains code samples to demonstrate the usage in a _monorepo_ layout for three example applications `cli`, `daemon` and `promexp`. The _Magefile_ provides a `build` target to build all applications. Each application also has a dedicated `:build` target using the [`mg.Namespace`][go-pkg-al-github.com/magefile/mage/mg#namespace] to only build it individually.
+- **Usage with a simple, single command repository layout** — The [`simple`][gh-tree-examples/simple] directory contains code samples to demonstrate the usage in a “simple“ repository that only provides a single command. The _Magefile_ provides a `build` target to build the `fruitctl` application.
 
 ## Contributing
 
@@ -243,28 +302,35 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [gh-golang/tools-tree-cmd/goimports]: https://github.com/golang/tools/tree/master/cmd/goimports
 [gh-golangci/golangci-lint]: https://github.com/golangci/golangci-lint/tree/master/cmd/golangci-lint
 [gh-mitchellh/gox]: https://github.com/mitchellh/gox
+[gh-tree-examples]: https://github.com/svengreb/wand/tree/main/examples
+[gh-tree-examples/custom_runner]: https://github.com/svengreb/wand/tree/main/examples/custom_runner
+[gh-tree-examples/custom_task]: https://github.com/svengreb/wand/tree/main/examples/custom_task
+[gh-tree-examples/monorepo]: https://github.com/svengreb/wand/tree/main/examples/monorepo
+[gh-tree-examples/simple]: https://github.com/svengreb/wand/tree/main/examples/simple
 [gh-tree-golang/go/src]: https://github.com/golang/go/tree/926994fd/src
 [git]: https://git-scm.com
 [gnu-make-docs-shell]: https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html
 [gnu-make-repo]: https://savannah.gnu.org/git/?group=make
-[go-docs-cmd/go#go.mod]: https://golang.org/ref/mod#go-mod-file
-[go-docs-cmd/go#mod_cmds]: https://golang.org/ref/mod#mod-commands
 [go-docs-ref-mod]: https://golang.org/ref/mod
 [go-docs-tip-rln-1.16#mods]: https://tip.golang.org/doc/go1.16#modules
+[go-pkg-al-github.com/magefile/mage/mg#namespace]: https://pkg.go.dev/github.com/magefile/mage/mg#Namespace
+[go-pkg-al-task#kind]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Kind
+[go-pkg-al-task#kindbase]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindBase
+[go-pkg-al-task#kindexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindExec
+[go-pkg-al-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
+[go-pkg-al-task#options]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Options
 [go-pkg-app]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app
-[go-pkg-cast]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast
-[go-pkg-cast/gobin]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast/gobin
-[go-pkg-cast/golang/toolchain]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast/golang/toolchain
 [go-pkg-cmd/go]: https://pkg.go.dev/cmd/go
-[go-pkg-cmd/go#add_deps]: https://pkg.go.dev/cmd/go/#hdr-PrintGoenvironment_information
 [go-pkg-cmd/go#build]: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 [go-pkg-cmd/go#env_vars]: https://pkg.go.dev/cmd/go/#hdr-Environment_variables
 [go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
-[go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go#hdr-PrintGoenvironment_information
+[go-pkg-cmd/go#mod_cmds]: https://golang.org/ref/mod#mod-commands
+[go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#test]: https://pkg.go.dev/cmd/go#hdr-Test_packages
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
-[go-pkg-const-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
 [go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
+[go-pkg-fn-elder#new]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#New
+[go-pkg-fn-project#new]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#New
 [go-pkg-func-app#newstore]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#NewStore
 [go-pkg-func-os#usercachedir]: https://pkg.go.dev/os/#UserCacheDir
 [go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint]: https://pkg.go.dev/github.com/golangci/golangci-lint/cmd/golangci-lint
@@ -272,24 +338,32 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-github.com/myitcv/gobin]: https://pkg.go.dev/github.com/myitcv/gobin
 [go-pkg-golang.org/x/tools/cmd/goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
 [go-pkg-if-app#store]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#Store
-[go-pkg-if-cast#binarycaster]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast#BinaryCaster
-[go-pkg-if-cast#caster]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast#Caster
-[go-pkg-if-spell#gocode]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#GoCode
-[go-pkg-if-spell#incantation]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Incantation
+[go-pkg-if-project/vcs#repository]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project/vcs#Repository
+[go-pkg-if-task#exec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Exec
+[go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
+[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
+[go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [go-pkg-if-wand#wand]: https://pkg.go.dev/github.com/svengreb/wand#Wand
 [go-pkg-pkg]: https://pkg.go.dev/github.com/svengreb/wand/pkg
+[go-pkg-pkg/go/build#constraints]: https://pkg.go.dev/pkg/go/build/#hdr-Build_Constraints
 [go-pkg-project]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project
 [go-pkg-project/vcs/git]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project/vcs/git
-[go-pkg-spell]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell
-[go-pkg-spell/fs/clean]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/fs/clean
-[go-pkg-spell/goimports]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/goimports
-[go-pkg-spell/golang]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang
-[go-pkg-spell/golang/build]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang/build
-[go-pkg-spell/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang/test
-[go-pkg-spell/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golangcilint
-[go-pkg-spell/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/gox
 [go-pkg-stc-app#config]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#Config
+[go-pkg-stc-project#metadata]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#Metadata
+[go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
+[go-pkg-stc-task/golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
+[go-pkg-task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task
+[go-pkg-task/fs/clean]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/fs/clean
+[go-pkg-task/goimports]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/goimports
+[go-pkg-task/golang]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang
+[go-pkg-task/golang/build]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/build
+[go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
+[go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
+[go-pkg-task/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gox
 [go-pkg-wand]: https://pkg.go.dev/github.com/svengreb/wand
+[go-ref-mod]: https://golang.org/ref/mod
+[go-ref-mod#go.mod]: https://golang.org/ref/mod#go-mod-file
 [gobin-wiki-faq]: https://github.com/myitcv/gobin/wiki/FAQ
 [gobin]: https://github.com/myitcv/gobin
 [gradle]: https://gradle.org
@@ -298,6 +372,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [mage-deps#paral]: https://magefile.org/dependencies/#parallelism
 [mage-files]: https://magefile.org/magefiles
 [mage-importing]: https://magefile.org/importing
+[mage-targets]: https://magefile.org/targets
 [mage-zero_install]: https://magefile.org/zeroinstall
 [mage]: https://magefile.org
 [make]: https://www.gnu.org/software/make
@@ -307,10 +382,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
 [wikip-dsl]: https://en.wikipedia.org/wiki/Domain-specific_language
 [wikip-exec]: https://en.wikipedia.org/wiki/Executable
-[wikip-hp_magic#cast]: https://en.wikipedia.org/wiki/Magic_in_Harry_Potter#Spellcasting
 [wikip-hp]: https://en.wikipedia.org/wiki/Harry_Potter
-[wikip-inc]: https://en.wikipedia.org/wiki/Incantation
-[wikip-magic#magicians]: https://en.wikipedia.org/wiki/Magic_(supernatural)#Magicians
 [wikip-path_var]: https://en.wikipedia.org/wiki/PATH_(variable)
 [wikip-shell_builtin]: https://en.wikipedia.org/wiki/Shell_builtin
 [wikip-vcs]: https://en.wikipedia.org/wiki/Version_control

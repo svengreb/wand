@@ -7,40 +7,50 @@ import (
 	"github.com/svengreb/nib"
 	"github.com/svengreb/nib/inkpen"
 
-	castGobin "github.com/svengreb/wand/pkg/cast/gobin"
-	castGoToolchain "github.com/svengreb/wand/pkg/cast/golang/toolchain"
 	"github.com/svengreb/wand/pkg/project"
+	taskGobin "github.com/svengreb/wand/pkg/task/gobin"
+	taskGo "github.com/svengreb/wand/pkg/task/golang"
 )
 
-// Options are options for the wand.Wand reference implementation "elder".
-type Options struct {
-	// gobinCasterOpts are "gobin" caster options.
-	gobinCasterOpts []castGobin.Option
+// Option is a wand option.
+type Option func(*Options)
 
-	// goToolchainCasterOpts are Go toolchain caster options.
-	goToolchainCasterOpts []castGoToolchain.Option
+// Options are wand options.
+type Options struct {
+	// gobinRunnerOpts are "gobin" runner options.
+	gobinRunnerOpts []taskGobin.RunnerOption
+
+	// goRunnerOpts are Go toolchain runner options.
+	goRunnerOpts []taskGo.RunnerOption
 
 	// nib is the log-level based line printer for human-facing messages.
 	nib nib.Nib
 
-	// goToolchainCasterOpts are project options.
+	// projectOpts are project options.
 	projectOpts []project.Option
 }
 
-// Option is a option for the wand.Wand reference implementation "elder".
-type Option func(*Options)
+// NewOptions creates new wand options.
+func NewOptions(opts ...Option) *Options {
+	opt := &Options{nib: inkpen.New()}
+	for _, o := range opts {
+		o(opt)
+	}
 
-// WithGobinCasterOptions sets "gobin" caster options.
-func WithGobinCasterOptions(opts ...castGobin.Option) Option {
+	return opt
+}
+
+// WithGobinRunnerOptions sets "gobin" runner options.
+func WithGobinRunnerOptions(opts ...taskGobin.RunnerOption) Option {
 	return func(o *Options) {
-		o.gobinCasterOpts = append(o.gobinCasterOpts, opts...)
+		o.gobinRunnerOpts = append(o.gobinRunnerOpts, opts...)
 	}
 }
 
-// WithGoToolchainCasterOptions sets Go toolchain caster options.
-func WithGoToolchainCasterOptions(opts ...castGoToolchain.Option) Option {
+// WithGoRunnerOptions sets Go toolchain runner options.
+func WithGoRunnerOptions(opts ...taskGo.RunnerOption) Option {
 	return func(o *Options) {
-		o.goToolchainCasterOpts = append(o.goToolchainCasterOpts, opts...)
+		o.goRunnerOpts = append(o.goRunnerOpts, opts...)
 	}
 }
 
@@ -58,14 +68,4 @@ func WithProjectOptions(opts ...project.Option) Option {
 	return func(o *Options) {
 		o.projectOpts = append(o.projectOpts, opts...)
 	}
-}
-
-// NewOptions creates new options for the wand.Wand reference implementation "elder".
-func NewOptions(opts ...Option) *Options {
-	opt := &Options{nib: inkpen.New()}
-	for _, o := range opts {
-		o(opt)
-	}
-
-	return opt
 }
