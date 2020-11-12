@@ -1,0 +1,41 @@
+# Copyright (c) 2020-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# Configuration for the native Dependabot integration.
+# See the official GitHub documentations for more details:
+#   - https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/configuration-options-for-dependency-updates
+#   - https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/about-dependabot-version-updates
+#   - https://docs.github.com/en/free-pro-team@latest/github/managing-security-vulnerabilities/about-dependabot-security-updates
+#   - https://github.com/features#features-security
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "svengreb"
+    labels:
+      - "scope-quality"
+      - "scope-security"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "svengreb"
+    labels:
+      - "scope-quality"
+      - "scope-security"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "svengreb"
+    labels:
+      - "scope-quality"
+      - "scope-security"
