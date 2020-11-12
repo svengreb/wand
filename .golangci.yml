@@ -32,6 +32,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
+    - errorlint
     - exhaustive
     - gochecknoinits
     - goconst
@@ -59,12 +60,14 @@ linters:
     - staticcheck
     - structcheck
     - stylecheck
+    - tparallel
     - typecheck
     - unconvert
     - unparam
     - unused
     - varcheck
     - whitespace
+    - wrapcheck
   # Run all linters, not only fast ones.
   fast: false
 
@@ -124,7 +127,7 @@ linters-settings:
     settings:
       mnd:
         # The list of enabled checks.
-        # See ttps://github.com/tommy-muehle/go-mnd/#checks for more details.
+        # See https://github.com/tommy-muehle/go-mnd/#checks for more details.
         checks: argument,assign,case,condition,operation,return
 
   govet:
@@ -136,11 +139,13 @@ linters-settings:
   misspell:
     locale: US
     ignore-words:
+      - inkpen
       - magefile
+      - nib
 
 # Options for analysis runs.
 run:
   deadline: 15m
 
 service:
-  golangci-lint-version: 1.31.x
+  golangci-lint-version: 1.32.x
