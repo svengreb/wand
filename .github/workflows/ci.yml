@@ -51,7 +51,7 @@ jobs:
         # See https://github.com/golangci/golangci-lint-action for more details.
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.31
+          version: v1.32
   test:
     strategy:
       matrix:
