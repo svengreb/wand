@@ -4,6 +4,7 @@
 package project
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -43,25 +44,22 @@ func New(opts ...Option) (*Metadata, error) {
 		}
 	}
 
-	if k := opt.VCSKind; k != vcs.KindNone {
-		var versionErr error
+	var versionErr error
+	switch k := opt.VCSKind; k {
+	case vcs.KindGit:
+		opt.Repository = vcsGit.New(
+			vcsGit.WithDefaultVersion(opt.DefaultVersion),
+			vcsGit.WithPath(opt.RootDirPathAbs),
+		)
+		versionErr = opt.Repository.DeriveVersion()
+	case vcs.KindNone:
+	}
 
-		switch k {
-		case vcs.KindGit:
-			opt.Repository = vcsGit.New(
-				vcsGit.WithDefaultVersion(opt.DefaultVersion),
-				vcsGit.WithPath(opt.RootDirPathAbs),
-			)
-			versionErr = opt.Repository.DeriveVersion()
+	if versionErr != nil {
+		return nil, &ErrProject{
+			Err:  errors.New(versionErr.Error()),
+			Kind: ErrDeriveVCSInformation,
 		}
-
-		if versionErr != nil {
-			return nil, &ErrProject{
-				Err:  fmt.Errorf("%v", versionErr),
-				Kind: ErrDeriveVCSInformation,
-			}
-		}
-
 	}
 
 	return &Metadata{opts: opt}, nil
