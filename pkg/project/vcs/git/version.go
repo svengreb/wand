@@ -15,6 +15,12 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/storer"
 )
 
+const (
+	// maxSuitableTagCandidates is the maximum search amount of suitable tag candidates in all commits of the current
+	// branch. The value is the same like the default used by Git.
+	maxSuitableTagCandidates = 10
+)
+
 // Version stores version information and metadata derived from a Git repository.
 type Version struct {
 	// Version is the semantic version.
@@ -49,17 +55,20 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 
 	repo, repoOpenErr := git.PlainOpen(repositoryPath)
 	if repoOpenErr != nil {
-		return nil, repoOpenErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to open repository at path %q: %v", repositoryPath, repoOpenErr)
 	}
 
 	// Find the latest commit reference of the current branch.
 	branchRefs, repoBranchErr := repo.Branches()
 	if repoBranchErr != nil {
-		return nil, repoBranchErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to find latest commit reference of the current branch: %v", repoBranchErr)
 	}
 	headRef, repoHeadErr := repo.Head()
 	if repoHeadErr != nil {
-		return nil, repoHeadErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to get the reference where HEAD is pointing to: %v", repoHeadErr)
 	}
 	var currentBranchRef plumbing.Reference
 	branchRefIterErr := branchRefs.ForEach(func(branchRef *plumbing.Reference) error {
@@ -70,7 +79,8 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 		return nil
 	})
 	if branchRefIterErr != nil {
-		return nil, branchRefIterErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to iterate over references: %v", branchRefIterErr)
 	}
 
 	// Find all commits in the repository starting from HEAD of the current branch.
@@ -79,13 +89,15 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 		Order: git.LogOrderCommitterTime,
 	})
 	if commitIterErr != nil {
-		return nil, commitIterErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to get the commit history from the current branch: %v", commitIterErr)
 	}
 
 	// Query all tags and store them in a temporary map.
 	tagIterator, repoTagsErr := repo.Tags()
 	if repoTagsErr != nil {
-		return nil, repoTagsErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to get all tag references: %v", repoTagsErr)
 	}
 	tags := make(map[plumbing.Hash]*plumbing.Reference)
 	tagIterErr := tagIterator.ForEach(func(tag *plumbing.Reference) error {
@@ -101,7 +113,8 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 	})
 	tagIterator.Close()
 	if tagIterErr != nil {
-		return nil, tagIterErr
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
+		return nil, fmt.Errorf("failed to iterate over tags: %v", tagIterErr)
 	}
 
 	type describeCandidate struct {
@@ -130,18 +143,20 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 			return nil
 		})
 		if tagCommitIterErr != nil {
-			return nil, tagCommitIterErr
+			//nolint:errorlint // This is by design to prevent errors from external packages become part of the public
+			// API.
+			return nil, fmt.Errorf("failed to iterate over commits: %v", tagCommitIterErr)
 		}
 
 		if candidate.annotated {
-			if tagCandidatesFound < 10 {
+			if tagCandidatesFound < maxSuitableTagCandidates {
 				candidate.distance = tagCount
 				tagCandidates = append(tagCandidates, candidate)
 			}
 			tagCandidatesFound++
 		}
 
-		if tagCandidatesFound > 10 || len(tags) == 0 {
+		if tagCandidatesFound > maxSuitableTagCandidates || len(tags) == 0 {
 			break
 		}
 	}
@@ -150,6 +165,7 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 	semVersion, semVerErr := semver.NewVersion(defaultVersion)
 	version := &Version{Version: semVersion}
 	if semVerErr != nil {
+		//nolint:errorlint // This is by design to prevent errors from external packages become part of the public API.
 		return nil, fmt.Errorf("failed to parse default version: %v", semVerErr)
 	}
 	// ...the latest Git tag from the current branch if at least one tag has been found.
@@ -157,6 +173,8 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 		semVersion, semVerErr = semver.NewVersion(tagCandidates[0].ref.Name().Short())
 		version = &Version{Version: semVersion}
 		if semVerErr != nil {
+			//nolint:errorlint // This is by design to prevent errors from external packages become part of the public
+			// API.
 			return nil, fmt.Errorf("failed to parse version from Git tag %s: %v",
 				tagCandidates[0].ref.Name().Short(), semVerErr)
 		}
@@ -168,15 +186,19 @@ func deriveVersion(defaultVersion, repositoryPath string) (*Version, error) {
 		buildMetaData := fmt.Sprintf("%s.%s",
 			strconv.Itoa(tagCandidates[0].distance), currentBranchRef.Hash().String()[:8])
 		if version.Metadata() != "" {
-			metadataVersion, err := version.SetMetadata(fmt.Sprintf("%s-%s", version.Metadata(), buildMetaData))
-			if err != nil {
-				return nil, err
+			metadataVersion, mdvErr := version.SetMetadata(fmt.Sprintf("%s-%s", version.Metadata(), buildMetaData))
+			if mdvErr != nil {
+				//nolint:errorlint // This is by design to prevent errors from external packages become part of the
+				// public API.
+				return nil, fmt.Errorf("failed to set version metadata: %v", mdvErr)
 			}
 			version.Version = &metadataVersion
 		} else {
-			metadataVersion, err := version.SetMetadata(buildMetaData)
-			if err != nil {
-				return nil, err
+			metadataVersion, mdvErr := version.SetMetadata(buildMetaData)
+			if mdvErr != nil {
+				//nolint:errorlint // This is by design to prevent errors from external packages become part of the
+				// public API.
+				return nil, fmt.Errorf("failed to set version metadata: %v", mdvErr)
 			}
 			version.Version = &metadataVersion
 		}
