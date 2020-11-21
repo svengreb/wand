@@ -3,6 +3,10 @@
 
 package git
 
+import (
+	glGit "github.com/svengreb/golib/pkg/vcs/git"
+)
+
 // Options stores repository options.
 type Options struct {
 	// defaultVersion is the default repository version.
@@ -12,7 +16,7 @@ type Options struct {
 	path string
 
 	// version is the repository version derived from Git metadata.
-	version *Version
+	version *glGit.Version
 }
 
 // Option is a repository option.
@@ -35,7 +39,7 @@ func WithPath(path string) Option {
 // newOptions creates new repository options.
 func newOptions(opts ...Option) *Options {
 	opt := &Options{
-		version: &Version{},
+		version: &glGit.Version{},
 	}
 	for _, o := range opts {
 		o(opt)

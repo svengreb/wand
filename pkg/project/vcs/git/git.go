@@ -4,6 +4,10 @@
 package git
 
 import (
+	"fmt"
+
+	glGit "github.com/svengreb/golib/pkg/vcs/git"
+
 	"github.com/svengreb/wand/pkg/project/vcs"
 )
 
@@ -20,9 +24,9 @@ type Git struct {
 //   (2) https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
 //   (3) https://git-scm.com/book/en/v2/Git-Internals-Git-References
 func (g *Git) DeriveVersion() error {
-	v, err := deriveVersion(g.opts.defaultVersion, g.opts.path)
+	v, err := glGit.DeriveVersion(g.opts.defaultVersion, g.opts.path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to derive repository version from Git metadata: %w", err)
 	}
 	g.opts.version = v
 
