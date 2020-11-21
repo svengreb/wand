@@ -6,28 +6,23 @@ package project
 import (
 	"errors"
 	"fmt"
+
+	wErr "github.com/svengreb/wand/pkg/error"
 )
 
 const (
 	// ErrDeriveVCSInformation indicates that the derivation of VCS version information failed.
-	ErrDeriveVCSInformation = ErrString("failed to derive VCS version information")
+	ErrDeriveVCSInformation = wErr.ErrString("failed to derive VCS version information")
 
 	// ErrDetectProjectRootDirPath indicates that the detection of a project root directory path failed.
-	ErrDetectProjectRootDirPath = ErrString("failed to detect project root directory path")
+	ErrDetectProjectRootDirPath = wErr.ErrString("failed to detect project root directory path")
 
 	// ErrDetermineGoModuleInformation indicates that a determination of Go module information failed.
-	ErrDetermineGoModuleInformation = ErrString("failed to determine Go module information")
+	ErrDetermineGoModuleInformation = wErr.ErrString("failed to determine Go module information")
 
-	// ErrPathNotRelative indicates that a path is not releative.
-	ErrPathNotRelative = ErrString("path is not relative")
+	// ErrPathNotRelative indicates that a path is not relative.
+	ErrPathNotRelative = wErr.ErrString("path is not relative")
 )
-
-// ErrString is a string type for implementing constant errors.
-type ErrString string
-
-func (e ErrString) Error() string {
-	return string(e)
-}
 
 // ErrProject represents a project error.
 type ErrProject struct {

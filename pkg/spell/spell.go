@@ -1,6 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
+// Package spell provides incantations for different kinds.
 package spell
 
 import "github.com/svengreb/wand/pkg/project"
