@@ -11,6 +11,12 @@ import (
 )
 
 const (
+	// ErrCasterCasting indicates that a caster failed to cast.
+	ErrCasterCasting = wErr.ErrString("failed to cast")
+
+	// ErrCasterInvalidOpts indicates invalid caster options.
+	ErrCasterInvalidOpts = wErr.ErrString("invalid caster options")
+
 	// ErrCasterValidation indicates that a caster validation failed.
 	ErrCasterValidation = wErr.ErrString("caster validation failed")
 

@@ -1,6 +1,8 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
+// Package toolchain provides a caster to interact with the Go toolchain.
+// See https://golang.org/cmd/go for more details.
 package toolchain
 
 import (
@@ -61,7 +63,7 @@ func (c *Caster) Handles() spell.Kind {
 // it is also not available in the executable search paths of the current environment.
 func (c *Caster) Validate() error {
 	// Check if the Go executable exists,...
-	execExits, fsErr := glFS.FileExists(c.opts.Exec)
+	execExits, fsErr := glFS.RegularFileExists(c.opts.Exec)
 	if fsErr != nil {
 		return &cast.ErrCast{
 			Err:  fmt.Errorf("caster %q: %w", CasterName, fsErr),

@@ -22,6 +22,9 @@ const (
 
 	// DefaultEnvVarGOPATH is the default environment variable name for the Go path.
 	DefaultEnvVarGOPATH = "GOPATH"
+
+	// DefaultGOBINSubDirName is the default name of the sub-directory for the Go executables within DefaultEnvVarGOBIN.
+	DefaultGOBINSubDirName = "bin"
 )
 
 // DefaultExec is the default path to the Go executable.
@@ -29,7 +32,10 @@ var DefaultExec = mg.GoCmd()
 
 // Options stores Go toolchain command caster options.
 type Options struct {
-	Env  map[string]string
+	// Env are caster specific environment variables.
+	Env map[string]string
+
+	// Exec is the name or path of the Go toolchain command executable.
 	Exec string
 }
 
@@ -43,7 +49,8 @@ func WithEnv(env map[string]string) Option {
 	}
 }
 
-// WithExec sets the path to the Go executable.
+// WithExec sets the name or path to the Go executable.
+// Defaults to DefaultExec.
 func WithExec(nameOrPath string) Option {
 	return func(o *Options) {
 		o.Exec = nameOrPath
