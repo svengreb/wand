@@ -30,7 +30,7 @@ type Incantation interface {
 	// Kind returns the Kind of a spell.
 	Kind() Kind
 
-	// Options return the options of a spell.
+	// Options returns the options of a spell.
 	Options() interface{}
 }
 
