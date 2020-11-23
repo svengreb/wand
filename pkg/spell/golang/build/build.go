@@ -20,7 +20,7 @@ type Spell struct {
 	opts *Options
 }
 
-// Formula returns the spell incantation formula for the "build" command of the Go toolchain.
+// Formula returns the spell incantation formula.
 // Note that configured flags are applied after the "GOFLAGS" environment variable and could overwrite already defined
 // flags.
 // See `go help environment`, `go help env` and the `go` command documentations for more details:
