@@ -1,7 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-// Package goimports provides a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module.
+// Package goimports provides a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module command.
 // See https://pkg.go.dev/golang.org/x/tools/cmd/goimports for more details about "goimports".
 // The source code of "goimports" is available at https://github.com/golang/tools/tree/master/cmd/goimports.
 package goimports
@@ -16,15 +16,13 @@ import (
 	"github.com/svengreb/wand/pkg/spell"
 )
 
-// Spell is a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module.
+// Spell is a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module command.
 type Spell struct {
 	ac   app.Config
 	opts *Options
 }
 
 // Formula returns the spell incantation formula.
-// See `goimports help environment`, `go help env` and the `go` command documentations for more details:
-//   - https://golang.org/cmd/go/#hdr-Environment_variables
 func (s *Spell) Formula() []string {
 	var args []string
 

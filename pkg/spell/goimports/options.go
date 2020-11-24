@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	// DefaultGoModulePath is the default "goimports" module import path.
+	// DefaultGoModulePath is the default "goimports" module command import path.
 	DefaultGoModulePath = "golang.org/x/tools/cmd/goimports"
 
 	// DefaultGoModuleVersion is the default "goimports" module version.
 	DefaultGoModuleVersion = "latest"
 )
 
-// Options are spell incantation options for the "golang.org/x/tools/cmd/goimports" Go module.
+// Options are spell incantation options for the "golang.org/x/tools/cmd/goimports" Go module command.
 type Options struct {
 	// env are spell incantation specific environment variables.
 	env map[string]string
@@ -52,7 +52,7 @@ type Options struct {
 	verbose bool
 }
 
-// Option is a spell incantation option for the "golang.org/x/tools/cmd/goimports" Go module.
+// Option is a spell incantation option for the "golang.org/x/tools/cmd/goimports" Go module command.
 type Option func(*Options)
 
 // WithEnv sets the spell incantation specific environment.
@@ -62,7 +62,7 @@ func WithEnv(env map[string]string) Option {
 	}
 }
 
-// WithExtraArgs sets additional arguments to pass to the "goimports" command.
+// WithExtraArgs sets additional arguments to pass to the "goimports" module command.
 func WithExtraArgs(extraArgs ...string) Option {
 	return func(o *Options) {
 		o.extraArgs = append(o.extraArgs, extraArgs...)
@@ -132,7 +132,7 @@ func WithVerboseOutput(verbose bool) Option {
 	}
 }
 
-// newOptions creates new "golang.org/x/tools/cmd/goimports" Go module spell incantation options.
+// newOptions creates new spell incantation options for the "golang.org/x/tools/cmd/goimports" Go module command.
 func newOptions(opts ...Option) (*Options, error) {
 	version, versionErr := semver.NewVersion(DefaultGoModuleVersion)
 	if versionErr != nil {
@@ -148,9 +148,6 @@ func newOptions(opts ...Option) (*Options, error) {
 			Version:  version,
 			IsLatest: true,
 		},
-		listNonCompliantFiles: true,
-		persistChanges:        true,
-		reportAllErrors:       true,
 	}
 	for _, o := range opts {
 		o(opt)

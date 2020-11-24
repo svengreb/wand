@@ -1,8 +1,10 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-// Package gobin provides a caster to install and run Go module executables using the "github.com/myitcv/gobin" module.
-// See https://github.com/myitcv/gobin for more details about "gobin".
+// Package gobin provides a caster to install and run Go module executables using the "github.com/myitcv/gobin" module
+// command.
+// See https://pkg.go.dev/github.com/myitcv/gobin for more details about "gobin".
+// The source code of the "gobin" is available at https://github.com/myitcv/gobin.
 //
 // Go Executable Installation
 //
