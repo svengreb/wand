@@ -1,7 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-// Package build provide a spell incantation for the "build" command of the Go toolchain.
+// Package build provides a spell incantation for the "build" command of the Go toolchain.
 package build
 
 import (

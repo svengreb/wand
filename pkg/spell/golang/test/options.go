@@ -52,42 +52,42 @@ type Options struct {
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	CPUProfileOutputFileName string
 
-	// DisableCache indicates if the tests should be run without test caching that is enabled by Go by default.
+	// DisableCache indicates whether the tests should be run without test caching that is enabled by Go by default.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	DisableCache bool
 
-	// EnableBlockProfile indicates if the tests should be run with a Goroutine blocking profiling.
+	// EnableBlockProfile indicates whether the tests should be run with a Goroutine blocking profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableBlockProfile bool
 
-	// EnableCoverageProfile indicates if the tests should be run with coverage profiling.
+	// EnableCoverageProfile indicates whether the tests should be run with coverage profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableCoverageProfile bool
 
-	// EnableCPUProfile indicates if the tests should be run with CPU profiling.
+	// EnableCPUProfile indicates whether the tests should be run with CPU profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableCPUProfile bool
 
-	// EnableMemProfile indicates if the tests should be run with memory profiling.
+	// EnableMemProfile indicates whether the tests should be run with memory profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableMemProfile bool
 
-	// EnableMutexProfile indicates if the tests should be run with mutex profiling.
+	// EnableMutexProfile indicates whether the tests should be run with mutex profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableMutexProfile bool
 
-	// EnableTraceProfile indicates if the tests should be run with trace profiling.
+	// EnableTraceProfile indicates whether the tests should be run with trace profiling.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableTraceProfile bool
 
-	// EnableVerboseOutput indicates if the test output should be verbose.
+	// EnableVerboseOutput indicates whether the test output should be verbose.
 	// See `go help test` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableVerboseOutput bool
@@ -158,7 +158,7 @@ func WithCPUProfileOutputFileName(cpuProfileOutputFileName string) Option {
 	}
 }
 
-// WithBlockProfile indicates if the tests should be run with a Goroutine blocking profiling.
+// WithBlockProfile indicates whether the tests should be run with a Goroutine blocking profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithBlockProfile(withBlockProfile bool) Option {
@@ -167,7 +167,7 @@ func WithBlockProfile(withBlockProfile bool) Option {
 	}
 }
 
-// WithCoverageProfile indicates if the tests should be run with coverage profiling.
+// WithCoverageProfile indicates whether the tests should be run with coverage profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithCoverageProfile(withCoverageProfile bool) Option {
@@ -176,7 +176,7 @@ func WithCoverageProfile(withCoverageProfile bool) Option {
 	}
 }
 
-// WithCPUProfile indicates if the tests should be run with CPU profiling.
+// WithCPUProfile indicates whether the tests should be run with CPU profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithCPUProfile(withCPUProfile bool) Option {
@@ -202,7 +202,7 @@ func WithGoOptions(goOpts ...spellGo.Option) Option {
 	}
 }
 
-// WithMemProfile indicates if the tests should be run with memory profiling.
+// WithMemProfile indicates whether the tests should be run with memory profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithMemProfile(withMemProfile bool) Option {
@@ -220,7 +220,7 @@ func WithMemoryProfileOutputFileName(memoryProfileOutputFileName string) Option 
 	}
 }
 
-// WithMutexProfile indicates if the tests should be run with mutex profiling.
+// WithMutexProfile indicates whether the tests should be run with mutex profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithMutexProfile(withMutexProfile bool) Option {
@@ -248,7 +248,7 @@ func WithOutputDir(outputDir string) Option {
 	}
 }
 
-// WithoutCache indicates if the tests should be run without test caching that is enabled by Go by default.
+// WithoutCache indicates whether the tests should be run without test caching that is enabled by Go by default.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithoutCache(withoutCache bool) Option {
@@ -266,7 +266,7 @@ func WithPkgs(pkgs ...string) Option {
 	}
 }
 
-// WithTraceProfile indicates if the tests should be run with trace profiling.
+// WithTraceProfile indicates whether the tests should be run with trace profiling.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithTraceProfile(withTraceProfile bool) Option {
@@ -284,7 +284,7 @@ func WithTraceProfileOutputFileName(traceProfileOutputFileName string) Option {
 	}
 }
 
-// WithVerboseOutput indicates if the test output should be verbose.
+// WithVerboseOutput indicates whether the test output should be verbose.
 // See `go help test` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
 func WithVerboseOutput(withVerboseOutput bool) Option {

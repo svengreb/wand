@@ -118,7 +118,7 @@ type Caster struct {
 	opts *Options
 }
 
-// GoModule returns the the partial Go module information for the "github.com/myitcv/gobin" module.
+// GoModule returns partial Go module identifier information for the "github.com/myitcv/gobin" module.
 func (c *Caster) GoModule() project.GoModuleID {
 	return *c.opts.goModule
 }
