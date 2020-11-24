@@ -18,13 +18,13 @@ type Options struct {
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	AsmFlags []string
 
-	// EnableRaceDetector indicates if the race detector should be enabled.
+	// EnableRaceDetector indicates whether the race detector should be enabled.
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	EnableRaceDetector bool
 
-	// EnableTrimPath indicates if all file system paths should be removed from the resulting executable.
+	// EnableTrimPath indicates whether all file system paths should be removed from the resulting executable.
 	// This is done by adding compiler and linker flags to remove the absolute path to the project root directory from
 	// binary artifacts.
 	// See `go help build` and the `go` command documentations for more details:
@@ -40,7 +40,7 @@ type Options struct {
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	Flags []string
 
-	// FlagsPrefixAll indicates if the values of `-asmflags` and `-gcflags` should be prefixed with the `all=`
+	// FlagsPrefixAll indicates whether the values of `-asmflags` and `-gcflags` should be prefixed with the `all=`
 	// pattern in order to apply to all packages.
 	// As of Go 1.10 (https://golang.org/doc/go1.10#build), the value specified to `-asmflags` and `-gcflags` are only
 	// applied to the current package, therefore the `all=` pattern is used to apply the flag to all packages.
@@ -83,7 +83,7 @@ func WithAsmFlags(asmFlags ...string) Option {
 	}
 }
 
-// WithRaceDetector indicates if the race detector should be enabled.
+// WithRaceDetector indicates whether the race detector should be enabled.
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
@@ -93,7 +93,7 @@ func WithRaceDetector(enableRaceDetector bool) Option {
 	}
 }
 
-// WithTrimmedPath indicates if all file system paths should be removed from the resulting executable.
+// WithTrimmedPath indicates whether all file system paths should be removed from the resulting executable.
 // This is done by adding compiler and linker flags to remove the absolute path to the project root directory from
 // binary artifacts.
 // See `go help build` and the `go` command documentations for more details:
@@ -123,7 +123,7 @@ func WithFlags(flags ...string) Option {
 	}
 }
 
-// WithFlagsPrefixAll indicates if the values of `-asmflags` and `-gcflags` should be prefixed with the `all=` pattern
+// WithFlagsPrefixAll indicates whether the values of `-asmflags` and `-gcflags` should be prefixed with the `all=` pattern
 // in order to apply to all packages.
 // As of Go 1.10 (https://golang.org/doc/go1.10#build), the value specified to `-asmflags` and `-gcflags` are only
 // applied to the current package, therefore the `all=` pattern is used to apply the flag to all packages.

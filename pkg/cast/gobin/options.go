@@ -28,7 +28,7 @@ const (
 
 // Options stores "github.com/myitcv/gobin" module caster options.
 type Options struct {
-	// Env are caster specific additional environment variables.
+	// Env are caster specific environment variables.
 	Env map[string]string
 
 	// Exec ist the name or path of the "gobin" module executable.
@@ -61,7 +61,7 @@ func WithModulePath(path string) Option {
 }
 
 // WithModuleVersion sets the "gobin" module version.
-// Uses DefaultGoModuleVersion as default version value.
+// Defaults to DefaultGoModuleVersion.
 func WithModuleVersion(version *semver.Version) Option {
 	return func(o *Options) {
 		if version != nil {

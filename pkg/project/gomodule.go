@@ -18,7 +18,7 @@ const (
 // GoModuleID stores partial information to identify a Go module.
 // See https://golang.org/ref/mod#modules-overview for more details.
 type GoModuleID struct {
-	// IsLatest indicates if the Go module version uses GoModuleVersionLatest as "version query suffix".
+	// IsLatest indicates whether the Go module version uses GoModuleVersionLatest as "version query suffix".
 	IsLatest bool
 
 	// Path is the canonical name for a module, declared with the module directive in the module's go.mod file.
