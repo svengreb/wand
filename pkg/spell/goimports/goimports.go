@@ -1,7 +1,9 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-// Package goimports provides a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module command.
+// Package goimports provides a spell incantation for the "golang.org/x/tools/cmd/goimports" Go module command that
+// allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same
+// style as "https://pkg.go.dev/cmd/gofmt" so it can be used as a replacement.
 // See https://pkg.go.dev/golang.org/x/tools/cmd/goimports for more details about "goimports".
 // The source code of "goimports" is available at https://github.com/golang/tools/tree/master/cmd/goimports.
 package goimports

@@ -237,7 +237,7 @@ func (c *Caster) Validate() error {
 
 // NewCaster creates a new "github.com/myitcv/gobin" module caster.
 func NewCaster(opts ...Option) (*Caster, error) {
-	opt, optErr := newOptions(opts...)
+	opt, optErr := NewOptions(opts...)
 	if optErr != nil {
 		return nil, &cast.ErrCast{
 			Err:  optErr,

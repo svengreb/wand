@@ -293,8 +293,8 @@ func WithVerboseOutput(withVerboseOutput bool) Option {
 	}
 }
 
-// newOptions creates new spell incantation options for the Go toolchain "test" command.
-func newOptions(opts ...Option) *Options {
+// NewOptions creates new spell incantation options for the Go toolchain "test" command.
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		BlockProfileOutputFileName:    DefaultBlockProfileOutputFileName,
 		CoverageProfileOutputFileName: DefaultCoverageOutputFileName,
