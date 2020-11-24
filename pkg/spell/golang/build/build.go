@@ -62,7 +62,7 @@ func (s *Spell) Env() map[string]string {
 // New creates a new spell incantation for the "build" command of the Go toolchain.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
 func New(wand wand.Wand, ac app.Config, opts ...Option) *Spell {
-	opt := newOptions(opts...)
+	opt := NewOptions(opts...)
 
 	if opt.BinaryArtifactName == "" {
 		opt.BinaryArtifactName = ac.Name

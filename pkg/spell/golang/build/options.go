@@ -74,8 +74,8 @@ func WithOutputDir(dir string) Option {
 	}
 }
 
-// newOptions creates new spell incantation options for the Go toolchain "build" command.
-func newOptions(opts ...Option) *Options {
+// NewOptions creates new spell incantation options for the Go toolchain "build" command.
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{}
 	for _, o := range opts {
 		o(opt)

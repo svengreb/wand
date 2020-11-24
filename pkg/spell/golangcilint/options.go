@@ -84,9 +84,9 @@ func WithVerboseOutput(verbose bool) Option {
 	}
 }
 
-// newOptions creates new spell incantation options for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go
+// NewOptions creates new spell incantation options for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go
 // module command.
-func newOptions(opts ...Option) (*Options, error) {
+func NewOptions(opts ...Option) (*Options, error) {
 	version, versionErr := semver.NewVersion(DefaultGoModuleVersion)
 	if versionErr != nil {
 		return nil, &cast.ErrCast{
@@ -94,6 +94,7 @@ func newOptions(opts ...Option) (*Options, error) {
 			Kind: cast.ErrCasterInvalidOpts,
 		}
 	}
+
 	opt := &Options{
 		env: make(map[string]string),
 		goModule: &project.GoModuleID{

@@ -87,5 +87,5 @@ func (c *Caster) Validate() error {
 
 // NewCaster creates a new Go toolchain command caster.
 func NewCaster(opts ...Option) *Caster {
-	return &Caster{opts: newOptions(opts...)}
+	return &Caster{opts: NewOptions(opts...)}
 }

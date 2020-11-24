@@ -70,8 +70,8 @@ func WithModuleVersion(version *semver.Version) Option {
 	}
 }
 
-// newOptions creates new "github.com/myitcv/gobin" module caster options.
-func newOptions(opts ...Option) (*Options, error) {
+// NewOptions creates new "github.com/myitcv/gobin" module caster options.
+func NewOptions(opts ...Option) (*Options, error) {
 	version, versionErr := semver.NewVersion(DefaultGoModuleVersion)
 	if versionErr != nil {
 		return nil, &cast.ErrCast{
@@ -79,6 +79,7 @@ func newOptions(opts ...Option) (*Options, error) {
 			Kind: cast.ErrCasterInvalidOpts,
 		}
 	}
+
 	opt := &Options{
 		Env:  make(map[string]string),
 		Exec: DefaultExec,

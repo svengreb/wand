@@ -57,8 +57,8 @@ func WithExec(nameOrPath string) Option {
 	}
 }
 
-// newOptions creates new Go toolchain command caster options.
-func newOptions(opts ...Option) *Options {
+// NewOptions creates new Go toolchain command caster options.
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		Env:  make(map[string]string),
 		Exec: DefaultExec,
