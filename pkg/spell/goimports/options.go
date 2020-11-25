@@ -132,8 +132,8 @@ func WithVerboseOutput(verbose bool) Option {
 	}
 }
 
-// newOptions creates new spell incantation options for the "golang.org/x/tools/cmd/goimports" Go module command.
-func newOptions(opts ...Option) (*Options, error) {
+// NewOptions creates new spell incantation options for the "golang.org/x/tools/cmd/goimports" Go module command.
+func NewOptions(opts ...Option) (*Options, error) {
 	version, versionErr := semver.NewVersion(DefaultGoModuleVersion)
 	if versionErr != nil {
 		return nil, &cast.ErrCast{
