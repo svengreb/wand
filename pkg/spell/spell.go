@@ -16,7 +16,7 @@ import "github.com/svengreb/wand/pkg/project"
 // The abstract view and naming is inspired by the fantasy novel "Harry Potter" in which it is almost only possible to
 // cast a magic spell through a incantation.
 //
-// See
+// References
 //
 //   (1) https://en.wikipedia.org/wiki/Incantation
 //   (2) https://en.wikipedia.org/wiki/Magic_in_Harry_Potter#Spellcasting
@@ -51,7 +51,7 @@ type Binary interface {
 // Seen from the abstract "Harry Potter" view this is equal to a "non-verbal" spell that is a special technique that can
 // be used for spells that have been specially designed to be used non-verbally.
 //
-// See
+// References
 //
 //   (1) https://en.wikipedia.org/wiki/Magic_in_Harry_Potter#Spellcasting
 //   (2) https://www.reddit.com/r/harrypotter/comments/4z9rwl/what_is_the_difference_between_a_spell_charm

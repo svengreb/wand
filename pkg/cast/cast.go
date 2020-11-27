@@ -13,7 +13,7 @@ import (
 // The abstract view and naming is inspired by the fantasy novel "Harry Potter" in which a caster can cast a magic spell
 // through a incantation.
 //
-// See
+// References
 //
 //   (1) https://en.wikipedia.org/wiki/Magic_in_Harry_Potter#Spellcasting
 //   (2) https://en.wikipedia.org/wiki/Incantation

@@ -10,15 +10,19 @@ import (
 )
 
 // Options are shared Go toolchain commands options.
-// See:
+//
+// References
+//
 // - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 type Options struct {
 	// AsmFlags are the arguments for the `-asmflags` flag that are passed to each `go tool asm` invocation.
+	//
 	// See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	AsmFlags []string
 
 	// EnableRaceDetector indicates whether the race detector should be enabled.
+	//
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
@@ -27,6 +31,7 @@ type Options struct {
 	// EnableTrimPath indicates whether all file system paths should be removed from the resulting executable.
 	// This is done by adding compiler and linker flags to remove the absolute path to the project root directory from
 	// binary artifacts.
+	//
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	//   - https://golang.org/doc/go1.13#go-command
@@ -36,6 +41,7 @@ type Options struct {
 	Env map[string]string
 
 	// Flags are additional flags passed to the `go` command.
+	//
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	Flags []string
@@ -44,18 +50,21 @@ type Options struct {
 	// pattern in order to apply to all packages.
 	// As of Go 1.10 (https://golang.org/doc/go1.10#build), the value specified to `-asmflags` and `-gcflags` are only
 	// applied to the current package, therefore the `all=` pattern is used to apply the flag to all packages.
+	//
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	//   - https://golang.org/doc/go1.10#build
 	FlagsPrefixAll bool
 
 	// GcFlags are the arguments for the `-gcflags` flag that are passed to each `go tool compile` invocation.
+	//
 	// See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Build_modes
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	GcFlags []string
 
 	// LdFlags are the arguments for the `-ldflags` flag that are passed to each `go tool link` invocation.
+	//
 	// See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Build_modes
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
@@ -65,6 +74,7 @@ type Options struct {
 	mixins []spell.Mixin
 
 	// Tags are the Go tags.
+	//
 	// See `go help build` and the `go` command documentations for more details:
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	Tags []string
@@ -74,6 +84,7 @@ type Options struct {
 type Option func(*Options)
 
 // WithAsmFlags sets flags to pass on each `go tool asm` invocation.
+//
 // See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Build_modes
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
@@ -84,6 +95,7 @@ func WithAsmFlags(asmFlags ...string) Option {
 }
 
 // WithRaceDetector indicates whether the race detector should be enabled.
+//
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 //   - https://golang.org/cmd/go/#hdr-Testing_flags
@@ -96,6 +108,7 @@ func WithRaceDetector(enableRaceDetector bool) Option {
 // WithTrimmedPath indicates whether all file system paths should be removed from the resulting executable.
 // This is done by adding compiler and linker flags to remove the absolute path to the project root directory from
 // binary artifacts.
+//
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 //   - https://golang.org/doc/go1.13#go-command
@@ -115,6 +128,7 @@ func WithEnv(env map[string]string) Option {
 }
 
 // WithFlags sets additional Go toolchain command flags.
+//
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 func WithFlags(flags ...string) Option {
@@ -127,6 +141,7 @@ func WithFlags(flags ...string) Option {
 // in order to apply to all packages.
 // As of Go 1.10 (https://golang.org/doc/go1.10#build), the value specified to `-asmflags` and `-gcflags` are only
 // applied to the current package, therefore the `all=` pattern is used to apply the flag to all packages.
+//
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 //   - https://golang.org/doc/go1.10#build
@@ -137,6 +152,7 @@ func WithFlagsPrefixAll(flagsPrefixAll bool) Option {
 }
 
 // WithGcFlags sets flags to pass on each `go tool compile` invocation.
+//
 // See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Build_modes
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
@@ -147,6 +163,7 @@ func WithGcFlags(gcFlags ...string) Option {
 }
 
 // WithLdFlags sets flags to pass on each `go tool link` invocation.
+//
 // See `go help buildmode`, `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Build_modes
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
@@ -164,6 +181,7 @@ func WithMixins(mixins ...spell.Mixin) Option {
 }
 
 // WithTags sets Go toolchain tags.
+//
 // See `go help build` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 func WithTags(tags ...string) Option {
@@ -172,7 +190,7 @@ func WithTags(tags ...string) Option {
 	}
 }
 
-// NewOptions creates new shared Go toolchain commands options.
+// NewOptions creates new shared Go toolchain command options.
 func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		Env: make(map[string]string),

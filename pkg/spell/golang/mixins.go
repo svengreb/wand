@@ -123,6 +123,7 @@ func (m MixinInjectBuildTimeVariableValues) Apply(so spell.Options) (spell.Optio
 // related problems due to enabled development features or debug information leaks.
 //
 // Run `go tool compile -help`, `go doc cmd/link` for the documentation of supported flags.
+//
 // See the official Go documentations and other resources for more details:
 //   - https://golang.org/cmd/link
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
@@ -133,6 +134,7 @@ func (m MixinInjectBuildTimeVariableValues) Apply(so spell.Options) (spell.Optio
 // Note that this mixin adds the "all" prefix for "-gcflags" parameters to make sure all packages are affected
 // If you disabled the "all" prefix on purpose you need to handle this conflict on your own, e.g. by creating more than
 // one binary artifact each with different build options.
+//
 // See `go help build`, `go tool compile -help` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 //   - https://golang.org/doc/go1.10#build

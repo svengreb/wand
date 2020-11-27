@@ -2,6 +2,7 @@
 // This source code is licensed under the MIT license found in the LICENSE file.
 
 // Package git provides VCS utility functions to interact with Git repositories.
+//
 // See https://git-scm.com for more details about Git.
 package git
 
@@ -14,6 +15,7 @@ import (
 )
 
 // Git represents a Git repository.
+//
 // See https://git-scm.com for more details.
 type Git struct {
 	opts *Options
@@ -21,7 +23,8 @@ type Git struct {
 
 // DeriveVersion derives the repository version based on Git metadata.
 //
-// See:
+// References
+//
 //   (1) https://git-scm.com/docs/git-tag
 //   (2) https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
 //   (3) https://git-scm.com/book/en/v2/Git-Internals-Git-References

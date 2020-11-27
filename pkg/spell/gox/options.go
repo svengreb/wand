@@ -29,6 +29,7 @@ var (
 	}
 
 	// DefaultCrossCompileTargetPlatforms are the names of default cross-compile platform targets.
+	//
 	// See `go tool dist list` and https://github.com/golang/go/blob/master/src/cmd/dist/build.go
 	// for more details and a list of supported platforms.
 	DefaultCrossCompileTargetPlatforms = []string{

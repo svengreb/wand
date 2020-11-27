@@ -90,7 +90,8 @@ func (s *Spell) Clean() ([]string, error) {
 	return cleaned, nil
 }
 
-// New creates a new spell incantation to remove the configured filesystem paths.
+// New creates a new spell incantation to remove the configured filesystem paths, e.g. output data like artifacts and
+// reports from previous development, test, production and distribution builds.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
 func New(proj project.Metadata, ac app.Config, opts ...Option) (*Spell, error) {
 	opt, optErr := NewOptions(opts...)

@@ -3,6 +3,7 @@
 
 // Package gox provides a spell incantation for the "github.com/mitchellh/gox" Go module command, a dead simple,
 // no frills Go cross compile tool that behaves a lot like the standard Go toolchain "build" command.
+//
 // See https://pkg.go.dev/github.com/mitchellh/gox for more details about "gox".
 // The source code of the "gox" is available at https://github.com/mitchellh/gox.
 package gox
@@ -31,6 +32,7 @@ func (s *Spell) Formula() []string {
 
 	// Workaround to allow the usage of the "-trimpath" flag that has been introduced in Go 1.13.0.
 	// The currently latest version of "gox" does not support the flag yet.
+	//
 	// See https://github.com/mitchellh/gox/pull/138 for more details.
 	for idx, arg := range args {
 		if arg == "-trimpath" {
@@ -85,7 +87,8 @@ func (s *Spell) Env() map[string]string {
 	return s.opts.env
 }
 
-// New creates a new spell incantation for the "build" command of the Go toolchain.
+// New creates a new spell incantation for the "github.com/mitchellh/gox" Go module command, a dead simple, no frills
+// Go cross compile tool that behaves a lot like the standard Go toolchain "build" command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
 func New(wand wand.Wand, ac app.Config, opts ...Option) (*Spell, error) {
 	opt, optErr := NewOptions(opts...)

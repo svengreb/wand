@@ -3,10 +3,15 @@
 
 package app
 
+import (
+	"fmt"
+)
+
 // Store is a storage that provides methods to record application configurations.
 type Store interface {
 	// Add adds a application configuration.
 	Add(*Config)
+
 	// Get returns the application configuration for the given name or nil along with an error when not stored.
 	Get(string) (*Config, error)
 }
@@ -16,18 +21,26 @@ type appStore struct {
 	data map[string]*Config
 }
 
-// Add adds a application configuration.
+// Add adds an application configuration.
 func (s *appStore) Add(ac *Config) {
 	s.data[ac.Name] = ac
 }
 
-// Get returns the application configuration for the given name or nil along with an error when not stored.
+// Get returns an application configuration.
+// It returns an error of type *app.ErrApp when there is no such configuration in the store along with an empty
+// application configuration.
 func (s *appStore) Get(appName string) (*Config, error) {
 	ac, ok := s.data[appName]
 	if !ok {
-		return nil, &ErrConfigNotFound{Name: appName}
+		return nil, &ErrApp{
+			Err:  fmt.Errorf("application name %q", appName),
+			Kind: ErrNoSuchConfig,
+		}
 	}
-	return ac, &ErrConfigNotFound{Name: appName}
+	return ac, &ErrApp{
+		Err:  fmt.Errorf("application name %q", appName),
+		Kind: ErrNoSuchConfig,
+	}
 }
 
 // NewStore creates a new store for application configurations.
