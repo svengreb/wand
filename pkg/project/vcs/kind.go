@@ -24,6 +24,7 @@ const (
 	KindNone Kind = iota
 
 	// KindGit is the Kind for Git repositories.
+	//
 	// See https://git-scm.com for more details.
 	KindGit
 )

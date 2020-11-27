@@ -4,8 +4,9 @@
 // Package golangcilint provides a spell incantation for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go
 // module command, a fast, parallel runner for dozens of Go linters Go that uses caching, supports YAML configurations
 // and has integrations with all major IDEs.
+//
 // See https://pkg.go.dev/github.com/golangci/golangci-lint for more details about "golangci-lint".
-// The source code of the "golangci-lint" is available at https://github.com/golangci/golangci-lint.
+// The source code of "golangci-lint" is available at https://github.com/golangci/golangci-lint.
 package golangcilint
 
 import (
@@ -47,7 +48,7 @@ func (s *Spell) Env() map[string]string {
 	return s.opts.env
 }
 
-// New creates a new spell incantation for the "build" command of the Go toolchain.
+// New creates a new spell incantation for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
 func New(wand wand.Wand, ac app.Config, opts ...Option) (*Spell, error) {
 	opt, optErr := NewOptions(opts...)

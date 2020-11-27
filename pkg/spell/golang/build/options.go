@@ -20,11 +20,13 @@ type Options struct {
 	BinaryArtifactName string
 
 	// CrossCompileTargetPlatforms are the names of cross-compile platform targets.
+	//
 	// See `go tool dist list` and the `go` command documentations for more details:
 	// - https://github.com/golang/go/blob/master/src/cmd/dist/build.go
 	CrossCompileTargetPlatforms []string
 
 	// Flags are additional flags to pass to the Go `build` command along with the base Go flags.
+	//
 	// See `go help build` and the Go command documentation for more details:
 	// - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	Flags []string

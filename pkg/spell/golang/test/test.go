@@ -24,6 +24,7 @@ type Spell struct {
 // Note that configured flags are applied after the "GOFLAGS" environment variable and could overwrite already defined
 // flags. In addition, the output directory for test artifacts like profiles and reports must exist or must be be
 // created before, otherwise the "test" Go toolchain command will fail to run.
+//
 // See `go help environment`, `go help env` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Environment_variables
 func (s *Spell) Formula() []string {
@@ -113,7 +114,7 @@ func (s *Spell) Env() map[string]string {
 	return s.opts.Env
 }
 
-// New creates a new spell incantation for the "build" command of the Go toolchain.
+// New creates a new spell incantation for the "test" command of the Go toolchain.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
 func New(wand wand.Wand, ac app.Config, opts ...Option) *Spell {
 	opt := NewOptions(opts...)

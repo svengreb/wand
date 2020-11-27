@@ -11,11 +11,13 @@ import (
 
 const (
 	// GoModuleVersionLatest is the "version query suffix" for the latest version of a Go module.
+	//
 	// See https://golang.org/ref/mod#version-queries for more details.
 	GoModuleVersionLatest = "latest"
 )
 
 // GoModuleID stores partial information to identify a Go module.
+//
 // See https://golang.org/ref/mod#modules-overview for more details.
 type GoModuleID struct {
 	// IsLatest indicates whether the Go module version uses GoModuleVersionLatest as "version query suffix".
@@ -23,7 +25,8 @@ type GoModuleID struct {
 
 	// Path is the canonical name for a module, declared with the module directive in the module's go.mod file.
 	//
-	// See:
+	// References
+	//
 	//   (1) https://golang.org/ref/mod#module-path
 	//   (2) https://golang.org/ref/mod#go-mod-file-module
 	//   (3) https://golang.org/ref/mod#glos-go-mod-file
@@ -33,7 +36,8 @@ type GoModuleID struct {
 	// version.
 	// Note that a nil value is resolved using GoModuleVersionLatest s "version query suffix".
 	//
-	// See:
+	// References
+	//
 	//   (1) https://golang.org/ref/mod#versions
 	//   (2) https://golang.org/ref/mod#version-queries
 	//   (3) https://semver.org/spec/v2.0.0.html
@@ -42,7 +46,7 @@ type GoModuleID struct {
 	Version *semver.Version
 }
 
-func (gm *GoModuleID) String() string {
+func (gm GoModuleID) String() string {
 	if gm.Version != nil && !gm.IsLatest {
 		return fmt.Sprintf("%s@%s", gm.Path, gm.Version.Original())
 	}

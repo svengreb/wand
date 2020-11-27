@@ -2,6 +2,7 @@
 // This source code is licensed under the MIT license found in the LICENSE file.
 
 // Package toolchain provides a caster to interact with the Go toolchain.
+//
 // See https://golang.org/cmd/go for more details.
 package toolchain
 

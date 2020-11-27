@@ -3,6 +3,7 @@
 
 // Package gobin provides a caster to install and run Go module executables using the "github.com/myitcv/gobin" module
 // command.
+//
 // See https://pkg.go.dev/github.com/myitcv/gobin for more details about "gobin".
 // The source code of the "gobin" is available at https://github.com/myitcv/gobin.
 //
@@ -160,6 +161,7 @@ func (c *Caster) Cast(si spell.Incantation) error {
 // Install installs the executable of the "github.com/myitcv/gobin" module.
 // It does not "pollute" the "go.mod" file of the project the installation outside of the project root directory but
 // using a the systems temporary directory instead.
+//
 // See the package documentation for details: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast/gobin
 func (c *Caster) Install(goCaster *castGoToolchain.Caster) error {
 	goToolchainExec := goCaster.GetExec()

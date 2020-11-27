@@ -23,6 +23,7 @@ type Spell struct {
 // Formula returns the spell incantation formula.
 // Note that configured flags are applied after the "GOFLAGS" environment variable and could overwrite already defined
 // flags.
+//
 // See `go help environment`, `go help env` and the `go` command documentations for more details:
 //   - https://golang.org/cmd/go/#hdr-Environment_variables
 func (s *Spell) Formula() []string {
