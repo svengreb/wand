@@ -6,7 +6,7 @@ package spell
 
 import "github.com/svengreb/wand/pkg/project"
 
-// Incantation is the abstract representation of parameters for a command or action.
+// Incantation is the abstract representation of flags and parameters for a command or action.
 // It is mainly handled by a cast.Caster that provides the corresponding information about the command like the path
 // to the executable.
 //

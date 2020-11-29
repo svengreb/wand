@@ -29,7 +29,7 @@ import (
 	spellGox "github.com/svengreb/wand/pkg/spell/gox"
 )
 
-// Elder is a wand.Wand reference implementation that provides common Mage tasks and store configurations and metadata
+// Elder is a wand.Wand reference implementation that provides common Mage tasks and stores configurations and metadata
 // for applications of a project.
 type Elder struct {
 	nib.Nib
