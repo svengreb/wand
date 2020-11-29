@@ -21,14 +21,15 @@
 //
 // History and Future
 //
-// The local installation of executables built from Go modules/packages has always been a somewhat controversial point
-// which unfortunately, partly for historical reasons, does not offer an optimal and user-friendly solution up to now.
+// The local installation of executables built from Go modules/"main" packages has always been a somewhat controversial
+// point  which unfortunately, partly for historical reasons, does not offer an optimal and user-friendly solution up to
+// now.
 // The "go" command (8) is a fantastic toolchain that provides many great features one would expect to be provided
 // out-of-the-box from a modern and well designed programming language without the requirement to use a third-party
 // solution: from compiling code, running unit/integration/benchmark tests, quality and error analysis, debugging
 // utilities and many more.
-// Unfortunately the way the "go install" command (9) of Go versions less or equal to 1.15 handles the installation of
-// an Go module/package executable is still not optimal.
+// Unfortunately the way the "go install" command (2) of Go versions less or equal to 1.15 handles the installation is
+// still not optimal.
 //
 // The general problem of tool dependencies is a long-time known issue/weak point of the current Go toolchain and is a
 // highly rated change request from the Go community with discussions like https://github.com/golang/go/issues/30515,
@@ -62,30 +63,30 @@
 // many projects. There are also members of the core Go team that have contributed to the project and the chance is high
 // that the changes for Go 1.16 were influenced or partially ported from it.
 // It is currently the best workaround to...
-//   1. prevent the Go toolchain to pick up the "GOMOD" environment variable (15) (see "go env GOMOD" (15)) that is
-//      initialized automatically with the path to the "go.mod" file in the current working directory.
+//   1. prevent the Go toolchain to pick up the "GOMOD" environment variable (4) (see "go env GOMOD" (4)) that is
+//      initialized automatically with the path to the "go.mod" file (5) in the current working directory.
 //   2. install module/package executables globally without "polluting" the "go.mod" file.
 //   3. install module/package executables globally without overriding already installed executables of different
 //      versions.
 //
-// See gobin's FAQ page (16) in the repository wiki for more details about the project.
+// See gobin's FAQ page (15) in the repository wiki for more details about the project.
 //
 // The Go Module Caster
 //
 // To allow to manage the tool dependency problem, this caster uses "gobin" through to prevent the "pollution" of the
 // project "go.mod" file and allows to...
-//   1. install "gobin" itself into "GOBIN" (`go env GOBIN` (15)).
-//   2. cast any spell incantation (17) of kind "KindGoModule" (18) by installing the executable globally into the
+//   1. install "gobin" itself into "GOBIN" (`go env GOBIN` (4)).
+//   2. cast any spell incantation (16) of kind "KindGoModule" (17) by installing the executable globally into the
 //      dedicated "gobin" cache.
 //
 // References
 //
 //   (1) https://golang.org/ref/mod
-//   (2) https://golang.org/cmd/go#hdr-Compile_and_install_packages_and_dependencies
-//   (3) https://golang.org/cmd/go/#hdr-Environment_variables
-//   (4) https://golang.org/cmd/go/#hdr-Print_Go_environment_information
+//   (2) https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
+//   (3) https://pkg.go.dev/cmd/go/#hdr-Environment_variables
+//   (4) https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 //   (5) https://golang.org/ref/mod#go-mod-file
-//   (6) https://golang.org/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
+//   (6) https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 //   (7) https://golang.org/ref/mod#mod-commands
 //   (8) https://golang.org/cmd/go
 //   (9) https://github.com/golang/go/milestone/145
@@ -93,11 +94,10 @@
 //   (11) https://github.com/golang/go/wiki
 //   (12) https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
 //   (13) https://github.com/myitcv/gobin
-//   (14) https://golang.org/pkg/os/#UserCacheDir
-//   (15) https://golang.org/cmd/go/#hdr-Print_Go_environment_information
+//   (14) https://pkg.go.dev/os/#UserCacheDir
 //   (16) https://github.com/myitcv/gobin/wiki/FAQ
-//   (17) https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Incantation
-//   (18) https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
+//   (16) https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Incantation
+//   (17) https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
 package gobin
 
 import (
