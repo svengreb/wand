@@ -1,7 +1,7 @@
 {
   "name": "@svengreb/wand",
-  "version": "0.1.0",
-  "description": "\"The wand chooses the mage, remember.\" - A simple and powerful toolkit for Mage",
+  "version": "0.2.0",
+  "description": "A simple and powerful toolkit for Mage",
   "author": {
     "name": "Sven Greb",
     "email": "development@svengreb.de",

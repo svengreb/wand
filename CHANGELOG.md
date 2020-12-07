@@ -6,6 +6,98 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.2.0
+
+![Release Date: 2020-12-07](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-12-07&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.2.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/5) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.2.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/2)
+
+⇅ [Show all commits][gh-compare-tag-v0.1.0_v0.2.0]
+
+This release version comes with a large API breaking change to introduce the new "task" + "runner" based API that uses a “normalized“ naming scheme.
+
+## Features
+
+<details>
+<summary><strong>“Task“ API: Simplified usage and “normalized“ naming scheme</strong> — #49 ⇄ #51 (⊶ f51a4bfa)</summary>
+
+↠ With #14 the “abstract“ _wand_ API was introduced with a naming scheme is inspired by the fantasy novel [“Harry Potter“][wikip-hp] that was used to to define interfaces.
+The main motivation was to create a matching naming to the overall “magic“ topic and the actual target project [Mage][], but in retrospect this is way too abstract and confusing.
+
+The goal of this change was to…
+
+- rewrite the API to **make it way easier to use**.
+- use a **“normal“ naming scheme**.
+- improve all **documentations to be more user-scoped** and provide **guides and examples**.
+
+#### New API Concept
+
+The basic mindset of the API will remain partially the same, but it will be designed around the concept of **tasks** and the ways to **run** them.
+
+##### Command Runner
+
+[🅸 `task.Runner`][go-pkg-if-task#runner] is a new base interface that runs a command with parameters in a specific environment. It can be compared to the previous [🅸 `cast.Caster`][go-pkg-if-cast#caster] interface, but provides a cleaner method set accepting the new [🅸 `task.Task`][go-pkg-if-task#task] interface.
+
+- 🅼 `Handles() task.Kind` — returns the supported [task kind][go-pkg-al-task#kind].
+- 🅼 `Run(task.Task) error` — runs a command.
+- 🅼 `Validate() error` — validates the runner.
+
+The new [🅸 `task.RunnerExec`][go-pkg-if-task#runnerexec] interface is a specialized `task.Runner` and serves as an abstract representation for a command or action, in most cases a (binary) [executable][wikip-exec] of external commands or Go module `main` packages, that provides corresponding information like the path to the executable. It can be compared to the previous [`BinaryCaster`][go-pkg-if-cast#binarycaster] interface, but also comes with a cleaner method set and a more appropriate name.
+
+- 🅼 `FilePath() string` — returns the path to the (binary) command executable.
+
+##### Tasks
+
+[🅸 `task.Task`][go-pkg-if-task#task] is the new interface that is scoped for Mage [“target“][mage-docs-targets] usage. It can be compared to the previous [🅸 `spell.Incantation`][go-pkg-if-spell#incantation] interface, but provides a smaller method set without `Formula() []string`.
+
+- 🅼 `Kind() task.Kind` — returns the [task kind][go-pkg-al-task#kind].
+- 🅼 `Options() task.Options` — returns the [task options][go-pkg-if-task#options].
+
+The new [🅸 `task.Exec`][go-pkg-if-task#exec] interface is a specialized `task.Task` and serves as an abstract task for an executable command. It can be compared to the previous [`Binary`][go-pkg-if-spell#binary] interface, but also comes with the new `BuildParams() []string` method that enables a more flexible usage by exposing the parameters for command runner like `task.RunnerExec` and also allows to compose with other tasks. See the Wikipedia page about [the anatomy of a shell CLI][wikip-cli#anaton] for more details about parameters.
+
+- 🅼 `BuildParams() []string` — builds the parameters for a command runner where parameters can consist of options, flags and arguments.
+- 🅼 `Env() map[string]string` — returns the task specific environment.
+
+The new [🅸 `task.GoModule`][go-pkg-if-task#gomodule] interface is a specialized `task.Exec` for a executable Go module command. It can be compared to the previous [`spell.GoModule`][go-pkg-if-spell#gomodule] interface and the method set has not changed except a renaming of the `GoModuleID() *project.GoModuleID` to the more appropriate name `ID() *project.GoModuleID`. See the official [Go module reference documentation][go-ref-mod] for more details about Go modules.
+
+- 🅼 `ID() *project.GoModuleID` — returns the identifier of a Go module.
+
+#### New API Naming Scheme
+
+The following listing shows the new name concept and how the previous API components can be mapped to the changes:
+
+1. **Runner** — A component that runs a command with parameters in a specific environment, in most cases a (binary) [executable][wikip-exec] of external commands or Go module `main` packages. The current API component that can be compared to runners is [🅸 `cast.Caster`][go-pkg-if-cast#caster] and its specialized interfaces.
+2. **Tasks** — A component that is scoped for Mage [“target“][mage-docs-targets] usage in order to run a action. The current API component that can be compared to tasks is [🅸 `spell.Incantation`][go-pkg-if-spell#incantation] and its specialized interfaces.
+
+#### API Usage
+
+Even though the API has been changed quite heavily, the basic usage almost did not change.
+
+→ **A `task.Task` can only be run through a `task.Runner`!**
+
+Before a `spell.Incantation` was passed to a `cast.Caster` in order to run it, in most cases a (binary) executable of a command that uses the `Formula() []string` method of `spell.Incantation` to pass the result as parameters.
+The new API works the same: A `task.Task` is passed to a `task.Runner` that calls the `BuildParams() []string` method when the runner is specialized for (binary) executable of commands.
+
+#### Improved Documentations
+
+Before the documentation was mainly scoped on technical details, but lacked more user-friendly sections about topics like the way how to implement own API components, how to compose the [“elder“ reference implementation][go-pkg-elder] or usage examples for single or [monorepo][trunkbasedev-monorepos] project layouts.
+
+##### User Guide
+
+Most of the current sections have been rewritten or removed entirely while new sections now provide more user-friendly guides about how to…
+
+- use or compose the [“elder“ reference implementation][go-pkg-elder].
+- build own tasks and runners using the new API.
+- structure repositories independent of the layout, single or “monorepo“.
+
+##### Usage Examples
+
+Some examples have been added, that are linked and documented in the user guides described above, to show how to…
+
+- use or compose the [“elder“ reference implementation][go-pkg-elder].
+- build own tasks and runners using the new API.
+- structure repositories independent of the layout, single or “monorepo“.
+
+</details>
+
 # 0.1.0
 
 ![Release Date: 2020-11-29](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-11-29&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.1.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/4) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.1.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/1)
@@ -81,7 +173,7 @@ To store project and VCS repository information, some of the newly implemented p
   - `Env() map[string]string` — returns additional environment variables.
 - 🅸 `cast.GoCode` — A `interface` type that composes `cast.Caster` for actions that can be casted without a `cast.Caster`:
   - `Cast() (interface{}, error)` — casts itself.
-- 🅸 `cast.GoModule` — A `interface` type that composes `cast.Binary` for commands that are compiled from a [Go module][go-ref-mod]:
+- 🅸 `cast.GoModule` — A `interface` type that composes `cast.Binary` for commands that are compiled from a [Go module][go-ref-mod]
   - `GoModuleID() *project.GoModuleID` — returns the identifier of a Go module.
 - 🆃 `spell.Kind` — A `struct` type that defines the kind of a spell.
 
@@ -412,6 +504,11 @@ otherwise Markdown elements are not parsed and rendered!
 
 <!-- Base Links -->
 
+[go-ref-mod]: https://golang.org/ref/mod
+[mage]: https://magefile.org
+[trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
+[wikip-hp]: https://en.wikipedia.org/wiki/Harry_Potter
+
 <!-- v0.1.0 -->
 
 [gh-compare-tag-init_v0.1.0]: https://github.com/svengreb/wand/compare/dbf11bc0...v0.1.0
@@ -484,11 +581,23 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-stc-project#gomoduleid]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#GoModuleID
 [go-pkg-stc-spell#errgocode]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#ErrGoCode
 [go-pkg-stc-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
-[go-ref-mod]: https://golang.org/ref/mod
 [go-ref-mod#file]: https://golang.org/ref/mod#go-mod-file
 [go-wiki-tool_dep]: https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
 [golangci-lint]: https://golangci-lint.run
-[mage]: https://magefile.org
-[trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
-[wikip-hp]: https://en.wikipedia.org/wiki/Harry_Potter
 [wikip-path_var]: https://en.wikipedia.org/wiki/PATH_(variable)
+
+<!-- v0.2.0 -->
+
+[gh-compare-tag-v0.1.0_v0.2.0]: https://github.com/svengreb/wand/compare/v0.1.0...v0.2.0
+[go-pkg-al-task#kind]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Kind
+[go-pkg-if-spell#binary]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Binary
+[go-pkg-if-spell#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#GoModule
+[go-pkg-if-task#exec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Exec
+[go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
+[go-pkg-if-task#options]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Options
+[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
+[go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
+[mage-docs-targets]: https://magefile.org/targets
+[wikip-cli#anaton]: https://en.wikipedia.org/wiki/Command-line_interface#Anatomy_of_a_shell_CLI
+[wikip-exec]: https://en.wikipedia.org/wiki/Executable
