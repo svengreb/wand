@@ -17,6 +17,6 @@ type Config struct {
 	// PathRel is the relative path to an application root directory.
 	PathRel string
 
-	// PkgPath is the name of an application package.
-	PkgPath string
+	// PkgImportPath is the import path of an application package.
+	PkgImportPath string
 }

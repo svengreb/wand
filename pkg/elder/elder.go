@@ -1,7 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-// Package elder is a wand.Wand reference implementation that provides common Mage tasks and stores application
+// Package elder is a wand reference implementation that provides common Mage tasks and stores application
 // configurations and metadata of a project.
 //
 // The naming is inspired by the "Elder Wand", an extremely powerful wand made of elder wood, from the fantasy novel
@@ -17,16 +17,16 @@ import (
 	"github.com/svengreb/nib"
 
 	"github.com/svengreb/wand/pkg/app"
-	"github.com/svengreb/wand/pkg/cast"
-	castGobin "github.com/svengreb/wand/pkg/cast/gobin"
-	castGoToolchain "github.com/svengreb/wand/pkg/cast/golang/toolchain"
 	"github.com/svengreb/wand/pkg/project"
-	spellFSClean "github.com/svengreb/wand/pkg/spell/fs/clean"
-	spellGoimports "github.com/svengreb/wand/pkg/spell/goimports"
-	spellGoBuild "github.com/svengreb/wand/pkg/spell/golang/build"
-	spellGoTest "github.com/svengreb/wand/pkg/spell/golang/test"
-	spellGolangCILint "github.com/svengreb/wand/pkg/spell/golangcilint"
-	spellGox "github.com/svengreb/wand/pkg/spell/gox"
+	"github.com/svengreb/wand/pkg/task"
+	taskFSClean "github.com/svengreb/wand/pkg/task/fs/clean"
+	taskGobin "github.com/svengreb/wand/pkg/task/gobin"
+	taskGoimports "github.com/svengreb/wand/pkg/task/goimports"
+	taskGo "github.com/svengreb/wand/pkg/task/golang"
+	taskGoBuild "github.com/svengreb/wand/pkg/task/golang/build"
+	taskGoTest "github.com/svengreb/wand/pkg/task/golang/test"
+	taskGolangCILint "github.com/svengreb/wand/pkg/task/golangcilint"
+	taskGox "github.com/svengreb/wand/pkg/task/gox"
 )
 
 // Elder is a wand.Wand reference implementation that provides common Mage tasks and stores configurations and metadata
@@ -35,49 +35,45 @@ type Elder struct {
 	nib.Nib
 
 	as          app.Store
-	gobinCaster *castGobin.Caster
-	goCaster    *castGoToolchain.Caster
+	gobinRunner *taskGobin.Runner
+	goRunner    *taskGo.Runner
 	opts        *Options
 	project     *project.Metadata
 }
 
 // Bootstrap runs initialization tasks to ensure the wand is operational.
-// This includes the installation of configured caster like cast.BinaryCaster that can handle spell incantations of
-// kind spell.KindGoModule.
-// When any error occurs it will be of type *cast.ErrCast.
+// If an error occurs it will be of type *task.ErrRunner.
 func (e *Elder) Bootstrap() error {
-	if valErr := e.gobinCaster.Validate(); valErr != nil {
-		e.Infof("Installing %q", e.gobinCaster.GoModule())
-		if installErr := e.gobinCaster.Install(e.goCaster); installErr != nil {
-			e.Errorf("Failed to install %q: %v", e.gobinCaster.GoModule(), installErr)
-			return fmt.Errorf("failed to install %q: %w", e.gobinCaster.GoModule(), installErr)
+	if valErr := e.gobinRunner.Validate(); valErr != nil {
+		e.Infof("Installing %q", e.gobinRunner.GoMod())
+		if installErr := e.gobinRunner.Install(e.goRunner); installErr != nil {
+			e.Errorf("Failed to install %q: %v", e.gobinRunner.GoMod(), installErr)
+			return fmt.Errorf("failed to install %q: %w", e.gobinRunner.GoMod(), installErr)
 		}
 	}
 
 	return nil
 }
 
-// Clean is a spell.GoCode to remove configured filesystem paths, e.g. output data like artifacts and reports from
-// previous development, test, production and distribution builds.
-// It returns paths that have been cleaned along with an error of type *spell.ErrGoCode when an error occurred during
-// the execution of the Go code.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// Clean is a task to remove filesystem paths, e.g. output data like artifacts and reports from previous development,
+// test, production and distribution builds.
+// It returns paths that have been cleaned along with an error when the task execution fails.
 //
-// See the "github.com/svengreb/wand/pkg/spell/fs/clean" package for all available options.
-func (e *Elder) Clean(appName string, opts ...spellFSClean.Option) ([]string, error) {
+// See the "github.com/svengreb/wand/pkg/task/fs/clean" package for all available options.
+func (e *Elder) Clean(appName string, opts ...taskFSClean.Option) ([]string, error) {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return []string{}, fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
-	si, siErr := spellFSClean.New(e.GetProjectMetadata(), ac, opts...)
-	if siErr != nil {
-		return []string{}, fmt.Errorf("failed to create %q spell incantation: %w", "golangci-lint", siErr)
+	t, tErr := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
+	if tErr != nil {
+		return []string{}, fmt.Errorf("failed to create %q task: %w", "fs/clean", tErr)
 	}
 
-	return si.Clean()
+	return t.Clean()
 }
 
-// ExitPrintf simplifies the logging for process exits with a suitable nib.Verbosity.
+// ExitPrintf simplifies the logging for process exits with a suitable verbosity.
 //
 // References
 //
@@ -107,13 +103,14 @@ func (e *Elder) ExitPrintf(code int, verb nib.Verbosity, format string, args ...
 }
 
 // GetAppConfig returns an application configuration.
-// An empty application configuration is returned along with an error of type *app.ErrApp when there is no
-// configuration in the store for the given name.
+// An empty application configuration is returned along with an error of type *app.ErrApp when there is no configuration
+// in the store for the given name.
 func (e *Elder) GetAppConfig(name string) (app.Config, error) {
 	ac, acErr := e.as.Get(name)
 	if acErr != nil {
 		return app.Config{}, fmt.Errorf("failed to get %q application configuration: %w", name, acErr)
 	}
+
 	return *ac, nil
 }
 
@@ -122,98 +119,113 @@ func (e *Elder) GetProjectMetadata() project.Metadata {
 	return *e.project
 }
 
-// GoBuild casts the spell incantation for the "build" command of the Go toolchain.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// GoBuild is a task for the Go toolchain "build" command.
+// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
 //
-// See the "github.com/svengreb/wand/pkg/spell/golang/build" package for all available options.
-func (e *Elder) GoBuild(appName string, opts ...spellGoBuild.Option) error {
+// See the "github.com/svengreb/wand/pkg/task/golang/build" package for all available options.
+func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
 
-	si := spellGoBuild.New(e, ac, opts...)
-	return e.goCaster.Cast(si)
+	t := taskGoBuild.New(e, ac, opts...)
+	return e.goRunner.Run(t)
 }
 
-// Goimports casts the spell incantation for the "golang.org/x/tools/cmd/goimports" Go module command that allows to
-// update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as
-// "https://pkg.go.dev/cmd/gofmt" so it can be used as a replacement.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// Goimports is a task for the "golang.org/x/tools/cmd/goimports" Go module command.
+// "goimports" allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in
+// the same style as "https://pkg.go.dev/cmd/gofmt" so it can be used as a replacement.
 //
-// See the "github.com/svengreb/wand/pkg/spell/goimports" package for all available options.
+// See the "github.com/svengreb/wand/pkg/task/goimports" package for all available options.
 //
 // See https://pkg.go.dev/golang.org/x/tools/cmd/goimports for more details about "goimports".
 // The source code of "goimports" is available at https://github.com/golang/tools/tree/master/cmd/goimports.
-func (e *Elder) Goimports(appName string, opts ...spellGoimports.Option) error {
+func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
 
-	si, siErr := spellGoimports.New(e, ac, opts...)
-	if siErr != nil {
-		return fmt.Errorf("failed to create %q spell incantation: %w", "goimports", siErr)
+	t, tErr := taskGoimports.New(e, ac, opts...)
+	if tErr != nil {
+		return fmt.Errorf("failed to create %q task: %w", "goimports", tErr)
 	}
-	return e.gobinCaster.Cast(si)
+
+	return e.gobinRunner.Run(t)
 }
 
-// GolangCILint casts the spell incantation for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module
-// command, a fast, parallel runner for dozens of Go linters Go that uses caching, supports YAML configurations and has
-// integrations with all major IDEs.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// GolangCILint is a task to run the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module
+// command.
+// "golangci-lint" is a fast, parallel runner for dozens of Go linters Go that uses caching, supports YAML
+// configurations and has integrations with all major IDEs.
+// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
 //
-// See the "github.com/svengreb/wand/pkg/spell/golangcilint" package for all available options.
+// See the "github.com/svengreb/wand/pkg/task/golangcilint" package for all available options.
 //
 // See https://pkg.go.dev/github.com/golangci/golangci-lint and the official website at https://golangci-lint.run for
 // more details about "golangci-lint".
 // The source code of "golangci-lint" is available at https://github.com/golangci/golangci-lint.
-func (e *Elder) GolangCILint(appName string, opts ...spellGolangCILint.Option) error {
+func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
 
-	si, siErr := spellGolangCILint.New(e, ac, opts...)
-	if siErr != nil {
-		return fmt.Errorf("failed to create %q spell incantation: %w", "golangci-lint", siErr)
+	t, tErr := taskGolangCILint.New(e, ac, opts...)
+	if tErr != nil {
+		return fmt.Errorf("failed to create %q task: %w", "golangci-lint", tErr)
 	}
-	return e.gobinCaster.Cast(si)
+
+	return e.gobinRunner.Run(t)
 }
 
-// GoTest casts the spell incantation for the "test" command of the Go toolchain.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// GoTest is a task to run the Go toolchain "test" command.
+// The configured output directory for reports like coverage or benchmark profiles will be created recursively when it
+// does not exist yet.
+// When any error occurs it will be of type *app.ErrApp, *task.ErrRunner or os.PathError.
 //
-// See the "github.com/svengreb/wand/pkg/spell/golang/test" package for all available options.
-func (e *Elder) GoTest(appName string, opts ...spellGoTest.Option) error {
+// See the "github.com/svengreb/wand/pkg/task/param/golang/test" package for all available options.
+func (e *Elder) GoTest(appName string, opts ...taskGoTest.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
 
-	return e.goCaster.Cast(spellGoTest.New(e, ac, opts...))
+	t := taskGoTest.New(e, ac, opts...)
+	tOpts, ok := t.Options().(taskGoTest.Options)
+	if !ok {
+		return fmt.Errorf(`failed to convert task options to "%T"`, taskGoTest.Options{})
+	}
+
+	if err := os.MkdirAll(tOpts.OutputDir, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create output directory %q: %w", tOpts.OutputDir, err)
+	}
+
+	return e.goRunner.Run(t)
 }
 
-// Gox casts the spell incantation for the "github.com/mitchellh/gox" Go module command, a dead simple, no frills Go
-// cross compile tool that behaves a lot like the standard Go toolchain "build" command.
-// When any error occurs it will be of type *app.ErrApp or *cast.ErrCast.
+// Gox is a task to run the "github.com/mitchellh/gox" Go module command.
+// "gox" is a dead simple, no frills Go cross compile tool that behaves a lot like the standard Go toolchain "build"
+// command.
+// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
 //
-// See the "github.com/svengreb/wand/pkg/spell/gox" package for all available options.
+// See the "github.com/svengreb/wand/pkg/task/gox" package for all available options.
 //
 // See https://pkg.go.dev/github.com/mitchellh/gox for more details about "gox".
 // The source code of the "gox" is available at https://github.com/mitchellh/gox.
-func (e *Elder) Gox(appName string, opts ...spellGox.Option) error {
+func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
 		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
 	}
 
-	si, siErr := spellGox.New(e, ac, opts...)
-	if siErr != nil {
-		return fmt.Errorf("failed to create %q spell incantation: %w", "gox", siErr)
+	t, tErr := taskGox.New(e, ac, opts...)
+	if tErr != nil {
+		return fmt.Errorf("failed to create %q task: %w", "gox", tErr)
 	}
 
-	return e.gobinCaster.Cast(si)
+	return e.gobinRunner.Run(t)
 }
 
 // RegisterApp creates and stores a new application configuration.
@@ -259,19 +271,19 @@ func (e *Elder) RegisterApp(name, displayName, pathRel string) error {
 		DisplayName:   displayName,
 		Name:          name,
 		PathRel:       pathRel,
-		PkgPath:       fmt.Sprintf("%s/%s", e.project.Options().GoModule.Path, pathRel),
+		PkgImportPath: filepath.Clean(fmt.Sprintf("%s/%s", e.project.Options().GoModule.Path, pathRel)),
 	}
 
 	e.as.Add(ac)
 	return nil
 }
 
-// Validate ensures that all casters are properly initialized and available.
-// It returns an error of type *cast.ErrCast when the validation of any of the supported casters fails.
+// Validate ensures that all tasks are properly initialized and operational.
+// It returns an error of type *task.ErrRunner when the validation of any of the supported task fails.
 func (e *Elder) Validate() error {
-	for _, caster := range []cast.Caster{e.goCaster, e.gobinCaster} {
-		if err := caster.Validate(); err != nil {
-			return fmt.Errorf("failed to validate caster: %w", err)
+	for _, t := range []task.Runner{e.goRunner, e.gobinRunner} {
+		if err := t.Validate(); err != nil {
+			return fmt.Errorf("failed to validate runner: %w", err)
 		}
 	}
 
@@ -287,14 +299,14 @@ func (e *Elder) Validate() error {
 //   - "-d <PATH>" option to set the directory from which "magefiles" are read (defaults to ".").
 //   - "-w <PATH>" option to set the working directory where "magefiles" will run (defaults to value of "-d" flag).
 //
-// If any error occurs it will be of type *cast.ErrCast or *project.ErrProject.
+// If any error occurs it will be of type *cmd.ErrCmd or *project.ErrProject.
 //
 // References
 //
-//   - https://magefile.org/#usage
-//   - https://golang.org/pkg/os/#Getwd
-//   - https://golang.org/pkg/runtime/debug/#ReadBuildInfo
-//   - https://pkg.go.dev/runtime/debug
+//   (1) https://magefile.org/#usage
+//   (2) https://golang.org/pkg/os/#Getwd
+//   (3) https://golang.org/pkg/runtime/debug/#ReadBuildInfo
+//   (4) https://pkg.go.dev/runtime/debug
 func New(opts ...Option) (*Elder, error) {
 	opt := NewOptions(opts...)
 
@@ -310,15 +322,15 @@ func New(opts ...Option) (*Elder, error) {
 	}
 	e.project = proj
 
-	e.goCaster = castGoToolchain.NewCaster(e.opts.goToolchainCasterOpts...)
+	e.goRunner = taskGo.NewRunner(e.opts.goRunnerOpts...)
 
-	gobinCaster, gobinCasterErr := castGobin.NewCaster(e.opts.gobinCasterOpts...)
-	if gobinCasterErr != nil {
-		return nil, fmt.Errorf("failed to create %q caster: %w", "gobin", gobinCasterErr)
+	gobinRunner, gobinRunnerErr := taskGobin.NewRunner(e.opts.gobinRunnerOpts...)
+	if gobinRunnerErr != nil {
+		return nil, fmt.Errorf("failed to create %q runner: %w", "gobin", gobinRunnerErr)
 	}
-	e.gobinCaster = gobinCaster
+	e.gobinRunner = gobinRunner
 
-	if err := e.RegisterApp(e.project.Options().Name, e.project.Options().DisplayName, "."); err != nil {
+	if err := e.RegisterApp(e.project.Options().Name, e.project.Options().DisplayName, ""); err != nil {
 		e.ExitPrintf(1, nib.ErrorVerbosity, "registering application %q: %v", e.project.Options().Name, err)
 	}
 

@@ -37,10 +37,7 @@ func (s *appStore) Get(appName string) (*Config, error) {
 			Kind: ErrNoSuchConfig,
 		}
 	}
-	return ac, &ErrApp{
-		Err:  fmt.Errorf("application name %q", appName),
-		Kind: ErrNoSuchConfig,
-	}
+	return ac, nil
 }
 
 // NewStore creates a new store for application configurations.

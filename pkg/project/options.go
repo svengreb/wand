@@ -61,7 +61,7 @@ func WithBaseOutputDir(dir string) Option {
 	}
 }
 
-// WithDefaultVersion set the project default verion.
+// WithDefaultVersion set the project default version.
 func WithDefaultVersion(defaultVersion string) Option {
 	return func(o *Options) {
 		o.DefaultVersion = defaultVersion
@@ -75,10 +75,21 @@ func WithDisplayName(name string) Option {
 	}
 }
 
-// WithGoModule sets the project Go module.
-func WithGoModule(module *GoModuleID) Option {
+// WithModulePath sets the module import path.
+func WithModulePath(path string) Option {
 	return func(o *Options) {
-		o.GoModule = module
+		if path != "" {
+			o.GoModule.Path = path
+		}
+	}
+}
+
+// WithModuleVersion sets the module version.
+func WithModuleVersion(version *semver.Version) Option {
+	return func(o *Options) {
+		if version != nil {
+			o.GoModule.Version = version
+		}
 	}
 }
 
