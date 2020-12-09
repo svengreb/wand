@@ -26,6 +26,9 @@ const (
 	// ErrRunnerValidation indicates that a command runner validation failed.
 	ErrRunnerValidation = wErr.ErrString("validation failed")
 
+	// ErrTaskValidation indicates that a task validation failed.
+	ErrTaskValidation = wErr.ErrString("validation failed")
+
 	// ErrUnsupportedTaskKind indicates that a task kind is not supported.
 	ErrUnsupportedTaskKind = wErr.ErrString("unsupported task kind")
 

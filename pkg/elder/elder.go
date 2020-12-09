@@ -9,7 +9,9 @@
 package elder
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -27,6 +29,7 @@ import (
 	taskGoTest "github.com/svengreb/wand/pkg/task/golang/test"
 	taskGolangCILint "github.com/svengreb/wand/pkg/task/golangcilint"
 	taskGox "github.com/svengreb/wand/pkg/task/gox"
+	taskPkger "github.com/svengreb/wand/pkg/task/pkger"
 )
 
 // Elder is a wand.Wand reference implementation that provides common Mage tasks and stores configurations and metadata
@@ -48,7 +51,7 @@ func (e *Elder) Bootstrap() error {
 		e.Infof("Installing %q", e.gobinRunner.GoMod())
 		if installErr := e.gobinRunner.Install(e.goRunner); installErr != nil {
 			e.Errorf("Failed to install %q: %v", e.gobinRunner.GoMod(), installErr)
-			return fmt.Errorf("failed to install %q: %w", e.gobinRunner.GoMod(), installErr)
+			return fmt.Errorf("install %q: %w", e.gobinRunner.GoMod(), installErr)
 		}
 	}
 
@@ -63,11 +66,11 @@ func (e *Elder) Bootstrap() error {
 func (e *Elder) Clean(appName string, opts ...taskFSClean.Option) ([]string, error) {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return []string{}, fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return []string{}, fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 	t, tErr := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
 	if tErr != nil {
-		return []string{}, fmt.Errorf("failed to create %q task: %w", "fs/clean", tErr)
+		return []string{}, fmt.Errorf("create %q task: %w", "fs/clean", tErr)
 	}
 
 	return t.Clean()
@@ -108,7 +111,7 @@ func (e *Elder) ExitPrintf(code int, verb nib.Verbosity, format string, args ...
 func (e *Elder) GetAppConfig(name string) (app.Config, error) {
 	ac, acErr := e.as.Get(name)
 	if acErr != nil {
-		return app.Config{}, fmt.Errorf("failed to get %q application configuration: %w", name, acErr)
+		return app.Config{}, fmt.Errorf("get %q application configuration: %w", name, acErr)
 	}
 
 	return *ac, nil
@@ -126,7 +129,7 @@ func (e *Elder) GetProjectMetadata() project.Metadata {
 func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
 	t := taskGoBuild.New(e, ac, opts...)
@@ -144,12 +147,12 @@ func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
 	t, tErr := taskGoimports.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("failed to create %q task: %w", "goimports", tErr)
+		return fmt.Errorf("create %q task: %w", "goimports", tErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -169,12 +172,12 @@ func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
 	t, tErr := taskGolangCILint.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("failed to create %q task: %w", "golangci-lint", tErr)
+		return fmt.Errorf("create %q task: %w", "golangci-lint", tErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -189,17 +192,17 @@ func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) er
 func (e *Elder) GoTest(appName string, opts ...taskGoTest.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
 	t := taskGoTest.New(e, ac, opts...)
 	tOpts, ok := t.Options().(taskGoTest.Options)
 	if !ok {
-		return fmt.Errorf(`failed to convert task options to "%T"`, taskGoTest.Options{})
+		return fmt.Errorf(`convert task options to "%T"`, taskGoTest.Options{})
 	}
 
 	if err := os.MkdirAll(tOpts.OutputDir, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create output directory %q: %w", tOpts.OutputDir, err)
+		return fmt.Errorf("create output directory %q: %w", tOpts.OutputDir, err)
 	}
 
 	return e.goRunner.Run(t)
@@ -217,12 +220,79 @@ func (e *Elder) GoTest(appName string, opts ...taskGoTest.Option) error {
 func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 	ac, acErr := e.GetAppConfig(appName)
 	if acErr != nil {
-		return fmt.Errorf("failed to get %q application configuration: %w", appName, acErr)
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
 	t, tErr := taskGox.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("failed to create %q task: %w", "gox", tErr)
+		return fmt.Errorf("create %q task: %w", "gox", tErr)
+	}
+
+	return e.gobinRunner.Run(t)
+}
+
+// Pkger is a task to run the "github.com/markbates/pkger/cmd/pkger" Go module command.
+// "pkger" is a tool for embedding static files into Go binaries.
+// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
+//
+// See the "github.com/svengreb/wand/pkg/task/pkger" package for all available options.
+//
+// See https://pkg.go.dev/github.com/markbates/pkger for more details about "pkger".
+// The source code of the "pkger" is available at github.com/markbates/pkger.
+//
+// Official "Static Assets Embedding"
+//
+// Please note that the "pkger" project might be superseded and discontinued due to the official Go toolchain support
+// for embedding static assets (files) that will most probably be released with Go version 1.16.
+//
+// Please see https://go.googlesource.com/proposal/+/master/design/draft-embed.md and
+// https://github.com/markbates/pkger/issues/114 for more details.
+//
+// "Monorepo" Workaround
+//
+// "pkger" tries to mimic the Go standard library and the way how the Go toolchain handles modules, but is therefore
+// also affected by its problems and edge cases.
+// When the "pkger" command is used from the root of a Go module repository, the directory where the "go.mod" file is
+// located, and there is no valid Go source file, the command will fail because it internally uses the same logic like
+// the "list" command of the Go toolchain ("go list").
+// Therefore a "dummy" Go source file may need to be created as a workaround. This is mostly only required for
+// repositories that use a "monorepo" layout where one or more "main" packages are placed in a subdirectory relative to
+// the root directory, e.g. "apps" or "cmd". For repositories where the root directory already has a Go package,
+// that does not contain any build constraints/tags, or uses a "library" layout, a "dummy" file is probably not needed.
+//
+// Please see https://github.com/markbates/pkger/issues/109 and https://github.com/markbates/pkger/issues/121 for more
+// details.
+func (e *Elder) Pkger(appName string, opts ...taskPkger.Option) error {
+	ac, acErr := e.GetAppConfig(appName)
+	if acErr != nil {
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
+	}
+
+	t, tErr := taskPkger.New(e, ac, opts...)
+	if tErr != nil {
+		return fmt.Errorf("create %q task: %w", "pkger", tErr)
+	}
+
+	dummyWorkaroundFilePath := filepath.Join(
+		e.GetProjectMetadata().Options().RootDirPathAbs,
+		fmt.Sprintf("%s.go", taskPkger.MonorepoWorkaroundDummyFileName),
+	)
+
+	cleanDummyFile := func(path string) {
+		if osErr := os.Remove(path); osErr != nil && !errors.Is(osErr, os.ErrNotExist) {
+			e.Warnf("Failed to delete \"pkger\" dummy workaround file %q: %w", path, osErr)
+			e.Warnf("Please remove %q manually", path)
+			return
+		}
+		e.Debugf("Removed \"pkger\" dummy workaround file %q", path)
+	}
+
+	cleanDummyFile(dummyWorkaroundFilePath)
+	defer cleanDummyFile(dummyWorkaroundFilePath)
+
+	wErr := ioutil.WriteFile(dummyWorkaroundFilePath, []byte(taskPkger.MonorepoWorkaroundDummyFileContent), os.ModePerm)
+	if wErr != nil {
+		return fmt.Errorf("write \"pkger\" dummy workaround file %q: %w", dummyWorkaroundFilePath, wErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -330,7 +400,7 @@ func New(opts ...Option) (*Elder, error) {
 	}
 	e.gobinRunner = gobinRunner
 
-	if err := e.RegisterApp(e.project.Options().Name, e.project.Options().DisplayName, ""); err != nil {
+	if err := e.RegisterApp(e.project.Options().Name, e.project.Options().DisplayName, project.AppRelPath); err != nil {
 		e.ExitPrintf(1, nib.ErrorVerbosity, "registering application %q: %v", e.project.Options().Name, err)
 	}
 

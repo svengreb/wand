@@ -15,6 +15,9 @@ import (
 )
 
 const (
+	// AppRelPath is the path for the project when registered as application by a wand.Wand.
+	AppRelPath = ""
+
 	// DefaultBaseOutputDir is the default base output directory relative to Options.RootDirPathAbs for compile, test
 	// and production artifacts as well as distribution bundles, static web files or metric/statistic reports.
 	DefaultBaseOutputDir = "out"

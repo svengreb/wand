@@ -9,4 +9,5 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/svengreb/golib v0.1.0
 	github.com/svengreb/nib v0.2.0
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
