@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/svengreb/wand/blob/main/assets/images/repository-hero.svg?raw=true"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/svengreb/wand/main/assets/images/repository-hero.svg?sanitize=true"/></p>
 
 <p align="center"><a href="https://github.com/svengreb/wand/releases/latest"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Release&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a></p>
 
