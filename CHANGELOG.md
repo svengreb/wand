@@ -6,13 +6,68 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.3.0
+
+![Release Date: 2020-12-10](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-12-10&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.3.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/6) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.3.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/3)
+
+⇅ [Show all commits][gh-compare-tag-v0.2.0_v0.3.0]
+
+This release version introduces a new task for the “github.com/markbates/pkger“ Go module command and updates for outdated dependencies.
+
+## Features
+
+<details>
+<summary><strong>Task for “github.com/markbates/pkger“ Go module command</strong> — #52 ⇄ #53 (⊶ 660601dd)</summary>
+
+↠ The [github.com/markbates/pkger][go-pkg-github.com/markbates/pkger] Go module provides the `pkger` command, a tool for embedding static files into Go binaries.
+
+To configure and run the `pkger` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in a the [pkger][go-pkg-task/pkger] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-pkg/task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
+
+The task is customizable through the following functions:
+
+- `WithEnv(env map[string]string) pkger.Option` — sets the task specific environment.
+- `WithExtraArgs(extraArgs ...string) pkger.Option` — sets additional arguments to pass to the command.
+- `WithIncludes(includes ...string) pkger.Option` — adds the relative paths of files and directories that should be included.
+  By default the paths will be detected by `pkger` itself when used within any of the packages of the target Go module.
+- `WithModulePath(path string) pkger.Option` — sets the module import path.
+- `WithModuleVersion(version *semver.Version) pkger.Option` — sets the module version.
+
+The “elder“ reference implementation provides the new [`Pkger` method][go-pkg-elder#elder.pkger] including the handling of the [“monorepo“ workaround](#monorepo-workaround).
+
+### Official “Static Assets Embedding“
+
+Please note that the _pkger_ project might be superseded and discontinued due to the official Go toolchain [support for embedding static assets (files)][gh-golang/go#41191] that will most probably be released with [Go version 1.16][gh-golang/go-ms-145].
+
+Please see the official [draft document][googsrc-go-prop-design-embed] and [markbates/pkger#114][gh-markbates/pkger#114] for more details.
+
+### “Monorepo“ Workaround
+
+_pkger_ tries to mimic the Go standard library and the way how the Go toolchain handles modules, but is therefore also affected by its problems and edge cases.
+When the `pkger` command is used from the root of a Go module repository, the directory where the `go.mod` file is located, and there is no valid Go source file, the command will fail because it internally uses the same logic like the [`list` command of the Go toolchain][gh-pkg-cmd/go#list] (`go list`).
+Therefore a “dummy“ Go source file may need to be created as a workaround. This is mostly only required for repositories that use a [“monorepo“ layout][trunkbasedev-monorepo] where one or more `main` packages are placed in a subdirectory relative to the root directory, e.g. `apps` or `cmd`. For repositories where the root directory already has a Go package, that does not contain any build constraints/tags, or uses a “library“ layout, a “dummy“ file is probably not needed.
+Please see [markbates/pkger#109][gh-markbates/pkger#109] and [markbates/pkger#121][gh-markbates/pkger#121] for more details.
+
+The new [`Pkger` method][go-pkg-elder#elder.pkger] of the [“elder“ reference implementation][go-pkg-elder] handles the creation of a temporary “dummy“ file that gets deleted automatically when the tasks finishes in order to avoid the need for the user to add such a file to the repository and commit it into the VCS.
+
+</details>
+
+<details>
+<summary><strong>Update outdated dependencies</strong> — #47, #48</summary>
+
+↠ Bumped outdated Go module dependencies to their latest versions:
+
+- #47 (⊶ 41e11b94) [`github.com/Masterminds/semver/v3`][go-pkg-github.com/masterminds/semver/v3] from [3.1.0 to 3.1.1][gh-masterminds/semver-comp-v3.1.0_v3.1.1] — Fixes an issue with generated regular expression operations.
+- #48 (⊶ 41e11b94) [`github.com/imdario/mergo`][go-pkg-github.com/imdario/mergo] from [0.3.9 to 0.3.11][gh-imdario/mergo-comp-v0.3.9_v0.3.11] — Includes a bunch of bug fixes that were pending, removes unused test code, reverts a faulty PR and announces a code freeze in preparation for a “cleanroom“ implementation with a new API in order to allow the codebase to be maintainable and clear again.
+
+</details>
+
 # 0.2.0
 
 ![Release Date: 2020-12-07](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-12-07&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.2.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/5) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.2.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/2)
 
 ⇅ [Show all commits][gh-compare-tag-v0.1.0_v0.2.0]
 
-This release version comes with a large API breaking change to introduce the new "task" + "runner" based API that uses a “normalized“ naming scheme.
+This release version comes with a large API breaking change to introduce the new “task“ + “runner“ based API that uses a “normalized“ naming scheme.
 
 ## Features
 
@@ -504,6 +559,8 @@ otherwise Markdown elements are not parsed and rendered!
 
 <!-- Base Links -->
 
+[go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
+[go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
 [go-ref-mod]: https://golang.org/ref/mod
 [mage]: https://magefile.org
 [trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
@@ -546,7 +603,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-cmd/go#test]: https://pkg.go.dev/cmd/go/#hdr-Test_packages
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
 [go-pkg-const-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
-[go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
 [go-pkg-fn-cast#validate]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast#Validate
 [go-pkg-fn-spell/golang#compileformula]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang#CompileFormula
 [go-pkg-github.com/golangci/golangci-lint]: https://pkg.go.dev/github.com/golangci/golangci-lint
@@ -593,7 +649,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-if-spell#binary]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Binary
 [go-pkg-if-spell#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#GoModule
 [go-pkg-if-task#exec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Exec
-[go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
 [go-pkg-if-task#options]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Options
 [go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
 [go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
@@ -601,3 +656,25 @@ otherwise Markdown elements are not parsed and rendered!
 [mage-docs-targets]: https://magefile.org/targets
 [wikip-cli#anaton]: https://en.wikipedia.org/wiki/Command-line_interface#Anatomy_of_a_shell_CLI
 [wikip-exec]: https://en.wikipedia.org/wiki/Executable
+
+<!-- v0.3.0 -->
+
+[gh-compare-tag-v0.2.0_v0.3.0]: https://github.com/svengreb/wand/compare/v0.2.0...v0.3.0
+[gh-golang/go-ms-145]: https://github.com/golang/go/milestone/145
+[gh-golang/go#41191]: https://github.com/golang/go/issues/41191
+[gh-imdario/mergo-comp-v0.3.9_v0.3.11]: https://github.com/imdario/mergo/compare/v0.3.9...v0.3.11
+[gh-markbates/pkger#109]: https://github.com/markbates/pkger/issues/109
+[gh-markbates/pkger#114]: https://github.com/markbates/pkger/issues/114
+[gh-markbates/pkger#121]: https://github.com/markbates/pkger/issues/121
+[gh-masterminds/semver-comp-v3.1.0_v3.1.1]: https://github.com/Masterminds/semver/compare/v3.1.0...v3.1.1
+[gh-pkg-cmd/go#list]: https://pkg.go.dev/cmd/go/#hdr-List_packages_or_modules
+[go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
+[go-pkg-elder#elder.pkger]: https://pkg.go.dev/github.com/svengreb/wand/elder#Elder.Pkger
+[go-pkg-github.com/imdario/mergo]: https://pkg.go.dev/github.com/imdario/mergo
+[go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
+[go-pkg-github.com/masterminds/semver/v3]: https://pkg.go.dev/github.com/Masterminds/semver/v3
+[go-pkg-if-pkg/task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
+[go-pkg-task/pkger]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/pkger
+[googsrc-go-prop-design-embed]: https://go.googlesource.com/proposal/+/master/design/draft-embed.md
+[trunkbasedev-monorepo]: https://trunkbaseddevelopment.com/monorepos
