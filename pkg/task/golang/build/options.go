@@ -10,6 +10,9 @@ import (
 const (
 	// DefaultDistOutputDirName is the default directory name for production and distribution builds.
 	DefaultDistOutputDirName = "dist"
+
+	// TaskName is the name of the task.
+	TaskName = "go/build"
 )
 
 // Option is a task option.

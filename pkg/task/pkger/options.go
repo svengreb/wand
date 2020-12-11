@@ -26,6 +26,9 @@ package main`
 
 	// MonorepoWorkaroundDummyFileName is the filename for the "dummy" workaround file.
 	MonorepoWorkaroundDummyFileName = "wand_task_pkger_dummy_workaround"
+
+	// TaskName is the name of the task.
+	TaskName = "pkger"
 )
 
 // Option is a task option.

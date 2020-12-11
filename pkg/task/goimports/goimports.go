@@ -66,7 +66,7 @@ func (t *Task) BuildParams() []string {
 	if len(t.opts.paths) > 0 {
 		params = append(params, t.opts.paths...)
 	} else {
-		// ...or otherwise search recursively starting from the current working directory.
+		// ...or otherwise search recursively starting from the working directory of the current process.
 		params = append(params, ".")
 	}
 
