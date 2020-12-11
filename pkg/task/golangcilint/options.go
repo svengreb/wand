@@ -18,6 +18,9 @@ const (
 
 	// DefaultGoModuleVersion is the default module version.
 	DefaultGoModuleVersion = "v1.32.0"
+
+	// TaskName is the name of the task.
+	TaskName = "golangcilint"
 )
 
 // DefaultArgs are default arguments passed to the command.

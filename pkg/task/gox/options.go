@@ -20,6 +20,9 @@ const (
 
 	// DefaultGoModuleVersion is the default module version.
 	DefaultGoModuleVersion = "v1.0.1"
+
+	// TaskName is the name of the task.
+	TaskName = "gox"
 )
 
 var (

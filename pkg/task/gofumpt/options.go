@@ -1,7 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
-package goimports
+package gofumpt
 
 import (
 	"github.com/Masterminds/semver/v3"
@@ -11,10 +11,10 @@ import (
 
 const (
 	// DefaultGoModulePath is the default module import path.
-	DefaultGoModulePath = "golang.org/x/tools/cmd/goimports"
+	DefaultGoModulePath = "mvdan.cc/gofumpt"
 
 	// TaskName is the name of the task.
-	TaskName = "goimports"
+	TaskName = "gofumpt"
 )
 
 // Option is a task option.
@@ -28,6 +28,10 @@ type Options struct {
 	// extraArgs are additional arguments passed to the command.
 	extraArgs []string
 
+	// extraRules indicates whether gofumpt's extra rules should be enabled.
+	// See https://github.com/mvdan/gofumpt#added-rules for more details about available rules.
+	extraRules bool
+
 	// goModule is the Go module identifier.
 	goModule *project.GoModuleID
 
@@ -35,11 +39,8 @@ type Options struct {
 	// listed.
 	listNonCompliantFiles bool
 
-	// localPkgs are local packages whose imports will be placed after 3rd-party packages.
-	localPkgs []string
-
 	// paths are the paths to search for Go source files.
-	// By default all directories are scanned recursively starting from the current working directory.
+	// By default all directories are scanned recursively starting from the working directory of the current process.
 	paths []string
 
 	// persistChanges indicates whether results are written to the source files instead of standard output.
@@ -48,12 +49,12 @@ type Options struct {
 	// reportAllErrors indicates whether all errors should be printed instead of only the first 10 on different lines.
 	reportAllErrors bool
 
-	// verbose indicates whether the output should be verbose.
-	verbose bool
+	// simplify indicates whether code should be simplified.
+	simplify bool
 }
 
 // NewOptions creates new task options.
-func NewOptions(opts ...Option) (*Options, error) {
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		env: make(map[string]string),
 		goModule: &project.GoModuleID{
@@ -65,7 +66,7 @@ func NewOptions(opts ...Option) (*Options, error) {
 		o(opt)
 	}
 
-	return opt, nil
+	return opt
 }
 
 // WithEnv sets the task specific environment.
@@ -82,17 +83,18 @@ func WithExtraArgs(extraArgs ...string) Option {
 	}
 }
 
+// WithExtraRules indicates whether gofumpt's extra rules should be enabled.
+// See https://github.com/mvdan/gofumpt#added-rules for more details about available rules.
+func WithExtraRules(extraRules bool) Option {
+	return func(o *Options) {
+		o.extraRules = extraRules
+	}
+}
+
 // WithListNonCompliantFiles indicates whether files, whose formatting are not conform to the style guide, are listed.
 func WithListNonCompliantFiles(listNonCompliantFiles bool) Option {
 	return func(o *Options) {
 		o.listNonCompliantFiles = listNonCompliantFiles
-	}
-}
-
-// WithLocalPkgs sets local packages whose imports will be placed after 3rd-party packages.
-func WithLocalPkgs(localPkgs ...string) Option {
-	return func(o *Options) {
-		o.localPkgs = append(o.localPkgs, localPkgs...)
 	}
 }
 
@@ -116,7 +118,7 @@ func WithModuleVersion(version *semver.Version) Option {
 }
 
 // WithPaths sets the paths to search for Go source files.
-// By default all directories are scanned recursively starting from the current working directory.
+// By default all directories are scanned recursively starting from the working directory of the current process.
 func WithPaths(paths ...string) Option {
 	return func(o *Options) {
 		o.paths = append(o.paths, paths...)
@@ -137,9 +139,9 @@ func WithReportAllErrors(reportAllErrors bool) Option {
 	}
 }
 
-// WithVerboseOutput indicates whether the output should be verbose.
-func WithVerboseOutput(verbose bool) Option {
+// WithSimplify indicates whether code should be simplified.
+func WithSimplify(simplify bool) Option {
 	return func(o *Options) {
-		o.verbose = verbose
+		o.simplify = simplify
 	}
 }

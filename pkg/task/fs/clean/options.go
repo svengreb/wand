@@ -3,6 +3,11 @@
 
 package clean
 
+const (
+	// TaskName is the name of the task.
+	TaskName = "fs/clean"
+)
+
 // Option is a task option.
 type Option func(*Options)
 

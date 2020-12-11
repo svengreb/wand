@@ -122,6 +122,7 @@ The [`task`][go-pkg-task] package defines the API for tasks. [`Task`][go-pkg-if-
 
 The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem:
 
+- **`gofumpt`** — the [`gofumpt`][go-pkg-task/gofumpt] package provides a task for the [`mvdan.cc/gofumpt`][go-pkg-mvdan.cc/gofumpt] Go module command. `gofumpt` enforces a stricter format than [`gofmt`][go-pkg-cmd/gofmt] and provides additional rules, while being backwards compatible. It is a modified fork of `gofmt` so it can be used as a drop-in replacement.
 - **`goimports`** — the [`goimports`][go-pkg-task/goimports] package provides a task for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command. `goimports` allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
 - **Go** — The [`golang`][go-pkg-task/golang] package provides tasks for [Go toolchain][go-pkg-cmd/go] commands.
   - **`build`** — to run the [`build` command of the Go toolchain][go-pkg-cmd/go#build] the task of the [`build`][go-pkg-task/golang/build] package can be used.
@@ -347,6 +348,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
 [go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [go-pkg-if-wand#wand]: https://pkg.go.dev/github.com/svengreb/wand#Wand
+[go-pkg-mvdan.cc/gofumpt]: https://pkg.go.dev/mvdan.cc/gofumpt
 [go-pkg-pkg]: https://pkg.go.dev/github.com/svengreb/wand/pkg
 [go-pkg-pkg/go/build#constraints]: https://pkg.go.dev/pkg/go/build/#hdr-Build_Constraints
 [go-pkg-project]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project
@@ -357,6 +359,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-stc-task/golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
 [go-pkg-task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task
 [go-pkg-task/fs/clean]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/fs/clean
+[go-pkg-task/gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gofumpt
 [go-pkg-task/goimports]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/goimports
 [go-pkg-task/golang]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang
 [go-pkg-task/golang/build]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/build

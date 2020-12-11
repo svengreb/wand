@@ -31,6 +31,9 @@ const (
 
 	// DefaultTraceProfileOutputFileName is the default file name for the execution trace profile file.
 	DefaultTraceProfileOutputFileName = "trace_profile.out"
+
+	// TaskName is the name of the task.
+	TaskName = "go/test"
 )
 
 // Option is a task option.

@@ -23,6 +23,7 @@ import (
 	"github.com/svengreb/wand/pkg/task"
 	taskFSClean "github.com/svengreb/wand/pkg/task/fs/clean"
 	taskGobin "github.com/svengreb/wand/pkg/task/gobin"
+	taskGofumpt "github.com/svengreb/wand/pkg/task/gofumpt"
 	taskGoimports "github.com/svengreb/wand/pkg/task/goimports"
 	taskGo "github.com/svengreb/wand/pkg/task/golang"
 	taskGoBuild "github.com/svengreb/wand/pkg/task/golang/build"
@@ -70,7 +71,7 @@ func (e *Elder) Clean(appName string, opts ...taskFSClean.Option) ([]string, err
 	}
 	t, tErr := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
 	if tErr != nil {
-		return []string{}, fmt.Errorf("create %q task: %w", "fs/clean", tErr)
+		return []string{}, fmt.Errorf("create %q task: %w", taskFSClean.TaskName, tErr)
 	}
 
 	return t.Clean()
@@ -132,8 +133,26 @@ func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	t := taskGoBuild.New(e, ac, opts...)
-	return e.goRunner.Run(t)
+	return e.goRunner.Run(taskGoBuild.New(e, ac, opts...))
+}
+
+// Gofumpt is a task for the "mvdan.cc/gofumpt" Go module command.
+// "gofumpt" enforce a stricter format than "https://pkg.go.dev/cmd/gofmt", while being backwards compatible,
+// and provides additional rules.
+// It is a modified fork of "https://pkg.go.dev/cmd/gofmt" so it can be used as a drop-in replacement.
+//
+// See the "github.com/svengreb/wand/pkg/task/gofumpt" package for all available options.
+// See https://github.com/mvdan/gofumpt#added-rules for more details about available rules.
+//
+// See https://pkg.go.dev/mvdan.cc/gofumpt for more details about "gofumpt".
+// The source code of "gofumpt" is available at https://github.com/mvdan/gofumpt.
+func (e *Elder) Gofumpt(appName string, opts ...taskGofumpt.Option) error {
+	ac, acErr := e.GetAppConfig(appName)
+	if acErr != nil {
+		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
+	}
+
+	return e.gobinRunner.Run(taskGofumpt.New(e, ac, opts...))
 }
 
 // Goimports is a task for the "golang.org/x/tools/cmd/goimports" Go module command.
@@ -152,7 +171,7 @@ func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 
 	t, tErr := taskGoimports.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", "goimports", tErr)
+		return fmt.Errorf("create %q task: %w", taskGoimports.TaskName, tErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -177,7 +196,7 @@ func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) er
 
 	t, tErr := taskGolangCILint.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", "golangci-lint", tErr)
+		return fmt.Errorf("create %q task: %w", taskGolangCILint.TaskName, tErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -225,7 +244,7 @@ func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 
 	t, tErr := taskGox.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", "gox", tErr)
+		return fmt.Errorf("create %q task: %w", taskGox.TaskName, tErr)
 	}
 
 	return e.gobinRunner.Run(t)
@@ -270,7 +289,7 @@ func (e *Elder) Pkger(appName string, opts ...taskPkger.Option) error {
 
 	t, tErr := taskPkger.New(e, ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", "pkger", tErr)
+		return fmt.Errorf("create %q task: %w", taskPkger.TaskName, tErr)
 	}
 
 	dummyWorkaroundFilePath := filepath.Join(
