@@ -6,6 +6,39 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.4.0
+
+![Release Date: 2020-12-11](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-12-11&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.4.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/7) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.4.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/4)
+
+⇅ [Show all commits][gh-compare-tag-v0.3.0_v0.4.0]
+
+This release version introduces a new task for the “mvdan.cc/gofumpt“ Go module command.
+
+## Features
+
+<details>
+<summary><strong>Task for “mvdan.cc/gofumpt“ Go module command</strong> — #56 ⇄ #57 (⊶ 3273e91f)</summary>
+
+↠ The [mvdan.cc/gofumpt][go-pkg-mvdan.cc/gofumpt] Go module provides the `gofumpt` command, a tool that enforces a stricter format than [`gofmt`][go-pkg-cmd/gofmt] and [provides additional rules][gh-mvdan/gofumpt#rules], while being backwards compatible. It is a modified fork of `gofmt` so it can be used as a drop-in replacement.
+
+To configure and run the `gofumpt` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in the new [gofumpt][go-pkg-task/gofumpt] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
+
+The task is customizable through the following functions:
+
+- `WithEnv(map[string]string) gofumpt.Option` — sets the task specific environment.
+- `WithExtraArgs(...string) gofumpt.Option` — sets additional arguments to pass to the command.
+- `WithExtraRules(bool) gofumpt.Option` — indicates whether `gofumpt`‘s extra rules should be enabled. See the [repository documentation for a listing of available rules][gh-mvdan/gofumpt#rules].
+- `WithListNonCompliantFiles(bool) gofumpt.Option` — indicates whether files, whose formatting are not conform to the style guide, are listed.
+- `WithModulePath(string) gofumpt.Option` — sets the module import path.
+- `WithModuleVersion(*semver.Version) gofumpt.Option` — sets the module version.
+- `WithPaths(...string) gofumpt.Option` — sets the paths to search for Go source files. By default all directories are scanned recursively starting from the current working directory.
+- `WithReportAllErrors(bool) gofumpt.Option` — indicates whether all errors should be printed instead of only the first 10 on different lines.
+- `WithSimplify(bool) gofumpt.Option` — indicates whether code should be simplified.
+
+The “elder“ reference implementation provides the new [`Gofumpt` method][go-pkg-m-elder#elder.gofumpt].
+
+</details>
+
 # 0.3.0
 
 ![Release Date: 2020-12-10](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2020-12-10&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.3.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/6) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.3.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/3)
@@ -21,7 +54,7 @@ This release version introduces a new task for the “github.com/markbates/pkger
 
 ↠ The [github.com/markbates/pkger][go-pkg-github.com/markbates/pkger] Go module provides the `pkger` command, a tool for embedding static files into Go binaries.
 
-To configure and run the `pkger` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in a the [pkger][go-pkg-task/pkger] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-pkg/task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
+To configure and run the `pkger` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in a the [pkger][go-pkg-task/pkger] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
 
 The task is customizable through the following functions:
 
@@ -44,7 +77,7 @@ Please see the official [draft document][googsrc-go-prop-design-embed] and [mark
 
 _pkger_ tries to mimic the Go standard library and the way how the Go toolchain handles modules, but is therefore also affected by its problems and edge cases.
 When the `pkger` command is used from the root of a Go module repository, the directory where the `go.mod` file is located, and there is no valid Go source file, the command will fail because it internally uses the same logic like the [`list` command of the Go toolchain][gh-pkg-cmd/go#list] (`go list`).
-Therefore a “dummy“ Go source file may need to be created as a workaround. This is mostly only required for repositories that use a [“monorepo“ layout][trunkbasedev-monorepo] where one or more `main` packages are placed in a subdirectory relative to the root directory, e.g. `apps` or `cmd`. For repositories where the root directory already has a Go package, that does not contain any build constraints/tags, or uses a “library“ layout, a “dummy“ file is probably not needed.
+Therefore a “dummy“ Go source file may need to be created as a workaround. This is mostly only required for repositories that use a [“monorepo“ layout][trunkbasedev-monorepos] where one or more `main` packages are placed in a subdirectory relative to the root directory, e.g. `apps` or `cmd`. For repositories where the root directory already has a Go package, that does not contain any build constraints/tags, or uses a “library“ layout, a “dummy“ file is probably not needed.
 Please see [markbates/pkger#109][gh-markbates/pkger#109] and [markbates/pkger#121][gh-markbates/pkger#121] for more details.
 
 The new [`Pkger` method][go-pkg-elder#elder.pkger] of the [“elder“ reference implementation][go-pkg-elder] handles the creation of a temporary “dummy“ file that gets deleted automatically when the tasks finishes in order to avoid the need for the user to add such a file to the repository and commit it into the VCS.
@@ -316,7 +349,7 @@ See [gobin‘s FAQ page][gh-myitcv/gobin-wiki-faq] in the repository wiki for mo
 To allow to manage the tool dependency problem, _wand_ uses `gobin` through [a new caster][go-pkg-stc-cast/gobin#caster] that prevents the “pollution“ of the project `go.mod` file and allows to…
 
 1. …install `gobin` itself into `GOBIN` ([`go env GOBIN`][go-pkg-cmd/go#print_env]).
-2. …cast any [spell incantation][go-pkg-spell#incantation] of kind [`KindGoModule`][go-pkg-stc-spell#kindgomodule] by installing the executable globally into the dedicated `gobin` cache.
+2. …cast any [spell incantation][go-pkg-if-spell#incantation] of kind [`KindGoModule`][go-pkg-const-spell#kindgomodule] by installing the executable globally into the dedicated `gobin` cache.
 
 </details>
 
@@ -559,8 +592,14 @@ otherwise Markdown elements are not parsed and rendered!
 
 <!-- Base Links -->
 
+<!-- Shared Links -->
+
+[go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
+[go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
 [go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
+[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
 [go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
+[go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
 [go-ref-mod]: https://golang.org/ref/mod
 [mage]: https://magefile.org
 [trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
@@ -601,7 +640,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#test]: https://pkg.go.dev/cmd/go/#hdr-Test_packages
-[go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
 [go-pkg-const-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
 [go-pkg-fn-cast#validate]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast#Validate
 [go-pkg-fn-spell/golang#compileformula]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang#CompileFormula
@@ -627,7 +665,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-spell/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golang/test
 [go-pkg-spell/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/golangcilint
 [go-pkg-spell/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell/gox
-[go-pkg-spell#incantation]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Incantation
 [go-pkg-stc-app#errapp]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#ErrApp
 [go-pkg-stc-cast/gobin#caster]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast/gobin#Caster
 [go-pkg-stc-cast/golang#caster]: https://pkg.go.dev/github.com/svengreb/wand/pkg/cast/golang#Caster
@@ -636,7 +673,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-stc-project#errproject]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#ErrProject
 [go-pkg-stc-project#gomoduleid]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#GoModuleID
 [go-pkg-stc-spell#errgocode]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#ErrGoCode
-[go-pkg-stc-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
 [go-ref-mod#file]: https://golang.org/ref/mod#go-mod-file
 [go-wiki-tool_dep]: https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
 [golangci-lint]: https://golangci-lint.run
@@ -650,7 +686,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-if-spell#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#GoModule
 [go-pkg-if-task#exec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Exec
 [go-pkg-if-task#options]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Options
-[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
 [go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
 [go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [mage-docs-targets]: https://magefile.org/targets
@@ -668,13 +703,17 @@ otherwise Markdown elements are not parsed and rendered!
 [gh-markbates/pkger#121]: https://github.com/markbates/pkger/issues/121
 [gh-masterminds/semver-comp-v3.1.0_v3.1.1]: https://github.com/Masterminds/semver/compare/v3.1.0...v3.1.1
 [gh-pkg-cmd/go#list]: https://pkg.go.dev/cmd/go/#hdr-List_packages_or_modules
-[go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
 [go-pkg-elder#elder.pkger]: https://pkg.go.dev/github.com/svengreb/wand/elder#Elder.Pkger
 [go-pkg-github.com/imdario/mergo]: https://pkg.go.dev/github.com/imdario/mergo
 [go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
 [go-pkg-github.com/masterminds/semver/v3]: https://pkg.go.dev/github.com/Masterminds/semver/v3
-[go-pkg-if-pkg/task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
-[go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
 [go-pkg-task/pkger]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/pkger
 [googsrc-go-prop-design-embed]: https://go.googlesource.com/proposal/+/master/design/draft-embed.md
-[trunkbasedev-monorepo]: https://trunkbaseddevelopment.com/monorepos
+
+<!-- v0.4.0 -->
+
+[gh-compare-tag-v0.3.0_v0.4.0]: https://github.com/svengreb/wand/compare/v0.3.0...v0.4.0
+[gh-mvdan/gofumpt#rules]: https://github.com/mvdan/gofumpt#added-rules
+[go-pkg-m-elder#elder.gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#Elder.Gofumpt
+[go-pkg-mvdan.cc/gofumpt]: https://pkg.go.dev/mvdan.cc/gofumpt
+[go-pkg-task/gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gofumpt
