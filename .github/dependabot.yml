@@ -33,7 +33,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    allow:
+      - dependency-type: "production"
     reviewers:
       - "svengreb"
     labels:
