@@ -238,15 +238,15 @@ func (r *Runner) Install(goRunner *taskGo.Runner) error {
 	goRunnerExec := goRunner.FilePath()
 	executor := exec.Command(goRunnerExec, "get", "-v", r.opts.goModule.String())
 	executor.Dir = os.TempDir()
-	executor.Env = os.Environ()
 
 	// Explicitly enable "module" mode to install a pinned version.
 	r.opts.Env[taskGo.DefaultEnvVarGO111MODULE] = "on"
-	executor.Env = osSupport.EnvMapToSlice(r.opts.Env)
+	executor.Env = append(os.Environ(), osSupport.EnvMapToSlice(r.opts.Env)...)
 
-	if err := executor.Run(); err != nil {
+	out, err := executor.CombinedOutput()
+	if err != nil {
 		return &task.ErrRunner{
-			Err:  err,
+			Err:  fmt.Errorf("%s: %w", out, err),
 			Kind: task.ErrRun,
 		}
 	}
