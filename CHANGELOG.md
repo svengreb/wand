@@ -1,10 +1,48 @@
 <p align="center"><img src="https://raw.githubusercontent.com/svengreb/wand/main/assets/images/repository-hero.svg?sanitize=true"/></p>
 
-<p align="center"><a href="https://github.com/svengreb/wand/releases/latest"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Release&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a></p>
-
 <p align="center">Changelog of <em>wand</em>, a simple and powerful toolkit for <a href="https://magefile.org" target="_blank">Mage</a>.</p>
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
+
+# 0.4.1
+
+![Release Date: 2021-01-04](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-01-04&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.4.1&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/8) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.4.1&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/5)
+
+⇅ [Show all commits][gh-compare-tag-v0.4.0_v0.4.1]
+
+This release version fixes a bug that could occur when running the `Install` method of the `gobin` task runner in minimal environments like containers.
+
+## Bug Fixes
+
+<details>
+<summary><strong>Fix missing environment variables in <code>Install</code> method of <code>gobin</code> task</strong> — #63 ⇄ #62 (⊶ ff54e917)</summary>
+
+↠ Fixed possible errors like
+
+```raw
+build cache is required, but could not be located: GOCACHE is not defined and neither $XDG_CACHE_HOME nor $HOME are defined
+```
+
+when running the method in minimal environments like containers by ensuring that the inherited OS environment is prepended before applying custom environment variables.
+
+Before the [`Install` method of the `gobin` task runner][go-pkg-v0.4.0-md-task/gobin#runner.install] has set the environment of the command that gets executed initially to [`os.Environ()`][go-pkg-fn-os#environ], but has overwritten it later on with custom variables configured through the [`WithEnv(map[string]string)` option][go-pkg-v0.4.0-fn-task/gobin#withenv].
+
+This change also improves the debugging process by including the combined output (`stdout` + `stderr`) in the error when the command execution fails.
+
+</details>
+
+## Tasks
+
+<details>
+<summary><strong>Go module dependency & GitHub action version updates</strong> — #60, #61</summary>
+
+↠ Bumped outdated Go module dependencies and GitHub actions to their latest versions:
+
+- #60 (⊶ 3fd3f8b4) [`actions/setup-node`][gh-actions/setup-node] from [v2.1.3 to v2.1.4][gh-actions/setup-node-comp-v2.1.3_c46424ee]
+- #61 (⊶ 6dd713e5) [`github.com/magefile/mage`][go-pkg-github.com/magefile/mage] from [v1.10.0 to v1.11.0][gh-magefile/mage-comp-v1.10.0_v1.11.0] - This release finally introduces a long-time requested feature: [Target functions with arguments][mage-docs-targets#args]!
+  This allows to pass parameters to targets from the CLI to make functions even more dynamic.
+
+</details>
 
 # 0.4.0
 
@@ -717,3 +755,15 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-m-elder#elder.gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#Elder.Gofumpt
 [go-pkg-mvdan.cc/gofumpt]: https://pkg.go.dev/mvdan.cc/gofumpt
 [go-pkg-task/gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gofumpt
+
+<!-- v0.4.1 -->
+
+[gh-actions/setup-node-comp-v2.1.3_c46424ee]: https://github.com/actions/setup-node/compare/v2.1.3...c46424ee
+[gh-actions/setup-node]: https://github.com/actions/setup-node
+[gh-compare-tag-v0.4.0_v0.4.1]: https://github.com/svengreb/wand/compare/v0.4.0...v0.4.1
+[gh-magefile/mage-comp-v1.10.0_v1.11.0]: https://github.com/magefile/mage/compare/v1.10.0...v1.11.0
+[go-pkg-fn-os#environ]: https://pkg.go.dev/os/#Environ
+[go-pkg-github.com/magefile/mage]: https://pkg.go.dev/github.com/magefile/mage
+[go-pkg-v0.4.0-fn-task/gobin#withenv]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.0/pkg/task/gobin#WithEnv
+[go-pkg-v0.4.0-md-task/gobin#runner.install]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.0/pkg/task/gobin#Runner.Install
+[mage-docs-targets#args]: https://magefile.org/targets/#arguments
