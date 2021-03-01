@@ -49,7 +49,7 @@ jobs:
       - name: "Run golangci-lint"
         # The official golangci-lint action created and maintained by the golangci-lint project.
         # See https://github.com/golangci/golangci-lint-action for more details.
-        uses: golangci/golangci-lint-action@v2.4.0
+        uses: golangci/golangci-lint-action@v2.5.1
         with:
           version: v1.32
   test:
