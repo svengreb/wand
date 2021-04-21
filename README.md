@@ -126,6 +126,7 @@ The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] 
 - **`goimports`** — the [`goimports`][go-pkg-task/goimports] package provides a task for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command. `goimports` allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
 - **Go** — The [`golang`][go-pkg-task/golang] package provides tasks for [Go toolchain][go-pkg-cmd/go] commands.
   - **`build`** — to run the [`build` command of the Go toolchain][go-pkg-cmd/go#build] the task of the [`build`][go-pkg-task/golang/build] package can be used.
+  - **`install`** — to run the [`install` command of the Go toolchain][go-pkg-cmd/go#install] the task of the [`install`][go-pkg-task/golang/install] package can be used.
   - **`test`** — to run the [`test` command of the Go toolchain][go-pkg-cmd/go#test] the task of the [`test`][go-pkg-task/golang/test] package can be used.
 - **`golangci-lint`** — the [`golangcilint`][go-pkg-task/golangcilint] package provides a task for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] Go module command. `golangci-lint` is a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][gh-golangci/golangci-lint].
 - **`gox`** — the [`gox`][go-pkg-task/gox] package provides a task for the [`github.com/mitchellh/gox`][go-pkg-github.com/mitchellh/gox] Go module command. `gox` is a dead simple, no frills Go cross compile tool that behaves a lot like the standard [Go toolchain `build` command][go-pkg-cmd/go#build]. The source code of `gox` is [available in the GitHub repository][gh-mitchellh/gox].
@@ -363,6 +364,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-task/goimports]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/goimports
 [go-pkg-task/golang]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang
 [go-pkg-task/golang/build]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/build
+[go-pkg-task/golang/install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
 [go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
 [go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
 [go-pkg-task/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gox
