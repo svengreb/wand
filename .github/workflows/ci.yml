@@ -45,7 +45,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.15.x"
+          go-version: "1.16.x"
       - name: "Run golangci-lint"
         # The official golangci-lint action created and maintained by the golangci-lint project.
         # See https://github.com/golangci/golangci-lint-action for more details.
@@ -67,6 +67,6 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.15.x"
+          go-version: "1.16.x"
       - name: "Run tests with coverage and race detector"
         run: go test -cover -race -v ./...
