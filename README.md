@@ -130,7 +130,6 @@ The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] 
   - **`test`** — to run the [`test` command of the Go toolchain][go-pkg-cmd/go#test] the task of the [`test`][go-pkg-task/golang/test] package can be used.
 - **`golangci-lint`** — the [`golangcilint`][go-pkg-task/golangcilint] package provides a task for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] Go module command. `golangci-lint` is a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][gh-golangci/golangci-lint].
 - **`gox`** — the [`gox`][go-pkg-task/gox] package provides a task for the [`github.com/mitchellh/gox`][go-pkg-github.com/mitchellh/gox] Go module command. `gox` is a dead simple, no frills Go cross compile tool that behaves a lot like the standard [Go toolchain `build` command][go-pkg-cmd/go#build]. The source code of `gox` is [available in the GitHub repository][gh-mitchellh/gox].
-- **`pkger`** — the [`pkger`][go-pkg-task/pkger] package provides a task for the [`github.com/markbates/pkger`][go-pkg-github.com/markbates/pkger] Go module command. `pkger` is a tool for embedding static files into Go binaries.
 
 There are also tasks that don‘t need to implement the task API but make use of some “loose“ features like information about a project application are shared as well as the dynamic option system. They can be used without a `task.Runner`, just like a “normal“ package, and provide Go functions/methods that can be called directly:
 
@@ -337,7 +336,6 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-func-app#newstore]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#NewStore
 [go-pkg-func-os#usercachedir]: https://pkg.go.dev/os/#UserCacheDir
 [go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint]: https://pkg.go.dev/github.com/golangci/golangci-lint/cmd/golangci-lint
-[go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
 [go-pkg-github.com/mitchellh/gox]: https://pkg.go.dev/github.com/mitchellh/gox
 [go-pkg-github.com/myitcv/gobin]: https://pkg.go.dev/github.com/myitcv/gobin
 [go-pkg-golang.org/x/tools/cmd/goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
@@ -368,7 +366,6 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
 [go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
 [go-pkg-task/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gox
-[go-pkg-task/pkger]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/pkger
 [go-pkg-wand]: https://pkg.go.dev/github.com/svengreb/wand
 [go-ref-mod]: https://golang.org/ref/mod
 [go-ref-mod#go.mod]: https://golang.org/ref/mod#go-mod-file
