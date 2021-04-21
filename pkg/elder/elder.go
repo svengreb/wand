@@ -9,9 +9,7 @@
 package elder
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -30,7 +28,6 @@ import (
 	taskGoTest "github.com/svengreb/wand/pkg/task/golang/test"
 	taskGolangCILint "github.com/svengreb/wand/pkg/task/golangcilint"
 	taskGox "github.com/svengreb/wand/pkg/task/gox"
-	taskPkger "github.com/svengreb/wand/pkg/task/pkger"
 )
 
 // Elder is a wand.Wand reference implementation that provides common Mage tasks and stores configurations and metadata
@@ -245,73 +242,6 @@ func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 	t, tErr := taskGox.New(e, ac, opts...)
 	if tErr != nil {
 		return fmt.Errorf("create %q task: %w", taskGox.TaskName, tErr)
-	}
-
-	return e.gobinRunner.Run(t)
-}
-
-// Pkger is a task to run the "github.com/markbates/pkger/cmd/pkger" Go module command.
-// "pkger" is a tool for embedding static files into Go binaries.
-// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
-//
-// See the "github.com/svengreb/wand/pkg/task/pkger" package for all available options.
-//
-// See https://pkg.go.dev/github.com/markbates/pkger for more details about "pkger".
-// The source code of the "pkger" is available at github.com/markbates/pkger.
-//
-// Official "Static Assets Embedding"
-//
-// Please note that the "pkger" project might be superseded and discontinued due to the official Go toolchain support
-// for embedding static assets (files) that will most probably be released with Go version 1.16.
-//
-// Please see https://go.googlesource.com/proposal/+/master/design/draft-embed.md and
-// https://github.com/markbates/pkger/issues/114 for more details.
-//
-// "Monorepo" Workaround
-//
-// "pkger" tries to mimic the Go standard library and the way how the Go toolchain handles modules, but is therefore
-// also affected by its problems and edge cases.
-// When the "pkger" command is used from the root of a Go module repository, the directory where the "go.mod" file is
-// located, and there is no valid Go source file, the command will fail because it internally uses the same logic like
-// the "list" command of the Go toolchain ("go list").
-// Therefore a "dummy" Go source file may need to be created as a workaround. This is mostly only required for
-// repositories that use a "monorepo" layout where one or more "main" packages are placed in a subdirectory relative to
-// the root directory, e.g. "apps" or "cmd". For repositories where the root directory already has a Go package,
-// that does not contain any build constraints/tags, or uses a "library" layout, a "dummy" file is probably not needed.
-//
-// Please see https://github.com/markbates/pkger/issues/109 and https://github.com/markbates/pkger/issues/121 for more
-// details.
-func (e *Elder) Pkger(appName string, opts ...taskPkger.Option) error {
-	ac, acErr := e.GetAppConfig(appName)
-	if acErr != nil {
-		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
-	}
-
-	t, tErr := taskPkger.New(e, ac, opts...)
-	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", taskPkger.TaskName, tErr)
-	}
-
-	dummyWorkaroundFilePath := filepath.Join(
-		e.GetProjectMetadata().Options().RootDirPathAbs,
-		fmt.Sprintf("%s.go", taskPkger.MonorepoWorkaroundDummyFileName),
-	)
-
-	cleanDummyFile := func(path string) {
-		if osErr := os.Remove(path); osErr != nil && !errors.Is(osErr, os.ErrNotExist) {
-			e.Warnf("Failed to delete \"pkger\" dummy workaround file %q: %w", path, osErr)
-			e.Warnf("Please remove %q manually", path)
-			return
-		}
-		e.Debugf("Removed \"pkger\" dummy workaround file %q", path)
-	}
-
-	cleanDummyFile(dummyWorkaroundFilePath)
-	defer cleanDummyFile(dummyWorkaroundFilePath)
-
-	wErr := ioutil.WriteFile(dummyWorkaroundFilePath, []byte(taskPkger.MonorepoWorkaroundDummyFileContent), os.ModePerm)
-	if wErr != nil {
-		return fmt.Errorf("write \"pkger\" dummy workaround file %q: %w", dummyWorkaroundFilePath, wErr)
 	}
 
 	return e.gobinRunner.Run(t)
