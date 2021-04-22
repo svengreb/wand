@@ -126,6 +126,7 @@ The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] 
 - **`goimports`** — the [`goimports`][go-pkg-task/goimports] package provides a task for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command. `goimports` allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
 - **Go** — The [`golang`][go-pkg-task/golang] package provides tasks for [Go toolchain][go-pkg-cmd/go] commands.
   - **`build`** — to run the [`build` command of the Go toolchain][go-pkg-cmd/go#build] the task of the [`build`][go-pkg-task/golang/build] package can be used.
+  - **`env`** — to run the [`env` command of the Go toolchain][go-pkg-cmd/go#env] the task of the [`env`][go-pkg-task/golang/env] package can be used.
   - **`install`** — to run the [`install` command of the Go toolchain][go-pkg-cmd/go#install] the task of the [`install`][go-pkg-task/golang/install] package can be used.
   - **`test`** — to run the [`test` command of the Go toolchain][go-pkg-cmd/go#test] the task of the [`test`][go-pkg-task/golang/test] package can be used.
 - **`golangci-lint`** — the [`golangcilint`][go-pkg-task/golangcilint] package provides a task for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] Go module command. `golangci-lint` is a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][gh-golangci/golangci-lint].
@@ -325,6 +326,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-cmd/go]: https://pkg.go.dev/cmd/go
 [go-pkg-cmd/go#build]: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
 [go-pkg-cmd/go#env_vars]: https://pkg.go.dev/cmd/go/#hdr-Environment_variables
+[go-pkg-cmd/go#env]: https://pkg.go.dev/cmd/go#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-cmd/go#mod_cmds]: https://golang.org/ref/mod#mod-commands
 [go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
@@ -362,6 +364,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-task/goimports]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/goimports
 [go-pkg-task/golang]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang
 [go-pkg-task/golang/build]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/build
+[go-pkg-task/golang/env]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/env
 [go-pkg-task/golang/install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
 [go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
 [go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
