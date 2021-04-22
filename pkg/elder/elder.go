@@ -130,7 +130,7 @@ func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	return e.goRunner.Run(taskGoBuild.New(e, ac, opts...))
+	return e.goRunner.Run(taskGoBuild.New(ac, opts...))
 }
 
 // Gofumpt is a task for the "mvdan.cc/gofumpt" Go module command.
@@ -149,7 +149,7 @@ func (e *Elder) Gofumpt(appName string, opts ...taskGofumpt.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	return e.gobinRunner.Run(taskGofumpt.New(e, ac, opts...))
+	return e.gobinRunner.Run(taskGofumpt.New(ac, opts...))
 }
 
 // Goimports is a task for the "golang.org/x/tools/cmd/goimports" Go module command.
@@ -166,7 +166,7 @@ func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	t, tErr := taskGoimports.New(e, ac, opts...)
+	t, tErr := taskGoimports.New(ac, opts...)
 	if tErr != nil {
 		return fmt.Errorf("create %q task: %w", taskGoimports.TaskName, tErr)
 	}
@@ -191,7 +191,7 @@ func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) er
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	t, tErr := taskGolangCILint.New(e, ac, opts...)
+	t, tErr := taskGolangCILint.New(ac, opts...)
 	if tErr != nil {
 		return fmt.Errorf("create %q task: %w", taskGolangCILint.TaskName, tErr)
 	}
@@ -211,7 +211,7 @@ func (e *Elder) GoTest(appName string, opts ...taskGoTest.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	t := taskGoTest.New(e, ac, opts...)
+	t := taskGoTest.New(ac, opts...)
 	tOpts, ok := t.Options().(taskGoTest.Options)
 	if !ok {
 		return fmt.Errorf(`convert task options to "%T"`, taskGoTest.Options{})
@@ -239,7 +239,7 @@ func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
 
-	t, tErr := taskGox.New(e, ac, opts...)
+	t, tErr := taskGox.New(ac, opts...)
 	if tErr != nil {
 		return fmt.Errorf("create %q task: %w", taskGox.TaskName, tErr)
 	}

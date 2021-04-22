@@ -7,7 +7,6 @@ package build
 import (
 	"path/filepath"
 
-	"github.com/svengreb/wand"
 	"github.com/svengreb/wand/pkg/app"
 	"github.com/svengreb/wand/pkg/task"
 	taskGo "github.com/svengreb/wand/pkg/task/golang"
@@ -61,7 +60,7 @@ func (t *Task) Options() task.Options {
 
 // New creates a new task for the Go toolchain "build" command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(wand wand.Wand, ac app.Config, opts ...Option) *Task {
+func New(ac app.Config, opts ...Option) *Task {
 	opt := NewOptions(opts...)
 
 	if opt.BinaryArtifactName == "" {
