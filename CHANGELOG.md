@@ -4,6 +4,50 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.5.0
+
+![Release Date: 2021-04-22](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-04-22&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.5.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/9) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.5.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/6)
+
+⇅ [Show all commits][gh-compare-tag-v0.4.1_v0.5.0]
+
+This release comes with support for Go 1.16 features like the new `install` command behavior and removes the now unnecessary `pkger` task runner in favor of the new `embed` package and `//go:embed` directive.
+
+## Features
+
+<details>
+<summary><strong>Task for Go toolchain <code>install</code> command</strong> — #70 ⇄ #71 (⊶ c36e8f31)</summary>
+
+↠ As of Go version 1.16 [`go install $pkg@$version`][go-blog-1.16-modules] allows to install commands without affecting the `main` module. Additionally commands like `go build` and `go test` no longer modify `go.mod` and `go.sum` files by default but report an error if a module requirement or checksum needs to be added or updated (as if the `-mod=readonly` flag were used).
+This can be used as alternative to the already existing [`gobin` runner][go-pkg-v0.4.1-pkg-task-gobin].
+
+To support the [`go install` command of the Go toolchain][go-pkg-cmd#install], a new [`Task`][go-pkg-wand-pkg-task#task] has been implemented in the new [`install`][go-pkg-wand-pkg-task-golang-install] package that can be used through a [Go toolchain `Runner`][go-pkg-wand-pkg-task-golang#runner].
+The task is customizable through the following functions:
+
+- `WithEnv(env map[string]string) install.Option` — sets the task specific environment.
+- `WithModulePath(path string) install.Option` — sets the module import path.
+- `WithModuleVersion(version *semver.Version) install.Option` — sets the module version.
+
+</details>
+
+## Tasks
+
+<details>
+<summary><strong>Updated to "tmpl-go" template repository version <code>0.7.0</code></strong> — #72 ⇄ #73 (⊶ 53fd75ec)</summary>
+
+↠ Updated to ["tmpl-go" version 0.7.0][gh-svengreb/tmpl-go-rl-v0.7.0] which comes with updates to GitHub Actions and Node development dependencies.
+
+</details>
+
+<details>
+<summary><strong>Removed <code>pkger</code> task in favor of Go 1.16 <code>embed</code> package</strong> — #74 ⇄ #75 (⊶ 1fc1f253)</summary>
+
+↠ In #52 a task for the [github.com/markbates/pkger][go-pkg-github.com/markbates/pkger] Go module was added, a tool for embedding static files into Go binaries.
+The issue also includes the “Official Static Assets Embedding“ section which mentions that the task might be removed later on again as soon as [Go 1.16][go-blog-1.16] will be released as it comes with [toolchain support for embedding static assets (files)][go-docs-rln-1.16#embed] through the [`embed` package][go-pkg-embed]. Also see [markbates/pkger#114][gh-markbates/pkger#114] for more details about the project future of `pkger`.
+
+The [`pkger` package][go-pkg-v0.4.1-pkg-task-pkger] has been removed and the `//go:embed` directive should be used instead.
+
+</details>
+
 # 0.4.1
 
 ![Release Date: 2021-01-04](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-01-04&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.4.1&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/8) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.4.1&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/5)
@@ -632,11 +676,13 @@ otherwise Markdown elements are not parsed and rendered!
 
 <!-- Shared Links -->
 
+[gh-markbates/pkger#114]: https://github.com/markbates/pkger/issues/114
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
 [go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
 [go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
-[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
 [go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
+[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
 [go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
 [go-ref-mod]: https://golang.org/ref/mod
 [mage]: https://magefile.org
@@ -737,13 +783,11 @@ otherwise Markdown elements are not parsed and rendered!
 [gh-golang/go#41191]: https://github.com/golang/go/issues/41191
 [gh-imdario/mergo-comp-v0.3.9_v0.3.11]: https://github.com/imdario/mergo/compare/v0.3.9...v0.3.11
 [gh-markbates/pkger#109]: https://github.com/markbates/pkger/issues/109
-[gh-markbates/pkger#114]: https://github.com/markbates/pkger/issues/114
 [gh-markbates/pkger#121]: https://github.com/markbates/pkger/issues/121
 [gh-masterminds/semver-comp-v3.1.0_v3.1.1]: https://github.com/Masterminds/semver/compare/v3.1.0...v3.1.1
 [gh-pkg-cmd/go#list]: https://pkg.go.dev/cmd/go/#hdr-List_packages_or_modules
 [go-pkg-elder#elder.pkger]: https://pkg.go.dev/github.com/svengreb/wand/elder#Elder.Pkger
 [go-pkg-github.com/imdario/mergo]: https://pkg.go.dev/github.com/imdario/mergo
-[go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
 [go-pkg-github.com/masterminds/semver/v3]: https://pkg.go.dev/github.com/Masterminds/semver/v3
 [go-pkg-task/pkger]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/pkger
 [googsrc-go-prop-design-embed]: https://go.googlesource.com/proposal/+/master/design/draft-embed.md
@@ -767,3 +811,18 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-v0.4.0-fn-task/gobin#withenv]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.0/pkg/task/gobin#WithEnv
 [go-pkg-v0.4.0-md-task/gobin#runner.install]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.0/pkg/task/gobin#Runner.Install
 [mage-docs-targets#args]: https://magefile.org/targets/#arguments
+
+<!-- v0.5.0 -->
+
+[gh-compare-tag-v0.4.1_v0.5.0]: https://github.com/svengreb/wand/compare/v0.4.1...v0.5.0
+[gh-svengreb/tmpl-go-rl-v0.7.0]: https://github.com/svengreb/tmpl-go/releases/tag/v0.7.0
+[go-blog-1.16-modules]: https://blog.golang.org/go116-module-changes#TOC_4.
+[go-blog-1.16]: https://blog.golang.org/go1.16
+[go-docs-rln-1.16#embed]: https://golang.org/doc/go1.16#library-embed
+[go-pkg-cmd#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
+[go-pkg-embed]: https://pkg.go.dev/embed
+[go-pkg-v0.4.1-pkg-task-gobin]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/gobin
+[go-pkg-v0.4.1-pkg-task-pkger]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/pkger
+[go-pkg-wand-pkg-task-golang-install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
+[go-pkg-wand-pkg-task-golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
+[go-pkg-wand-pkg-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
