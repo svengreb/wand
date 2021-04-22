@@ -11,7 +11,6 @@
 package golangcilint
 
 import (
-	"github.com/svengreb/wand"
 	"github.com/svengreb/wand/pkg/app"
 	"github.com/svengreb/wand/pkg/project"
 	"github.com/svengreb/wand/pkg/task"
@@ -51,7 +50,7 @@ func (t *Task) Options() task.Options {
 // New creates a new task for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module command.
 // If no extra arguments are configured, DefaultArgs are passed to the command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(wand wand.Wand, ac app.Config, opts ...Option) (*Task, error) {
+func New(ac app.Config, opts ...Option) (*Task, error) {
 	opt, optErr := NewOptions(opts...)
 	if optErr != nil {
 		return nil, optErr

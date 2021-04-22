@@ -3,7 +3,6 @@
 package main
 
 import (
-	"github.com/svengreb/wand"
 	"github.com/svengreb/wand/pkg/app"
 	"github.com/svengreb/wand/pkg/task"
 )
@@ -66,7 +65,7 @@ func (t *MixTask) Options() task.Options {
 }
 
 // NewMixTask creates a new mix task for the fruit CLI.
-func NewMixTask(wand wand.Wand, ac app.Config, opts ...MixOption) (*MixTask, error) {
+func NewMixTask(ac app.Config, opts ...MixOption) (*MixTask, error) {
 	return &MixTask{ac: ac, opts: NewMixOptions(opts...)}, nil
 }
 
