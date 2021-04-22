@@ -24,6 +24,9 @@ type Exec interface {
 
 	// Env returns the task specific environment.
 	Env() map[string]string
+
+	// ExecName returns the executable name.
+	ExecName() string
 }
 
 // GoModule is a task for a Go module command.
@@ -42,6 +45,9 @@ type GoModule interface {
 type Task interface {
 	// Kind returns the task kind.
 	Kind() Kind
+
+	// Name returns the task name.
+	Name() string
 
 	// Options returns the task options.
 	Options() Options

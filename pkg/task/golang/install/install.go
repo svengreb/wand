@@ -1,3 +1,5 @@
+// +build go1.16
+
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
@@ -57,6 +59,11 @@ func (t *Task) Kind() task.Kind {
 	return task.KindExec
 }
 
+// Name returns the task name.
+func (t *Task) Name() string {
+	return t.opts.name
+}
+
 // Options returns the task options.
 func (t *Task) Options() task.Options {
 	return *t.opts
@@ -64,11 +71,6 @@ func (t *Task) Options() task.Options {
 
 // New creates a new task for the Go toolchain "install" command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(ac app.Config, opts ...Option) (*Task, error) {
-	opt, optErr := NewOptions(opts...)
-	if optErr != nil {
-		return nil, optErr
-	}
-
-	return &Task{ac: ac, opts: opt}, nil
+func New(ac app.Config, opts ...Option) *Task {
+	return &Task{ac: ac, opts: NewOptions(opts...)}
 }

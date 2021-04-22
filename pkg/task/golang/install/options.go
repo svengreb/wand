@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	// TaskName is the name of the task.
-	TaskName = "go/install"
+	// taskName is the name of the task.
+	taskName = "go/install"
 )
 
 // Option is a task option.
@@ -24,12 +24,16 @@ type Options struct {
 
 	// goModule is the Go module identifier.
 	goModule *project.GoModuleID
+
+	// name is the task name.
+	name string
 }
 
 // NewOptions creates new task options.
-func NewOptions(opts ...Option) (*Options, error) {
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		goModule: &project.GoModuleID{},
+		name: taskName,
 	}
 	for _, o := range opts {
 		o(opt)
@@ -39,7 +43,7 @@ func NewOptions(opts ...Option) (*Options, error) {
 		opt.goModule.IsLatest = true
 	}
 
-	return opt, nil
+	return opt
 }
 
 // WithEnv sets the task specific environment.

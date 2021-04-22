@@ -108,6 +108,11 @@ func (t *Task) Kind() task.Kind {
 	return task.KindExec
 }
 
+// Name returns the unique task name.
+func (t *Task) Name() string {
+	return t.opts.name
+}
+
 // Options returns the task options.
 func (t *Task) Options() task.Options {
 	return *t.opts
