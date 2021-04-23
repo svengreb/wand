@@ -34,24 +34,26 @@ func (r *Runner) Handles() task.Kind {
 // Run runs the command.
 // It returns an error of type *task.ErrRunner when any error occurs during the command execution.
 func (r *Runner) Run(t task.Task) error {
-	tExec, ok := t.(task.Exec)
-	if t.Kind() != task.KindExec || !ok {
-		return &task.ErrRunner{
-			Err:  fmt.Errorf("expected %q but got %q", r.Handles(), t.Kind()),
-			Kind: task.ErrUnsupportedTaskKind,
-		}
+	tExec, tErr := r.runPrepare(t)
+	if tErr != nil {
+		return tErr
 	}
 
-	runFn := sh.RunWithV
 	if r.opts.Quiet {
-		runFn = sh.RunWith
+		return sh.RunWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+	}
+	return sh.RunWithV(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+}
+
+// RunOut runs the command and returns its output.
+// It returns an error of type *task.ErrRunner when any error occurs during the command execution.
+func (r *Runner) RunOut(t task.Task) (string, error) {
+	tExec, tErr := r.runPrepare(t)
+	if tErr != nil {
+		return "", tErr
 	}
 
-	for k, v := range tExec.Env() {
-		r.opts.Env[k] = v
-	}
-
-	return runFn(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+	return sh.OutputWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
 }
 
 // Validate validates the command executable.
@@ -79,6 +81,23 @@ func (r *Runner) Validate() error {
 	}
 
 	return nil
+}
+
+// runPrepare checks if the given task is of type task.Exec and prepares the task specific environment.
+func (r *Runner) runPrepare(t task.Task) (task.Exec, error) {
+	tExec, ok := t.(task.Exec)
+	if t.Kind() != task.KindExec || !ok {
+		return nil, &task.ErrRunner{
+			Err:  fmt.Errorf("expected %q but got %q", r.Handles(), t.Kind()),
+			Kind: task.ErrUnsupportedTaskKind,
+		}
+	}
+
+	for k, v := range tExec.Env() {
+		r.opts.Env[k] = v
+	}
+
+	return tExec, nil
 }
 
 // NewRunner creates a new Go toolchain command runner.

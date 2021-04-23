@@ -11,6 +11,9 @@ type Runner interface {
 	// Run runs a command.
 	Run(Task) error
 
+	// RunOut runs a command and returns its output.
+	RunOut(Task) (string, error)
+
 	// Validate validates the runner.
 	Validate() error
 }
