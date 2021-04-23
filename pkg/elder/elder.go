@@ -68,7 +68,7 @@ func (e *Elder) Clean(appName string, opts ...taskFSClean.Option) ([]string, err
 	}
 	t, tErr := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
 	if tErr != nil {
-		return []string{}, fmt.Errorf("create %q task: %w", taskFSClean.TaskName, tErr)
+		return []string{}, tErr
 	}
 
 	return t.Clean()
@@ -168,7 +168,7 @@ func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 
 	t, tErr := taskGoimports.New(ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", taskGoimports.TaskName, tErr)
+		return tErr
 	}
 
 	return e.gobinRunner.Run(t)
@@ -193,7 +193,7 @@ func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) er
 
 	t, tErr := taskGolangCILint.New(ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", taskGolangCILint.TaskName, tErr)
+		return tErr
 	}
 
 	return e.gobinRunner.Run(t)
@@ -241,7 +241,7 @@ func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 
 	t, tErr := taskGox.New(ac, opts...)
 	if tErr != nil {
-		return fmt.Errorf("create %q task: %w", taskGox.TaskName, tErr)
+		return tErr
 	}
 
 	return e.gobinRunner.Run(t)
