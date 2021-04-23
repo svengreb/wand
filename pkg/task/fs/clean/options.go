@@ -4,8 +4,8 @@
 package clean
 
 const (
-	// TaskName is the name of the task.
-	TaskName = "fs/clean"
+	// taskName is the name of the task.
+	taskName = "fs/clean"
 )
 
 // Option is a task option.
@@ -17,6 +17,9 @@ type Options struct {
 	// allowed.
 	limitToAppOutputDir bool
 
+	// name is the task name.
+	name string
+
 	// paths are paths to remove.
 	// Note that only paths within the configured application output directory are allowed when limitToAppOutputDir is
 	// enabled
@@ -25,7 +28,9 @@ type Options struct {
 
 // NewOptions creates new task options.
 func NewOptions(opts ...Option) (*Options, error) {
-	opt := &Options{}
+	opt := &Options{
+		name: taskName,
+	}
 	for _, o := range opts {
 		o(opt)
 	}

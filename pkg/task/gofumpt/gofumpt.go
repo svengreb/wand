@@ -77,6 +77,11 @@ func (t *Task) Env() map[string]string {
 	return t.opts.env
 }
 
+// ExecName returns the executable name.
+func (t *Task) ExecName() string {
+	return t.opts.execName
+}
+
 // ID returns the identifier of the Go module.
 func (t *Task) ID() *project.GoModuleID {
 	return t.opts.goModule
@@ -87,6 +92,11 @@ func (t *Task) Kind() task.Kind {
 	return task.KindGoModule
 }
 
+// Name returns the task name.
+func (t *Task) Name() string {
+	return t.opts.execName
+}
+
 // Options returns the task options.
 func (t *Task) Options() task.Options {
 	return *t.opts
@@ -94,6 +104,10 @@ func (t *Task) Options() task.Options {
 
 // New creates a new task for the "mvdan.cc/gofumpt" Go module command.
 //nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(ac app.Config, opts ...Option) *Task {
-	return &Task{ac: ac, opts: NewOptions(opts...)}
+func New(ac app.Config, opts ...Option) (*Task, error) {
+	opt, optErr := NewOptions(opts...)
+	if optErr != nil {
+		return nil, optErr
+	}
+	return &Task{ac: ac, opts: opt}, nil
 }

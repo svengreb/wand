@@ -32,8 +32,8 @@ const (
 	// DefaultTraceProfileOutputFileName is the default file name for the execution trace profile file.
 	DefaultTraceProfileOutputFileName = "trace_profile.out"
 
-	// TaskName is the name of the task.
-	TaskName = "go/test"
+	// taskName is the name of the task.
+	taskName = "go/test"
 )
 
 // Option is a task option.
@@ -128,6 +128,9 @@ type Options struct {
 	//   - https://golang.org/cmd/go/#hdr-Testing_flags
 	MutexProfileOutputFileName string
 
+	// name is the task name.
+	name string
+
 	// OutputDir is the output directory, relative to the project root, for reports like
 	// coverage or benchmark profiles.
 	//
@@ -159,6 +162,7 @@ func NewOptions(opts ...Option) *Options {
 		CPUProfileOutputFileName:      DefaultCPUProfileOutputFileName,
 		MemoryProfileOutputFileName:   DefaultMemoryProfileOutputFileName,
 		MutexProfileOutputFileName:    DefaultMutexProfileOutputFileName,
+		name: taskName,
 		TraceProfileOutputFileName:    DefaultTraceProfileOutputFileName,
 	}
 	for _, o := range opts {

@@ -15,14 +15,17 @@ import (
 )
 
 const (
+	// DefaultExecName is the default name of the module executable.
+	DefaultExecName = "gox"
+
 	// DefaultGoModulePath is the default module import path.
 	DefaultGoModulePath = "github.com/mitchellh/gox"
 
 	// DefaultGoModuleVersion is the default module version.
 	DefaultGoModuleVersion = "v1.0.1"
 
-	// TaskName is the name of the task.
-	TaskName = "gox"
+	// taskName is the name of the task.
+	taskName = "gox"
 )
 
 var (
@@ -52,11 +55,17 @@ type Options struct {
 	// env is the task specific environment.
 	env map[string]string
 
+	// execName is the unique executable name.
+	execName string
+
 	// goCmd is the path to the Go toolchain executable.
 	goCmd string
 
 	// goModule is the Go module identifier.
 	goModule *project.GoModuleID
+
+	// name is the task name.
+	name string
 
 	// outputTemplate is the name template for cross-compile platform targets.
 	outputTemplate string
@@ -83,10 +92,12 @@ func NewOptions(opts ...Option) (*Options, error) {
 
 	opt := &Options{
 		env: make(map[string]string),
+		execName: DefaultExecName,
 		goModule: &project.GoModuleID{
 			Path:    DefaultGoModulePath,
 			Version: version,
 		},
+		name: taskName,
 	}
 	for _, o := range opts {
 		o(opt)
@@ -113,6 +124,13 @@ func NewOptions(opts ...Option) (*Options, error) {
 func WithEnv(env map[string]string) Option {
 	return func(o *Options) {
 		o.env = env
+	}
+}
+
+// WithExecName sets the name of the executable.
+func WithExecName(execName string) Option {
+	return func(o *Options) {
+		o.execName = execName
 	}
 }
 

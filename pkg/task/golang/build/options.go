@@ -11,8 +11,8 @@ const (
 	// DefaultDistOutputDirName is the default directory name for production and distribution builds.
 	DefaultDistOutputDirName = "dist"
 
-	// TaskName is the name of the task.
-	TaskName = "go/build"
+	// taskName is the name of the task.
+	taskName = "go/build"
 )
 
 // Option is a task option.
@@ -37,6 +37,9 @@ type Options struct {
 	//   - https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies
 	Flags []string
 
+	// name is the task name.
+	name string
+
 	// OutputDir is the output directory, relative to the project root, for compilation artifacts.
 	OutputDir string
 
@@ -46,7 +49,9 @@ type Options struct {
 
 // NewOptions creates new task options.
 func NewOptions(opts ...Option) *Options {
-	opt := &Options{}
+	opt := &Options{
+		name: taskName,
+	}
 	for _, o := range opts {
 		o(opt)
 	}

@@ -74,6 +74,11 @@ func (t *Task) Clean() ([]string, error) {
 	return cleaned, nil
 }
 
+// Name returns the task name.
+func (t *Task) Name() string {
+	return t.opts.name
+}
+
 // Options returns the task options.
 func (t *Task) Options() task.Options {
 	return *t.opts

@@ -4,17 +4,26 @@
 package goimports
 
 import (
+	"fmt"
+
 	"github.com/Masterminds/semver/v3"
 
 	"github.com/svengreb/wand/pkg/project"
+	"github.com/svengreb/wand/pkg/task"
 )
 
 const (
+	// DefaultExecName is the default name of the module executable.
+	DefaultExecName = "goimports"
+
 	// DefaultGoModulePath is the default module import path.
 	DefaultGoModulePath = "golang.org/x/tools/cmd/goimports"
 
-	// TaskName is the name of the task.
-	TaskName = "goimports"
+	// DefaultGoModuleVersion is the default Go module version of the runner command.
+	DefaultGoModuleVersion = "v0.1.0"
+
+	// taskName is the name of the task.
+	taskName = "goimports"
 )
 
 // Option is a task option.
@@ -24,6 +33,9 @@ type Option func(*Options)
 type Options struct {
 	// env is the task specific environment.
 	env map[string]string
+
+	// execName is the unique executable name.
+	execName string
 
 	// extraArgs are additional arguments passed to the command.
 	extraArgs []string
@@ -37,6 +49,9 @@ type Options struct {
 
 	// localPkgs are local packages whose imports will be placed after 3rd-party packages.
 	localPkgs []string
+
+	// name is the task name.
+	name string
 
 	// paths are the paths to search for Go source files.
 	// By default all directories are scanned recursively starting from the current working directory.
@@ -54,12 +69,22 @@ type Options struct {
 
 // NewOptions creates new task options.
 func NewOptions(opts ...Option) (*Options, error) {
+	version, versionErr := semver.NewVersion(DefaultGoModuleVersion)
+	if versionErr != nil {
+		return nil, &task.ErrTask{
+			Err:  fmt.Errorf("parsing default module version %q: %w", DefaultGoModulePath, versionErr),
+			Kind: task.ErrInvalidTaskOpts,
+		}
+	}
+
 	opt := &Options{
 		env: make(map[string]string),
+		execName: DefaultExecName,
 		goModule: &project.GoModuleID{
 			Path:     DefaultGoModulePath,
-			IsLatest: true,
+			Version: version,
 		},
+		name: taskName,
 	}
 	for _, o := range opts {
 		o(opt)
@@ -72,6 +97,13 @@ func NewOptions(opts ...Option) (*Options, error) {
 func WithEnv(env map[string]string) Option {
 	return func(o *Options) {
 		o.env = env
+	}
+}
+
+// WithExecName sets the name of the executable.
+func WithExecName(execName string) Option {
+	return func(o *Options) {
+		o.execName = execName
 	}
 }
 
