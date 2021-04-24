@@ -12,7 +12,8 @@
 package gofumpt
 
 import (
-	"github.com/svengreb/wand/pkg/app"
+	"fmt"
+
 	"github.com/svengreb/wand/pkg/project"
 	"github.com/svengreb/wand/pkg/task"
 )
@@ -26,7 +27,6 @@ import (
 // The source code of "gofumpt" is available at https://github.com/mvdan/gofumpt.
 // See https://github.com/mvdan/gofumpt#added-rules for more details about available rules.
 type Task struct {
-	ac   app.Config
 	opts *Options
 }
 
@@ -103,11 +103,10 @@ func (t *Task) Options() task.Options {
 }
 
 // New creates a new task for the "mvdan.cc/gofumpt" Go module command.
-//nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(ac app.Config, opts ...Option) (*Task, error) {
+func New(opts ...Option) (*Task, error) {
 	opt, optErr := NewOptions(opts...)
 	if optErr != nil {
-		return nil, optErr
+		return nil, fmt.Errorf("create %q task options: %w", taskName, optErr)
 	}
-	return &Task{ac: ac, opts: opt}, nil
+	return &Task{opts: opt}, nil
 }

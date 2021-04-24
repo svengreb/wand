@@ -33,7 +33,7 @@ type Options struct {
 func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		goModule: &project.GoModuleID{},
-		name: taskName,
+		name:     taskName,
 	}
 	for _, o := range opts {
 		o(opt)

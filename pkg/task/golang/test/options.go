@@ -162,7 +162,7 @@ func NewOptions(opts ...Option) *Options {
 		CPUProfileOutputFileName:      DefaultCPUProfileOutputFileName,
 		MemoryProfileOutputFileName:   DefaultMemoryProfileOutputFileName,
 		MutexProfileOutputFileName:    DefaultMutexProfileOutputFileName,
-		name: taskName,
+		name:                          taskName,
 		TraceProfileOutputFileName:    DefaultTraceProfileOutputFileName,
 	}
 	for _, o := range opts {

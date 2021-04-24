@@ -101,7 +101,7 @@ func (t *Task) Options() task.Options {
 func New(ac app.Config, opts ...Option) (*Task, error) {
 	opt, optErr := NewOptions(opts...)
 	if optErr != nil {
-		return nil, optErr
+		return nil, fmt.Errorf("create %q task options: %w", taskName, optErr)
 	}
 
 	if opt.BinaryArtifactName == "" {

@@ -89,7 +89,7 @@ func (t *Task) Options() task.Options {
 func New(proj project.Metadata, ac app.Config, opts ...Option) (*Task, error) {
 	opt, optErr := NewOptions(opts...)
 	if optErr != nil {
-		return nil, optErr
+		return nil, fmt.Errorf("create %q task options: %w", taskName, optErr)
 	}
 
 	return &Task{ac: ac, proj: proj, opts: opt}, nil

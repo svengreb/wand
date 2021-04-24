@@ -16,7 +16,6 @@
 package install
 
 import (
-	"github.com/svengreb/wand/pkg/app"
 	"github.com/svengreb/wand/pkg/task"
 )
 
@@ -31,7 +30,6 @@ import (
 //   (1) https://blog.golang.org/go116-module-changes#TOC_4.
 //   (2) https://blog.golang.org/go116-module-changes#TOC_3.
 type Task struct {
-	ac   app.Config
 	opts *Options
 }
 
@@ -70,7 +68,6 @@ func (t *Task) Options() task.Options {
 }
 
 // New creates a new task for the Go toolchain "install" command.
-//nolint:gocritic // The app.Config struct is passed as value by design to ensure immutability.
-func New(ac app.Config, opts ...Option) *Task {
-	return &Task{ac: ac, opts: NewOptions(opts...)}
+func New(opts ...Option) *Task {
+	return &Task{opts: NewOptions(opts...)}
 }
