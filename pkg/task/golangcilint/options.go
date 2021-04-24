@@ -13,9 +13,6 @@ import (
 )
 
 const (
-	// DefaultExecName is the default name of the module executable.
-	DefaultExecName = "golangci-lint"
-
 	// DefaultGoModulePath is the default module import path.
 	DefaultGoModulePath = "github.com/golangci/golangci-lint/cmd/golangci-lint"
 
@@ -40,9 +37,6 @@ type Options struct {
 	// env is the task specific environment.
 	env map[string]string
 
-	// execName is the unique executable name.
-	execName string
-
 	// goModule is the Go module identifier.
 	goModule *project.GoModuleID
 
@@ -64,8 +58,7 @@ func NewOptions(opts ...Option) (*Options, error) {
 	}
 
 	opt := &Options{
-		env:      make(map[string]string),
-		execName: DefaultExecName,
+		env: make(map[string]string),
 		goModule: &project.GoModuleID{
 			Path:    DefaultGoModulePath,
 			Version: version,
@@ -95,13 +88,6 @@ func WithArgs(args ...string) Option {
 func WithEnv(env map[string]string) Option {
 	return func(o *Options) {
 		o.env = env
-	}
-}
-
-// WithExecName sets the name of the executable.
-func WithExecName(execName string) Option {
-	return func(o *Options) {
-		o.execName = execName
 	}
 }
 

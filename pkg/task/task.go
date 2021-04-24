@@ -24,9 +24,6 @@ type Exec interface {
 
 	// Env returns the task specific environment.
 	Env() map[string]string
-
-	// ExecName returns the executable name.
-	ExecName() string
 }
 
 // GoModule is a task for a Go module command.
