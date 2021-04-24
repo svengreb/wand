@@ -137,36 +137,33 @@ func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 // "gofumpt" enforce a stricter format than "https://pkg.go.dev/cmd/gofmt", while being backwards compatible,
 // and provides additional rules.
 // It is a modified fork of "https://pkg.go.dev/cmd/gofmt" so it can be used as a drop-in replacement.
+// When any error occurs it will be of type *task.ErrRunner.
 //
 // See the "github.com/svengreb/wand/pkg/task/gofumpt" package for all available options.
 // See https://github.com/mvdan/gofumpt#added-rules for more details about available rules.
 //
 // See https://pkg.go.dev/mvdan.cc/gofumpt for more details about "gofumpt".
 // The source code of "gofumpt" is available at https://github.com/mvdan/gofumpt.
-func (e *Elder) Gofumpt(appName string, opts ...taskGofumpt.Option) error {
-	ac, acErr := e.GetAppConfig(appName)
-	if acErr != nil {
-		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
+func (e *Elder) Gofumpt(opts ...taskGofumpt.Option) error {
+	t, tErr := taskGofumpt.New(opts...)
+	if tErr != nil {
+		return tErr
 	}
 
-	return e.gobinRunner.Run(taskGofumpt.New(ac, opts...))
+	return e.gobinRunner.Run(t)
 }
 
 // Goimports is a task for the "golang.org/x/tools/cmd/goimports" Go module command.
 // "goimports" allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in
 // the same style as "https://pkg.go.dev/cmd/gofmt" so it can be used as a replacement.
+// When any error occurs it will be of type *task.ErrRunner.
 //
 // See the "github.com/svengreb/wand/pkg/task/goimports" package for all available options.
 //
 // See https://pkg.go.dev/golang.org/x/tools/cmd/goimports for more details about "goimports".
 // The source code of "goimports" is available at https://github.com/golang/tools/tree/master/cmd/goimports.
-func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
-	ac, acErr := e.GetAppConfig(appName)
-	if acErr != nil {
-		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
-	}
-
-	t, tErr := taskGoimports.New(ac, opts...)
+func (e *Elder) Goimports(opts ...taskGoimports.Option) error {
+	t, tErr := taskGoimports.New(opts...)
 	if tErr != nil {
 		return tErr
 	}
@@ -178,20 +175,15 @@ func (e *Elder) Goimports(appName string, opts ...taskGoimports.Option) error {
 // command.
 // "golangci-lint" is a fast, parallel runner for dozens of Go linters Go that uses caching, supports YAML
 // configurations and has integrations with all major IDEs.
-// When any error occurs it will be of type *app.ErrApp or *task.ErrRunner.
+// When any error occurs it will be of type *task.ErrRunner.
 //
 // See the "github.com/svengreb/wand/pkg/task/golangcilint" package for all available options.
 //
 // See https://pkg.go.dev/github.com/golangci/golangci-lint and the official website at https://golangci-lint.run for
 // more details about "golangci-lint".
 // The source code of "golangci-lint" is available at https://github.com/golangci/golangci-lint.
-func (e *Elder) GolangCILint(appName string, opts ...taskGolangCILint.Option) error {
-	ac, acErr := e.GetAppConfig(appName)
-	if acErr != nil {
-		return fmt.Errorf("get %q application configuration: %w", appName, acErr)
-	}
-
-	t, tErr := taskGolangCILint.New(ac, opts...)
+func (e *Elder) GolangCILint(opts ...taskGolangCILint.Option) error {
+	t, tErr := taskGolangCILint.New(opts...)
 	if tErr != nil {
 		return tErr
 	}
@@ -313,6 +305,7 @@ func (e *Elder) Validate() error {
 //
 // The module name is determined automatically using the "runtime/debug" package.
 // The absolute path to the root directory is automatically set based on the current working directory.
+// When the WithGenWandDataDir option is set to `true` the directory for wand specific data will be auto-generated.
 // Note that the working directory must be set manually when the "magefile" is not placed in the root directory by
 // pointing Mage to it:
 //   - "-d <PATH>" option to set the directory from which "magefiles" are read (defaults to ".").

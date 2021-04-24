@@ -78,10 +78,10 @@ func NewOptions(opts ...Option) (*Options, error) {
 	}
 
 	opt := &Options{
-		env: make(map[string]string),
+		env:      make(map[string]string),
 		execName: DefaultExecName,
 		goModule: &project.GoModuleID{
-			Path:     DefaultGoModulePath,
+			Path:    DefaultGoModulePath,
 			Version: version,
 		},
 		name: taskName,
