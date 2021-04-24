@@ -77,11 +77,6 @@ func (t *Task) Env() map[string]string {
 	return t.opts.env
 }
 
-// ExecName returns the executable name.
-func (t *Task) ExecName() string {
-	return t.opts.execName
-}
-
 // ID returns the identifier of the Go module.
 func (t *Task) ID() *project.GoModuleID {
 	return t.opts.goModule
@@ -94,7 +89,7 @@ func (t *Task) Kind() task.Kind {
 
 // Name returns the task name.
 func (t *Task) Name() string {
-	return t.opts.execName
+	return t.opts.name
 }
 
 // Options returns the task options.
