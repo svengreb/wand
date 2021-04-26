@@ -1,7 +1,7 @@
-// +build go1.16
-
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
+
+// +build go1.16
 
 // Package install provides a task for the Go toolchain "install" command.
 // It requires at least Go version 1.16 which comes with support to install commands via `go install` (1) without

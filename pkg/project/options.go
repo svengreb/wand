@@ -22,6 +22,12 @@ const (
 	// and production artifacts as well as distribution bundles, static web files or metric/statistic reports.
 	DefaultBaseOutputDir = "out"
 
+	// DefaultWandCacheDataDir is the default directory for wand specific cache data.
+	DefaultWandCacheDataDir = "cache"
+
+	// DefaultWandDir is the default directory for wand specific data.
+	DefaultWandDir = ".wand"
+
 	// DefaultVersion is the default version for a project vcs.Repository.
 	DefaultVersion = "v0.0.0"
 )
@@ -52,6 +58,9 @@ type Options struct {
 
 	// VCSKind is the VCS kind of the project Repository.
 	VCSKind vcs.Kind
+
+	// WandDataDir is the path to the directory for wand specific data.
+	WandDataDir string
 }
 
 // Option is a project option.
@@ -110,6 +119,13 @@ func WithVCSKind(kind vcs.Kind) Option {
 	}
 }
 
+// WithWandDataDir sets the path to the directory for wand specific data.
+func WithWandDataDir(wandDataDir string) Option {
+	return func(o *Options) {
+		o.WandDataDir = wandDataDir
+	}
+}
+
 // newOptions creates new project options.
 // The absolute path to the root directory is automatically set based on the current working directory and the Go module
 // name is automatically determined using the runtime/debug package.
@@ -144,6 +160,7 @@ func newOptions(opts ...Option) (*Options, error) {
 		Repository:     vcsNone.New(),
 		RootDirPathAbs: rootDirPath,
 		VCSKind:        vcs.KindNone,
+		WandDataDir:    filepath.Join(rootDirPath, DefaultWandDir),
 	}
 	for _, o := range opts {
 		o(opt)

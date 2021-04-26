@@ -53,7 +53,7 @@ func (r *FruitMixerRunner) Handles() task.Kind {
 // Run runs the command.
 // It returns an error of type *task.ErrRunner when any error occurs during the command execution.
 func (r *FruitMixerRunner) Run(t task.Task) error {
-	tExec, tErr := r.runPrepare(t)
+	tExec, tErr := r.prepareTask(t)
 	if tErr != nil {
 		return tErr
 	}
@@ -67,7 +67,7 @@ func (r *FruitMixerRunner) Run(t task.Task) error {
 // RunOut runs the command and returns its output.
 // It returns an error of type *task.ErrRunner when any error occurs during the command execution.
 func (r *FruitMixerRunner) RunOut(t task.Task) (string, error) {
-	tExec, tErr := r.runPrepare(t)
+	tExec, tErr := r.prepareTask(t)
 	if tErr != nil {
 		return "", tErr
 	}
@@ -102,8 +102,8 @@ func (r *FruitMixerRunner) Validate() error {
 	return nil
 }
 
-// runPrepare checks if the given task is of type task.Exec and prepares the task specific environment.
-func (r *FruitMixerRunner) runPrepare(t task.Task) (task.Exec, error) {
+// prepareTask checks if the given task is of type task.Exec and prepares the task specific environment.
+func (r *FruitMixerRunner) prepareTask(t task.Task) (task.Exec, error) {
 	tExec, ok := t.(task.Exec)
 	if t.Kind() != task.KindExec || !ok {
 		return nil, &task.ErrRunner{

@@ -19,8 +19,8 @@ _wand_ is a toolkit for common and often recurring project processes for the tas
 The provided [API packages][go-pkg-pkg] allow users to compose their own, reusable set of tasks and helpers or built up on the [reference implementation][go-pkg-elder].
 
 - **Adapts to any “normal“ or [“mono“][trunkbasedev-monorepos] repository layout** — handle as many module _commands_ as you want. _wand_ uses an abstraction by managing every `main` package as _application_ so that tasks can be processed for all or just individual _commands_.
-- **Runs any `main` package of a [Go module][go-docs-ref-mod] without the requirement for the user to install it beforehand** — thanks to the awesome [gobin][] project, there is no need for the user to `go get` the `main` package of a Go module in order to run its compiled executable.
-- **Comes with support for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem** — run common commands like `go build` and `go test` or great tools like [goimports][go-pkg-golang.org/x/tools/cmd/goimports], [golangci-lint][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] and [gox][go-pkg-github.com/mitchellh/gox] in no time.
+- **Runs any `main` package of a [Go module][go-docs-ref-mod] without the requirement for the user to install it beforehand** — [Go 1.16 introduced `go install` command support for the `pkg@version` module syntax][go-docs-rln-1.16#modules] which is internally used by the [`gotool` task runner][go-pkg-stc-task/gotool#runner] to install executables of `main` packages into custom locations without “polluting“ a projects `go.mod` file.
+- **Comes with support for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem** — run common commands like `go build`, `go install` and `go test` or great tools like [gofumpt][go-pkg-github.com/mvdan/gofumpt], [golangci-lint][go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint] and [gox][go-pkg-github.com/mitchellh/gox] in no time.
 
 See the [API](#api) and [“Elder Wand“](#elder-wand) sections for more details. The [user guides](#user-guides) for more information about how to build your own tasks and runners and the [examples](#examples) for different repositories layouts (single or [“monorepo“][trunkbasedev-monorepos]) and use cases.
 
@@ -81,32 +81,28 @@ The [`app`][go-pkg-app] package provides the functionality for application confi
 
 The [`task`][go-pkg-task] package defines the API for runner of commands. [`Runner`][go-pkg-if-task#runner] is the base interface while [`RunnerExec` interface][go-pkg-if-task#runnerexec] is a specialized for (binary) executables of a command.
 
-The package already provides runners for the [Go toolchain][go-pkg-cmd/go] and the [gobin][] Go module:
+The package already provides runners for the [Go toolchain][go-pkg-cmd/go] and [gotool][go-pkg-task/gotool] to handle Go module-based executables:
 
 - **Go Toolchain** — to interact with the [Go toolchain][go-pkg-cmd/go], also known as the `go` executable, the [`golang.Runner`][go-pkg-stc-task/golang#runner] can be used.
-- **`gobin` Go Module** — to install and run [Go module][go-docs-ref-mod] `main` the [`Runner`][go-pkg-stc-task/gobin#runner] makes use of the [`github.com/myitcv/gobin`][go-pkg-github.com/myitcv/gobin] command.
-  1. **Go Executable Installation** — Using the [`go install`][go-pkg-cmd/go#install] or [`go get`][go-pkg-cmd/go#print_env] command for a [Go module][go-ref-mod] `main` package, the resulting executables are placed in the Go executable search path that is defined by the [`GOBIN` environment variable][go-pkg-cmd/go#env_vars] (see the [`go env` command][go-pkg-cmd/go#print_env] to show or modify the Go toolchain environment).
-     Even though executables are installed “globally“ for the current user, any [`go.mod` file][go-ref-mod#go.mod] in the current working directory will be updated to include the Go module. This is the default behavior of the [`go get` command][go-pkg-cmd/go#print_env] when running in [“module mode“][go-pkg-cmd/go#mod_cmds] (see [`GO111MODULE` environment variable).
-     Next to this problem, installed executables will also overwrite any previously installed executable of the same module/package regardless of the version. Therefore only one version of a executable can be installed at a time which makes it impossible to work on different projects that make use of the same executable but require different versions.
-  2. **History and Future** — The installation concept for `main` package executables has always been a somewhat controversial point which unfortunately, partly for historical reasons, does not offer an optimal and user-friendly solution up to now.
+- **`gotool` Go module-based executables** — to install and run [Go module-based][go-docs-ref-mod] `main` packages, the [`gotool.Runner`][go-pkg-stc-task/gotool#runner] makes use of the Go 1.16 `go install` command features.
+  1. **Go Executable Installation** — [Go 1.16 introduced `go install` command support for the `pkg@version` module syntax][go-docs-rln-1.16#modules] which allows to install commands without “polluting“ a projects `go.mod` file. The resulting executables are placed in the Go executable search path that is defined by the [`GOBIN` environment variable][go-pkg-cmd/go#env_vars] (see the [`go env` command][go-pkg-cmd/go#print_env] to show or modify the Go toolchain environment).
+     The problem is that installed executables will overwrite any previously installed executable of the same module/package regardless of the version. Therefore only one version of an executable can be installed at a time which makes it impossible to work on different projects that make use of the same executable but require different versions.
+  2. **UX Before Go 1.16** — The installation concept for `main` package executables was always a somewhat controversial point which unfortunately, partly for historical reasons, did not offer an optimal and user-friendly solution until Go 1.16.
      The [`go` command][go-pkg-cmd/go] is a fantastic toolchain that provides many great features one would expect to be provided out-of-the-box from a modern and well designed programming language without the requirement to use a third-party solution: from compiling code, running unit/integration/benchmark tests, quality and error analysis, debugging utilities and many more.
-     Unfortunately this does not apply for the [`go install` command][go-pkg-cmd/go#install] of Go versions less or equal to 1.15.
-     The general problem of tool dependencies is a long-time known issue/weak point of the current Go toolchain and is a highly rated change request from the Go community with discussions like [golang/go#30515][gh-golang/go#30515], [golang/go#25922][gh-golang/go#25922] and [golang/go#27653][gh-golang/go#27653] to improve this essential feature, but they've been around for quite a long time without a solution that works without introducing breaking changes and most users and the Go team agree on.
-     Luckily, this topic was finally picked up for the next [upcoming Go release version 1.16][gh-golang/go-ms-145] and [golang/go#40276][gh-golang/go#40276] introduces a way to install executables in module mode outside a module.
-     The [release note preview also already includes details about this change][go-docs-tip-rln-1.16#mods] and how installation of executables from Go modules will be handled in the future.
-  3. **The Workaround** — Beside the great news and anticipation about an official solution for the problem the usage of a workaround is almost inevitable until Go 1.16 is finally released.
-     The [official Go wiki][gh-golang/go-wiki] provides a section on [“How can I track tool dependencies for a module?“][gh-golang/go-wiki-mods#tool_deps] that describes a workaround that tracks tool dependencies. It allows to use the Go module logic by using a file like `tools.go` with a dedicated `tools` build tag that prevents the included module dependencies to be picked up for “normal“ executable builds. This approach works fine for non-main packages, but CLI tools that are only implemented in the `main` package can not be imported in such a file.
-     In order to tackle this problem, a well-known user from the community created [gobin][], an experimental, module-aware command to install and run `main` packages.
-     It allows to install or run `main` package commands without “polluting“ the `go.mod` file. Modules are downloaded in version-aware mode into a cache path within the [users local cache directory][go-pkg-func-os#usercachedir]. This way it prevents problems due to already installed executables by placing each version of an executable in its own directory.
-     The decision to use a cache directory instead of sub-directories within the `GOBIN` path doesn't require to mess with the users setup and keep the Go toolchain specific paths clean and unchanged.
-     `gobin` is still in an early development state, but has already received a lot of positive feedback and is used in many projects. There are also members of the core Go team that have contributed to the project and the chance is high that the changes for Go 1.16 were influenced or partially ported from it. See [gobin‘s FAQ page][gobin-wiki-faq] in the repository wiki for more details about the project.
-     It is currently the best workaround to…
-     1. prevent the Go toolchain to pick up the [`GOMOD` (`go env GOMOD`) environment variable][go-pkg-cmd/go#print_env] that is initialized automatically with the path to the [`go.mod` file][go-ref-mod#go.mod] in the current working directory.
-     2. install `main` package executables locally for the current user without “polluting“ the `go.mod` file.
-     3. install `main` package executables locally for the current user without overriding already installed executables of different versions.
-  4. **The Go Module `Runner`** — To allow to manage the tool dependency problem, this package provides a command runner that uses `gobin` in order to prevent the problems described in the sections above like the “pollution“ of the "go.mod" file and allows to…
-     1. install `gobin` itself into `GOBIN` ([`go env GOBIN`][go-pkg-cmd/go#print_env]).
-     2. run any Go module command by installing `main` package executables locally for the current user into the dedicated `gobin` cache.
+     This did not apply for the [`go install` command][go-pkg-cmd/go#install] of Go versions less than 1.16.
+     The general problem of tool dependencies was a long-time known issue/weak point of the Go toolchain and was a highly rated change request from the Go community with discussions like [golang/go#30515][gh-golang/go#30515], [golang/go#25922][gh-golang/go#25922] and [golang/go#27653][gh-golang/go#27653] to improve this essential feature. They have been around for quite a long time without a solution that worked without introducing breaking changes and most users and the Go team agree on.
+     Luckily, this topic was [finally resolved in the Go release version 1.16][go-docs-rln-1.16#modules] and and [golang/go#40276][gh-golang/go#40276] introduced a way to install executables in module mode outside a module.
+  3. **The Leftover Drawback** — Even though the `go install` command works totally fine to globally install executables, the problem that only a single version can be installed at a time is still left. The executable is placed in the path defined by `go env GOBIN` so the previously installed executable will be overridden. It is not possible to install multiple versions of the same package and `go install` still messes up the local user environment.
+  4. **The Workaround** — To work around the leftover drawback, the [`gotool` package][go-pkg-task/gotool] provides a runner that uses `go install` under the hood, but allows to place the compiled executable in a custom cache directory instead of `go env GOBIN`. It checks if the executable already exists, installs it if not so, and executes it afterwards.
+     The concept of storing dependencies locally on a per-project basis is well-known from the [`node_modules` directory][npm-docs-cli-v7-config-folders#node_modules] of the [Node][] package manager [npm][]. Storing executables in a cache directory within the repository (not tracked by Git) allows to use `go install` mechanisms while not affect the global user environment and executables stored in `go env GOBIN`.
+     The runner achieves this by temporarily changing the `GOBIN` environment variable to the custom cache directory during the execution of `go install`.
+     The only known disadvantage is the increased usage of storage disk space, but since most Go executables are small in size anyway, this is perfectly acceptable compared to the clearly outweighing advantages. Note that the runner dynamically runs executables based on the given task so the `Validate` method is a _NOOP_.
+     This is currently the best workaround to…
+     1. install `main` package executables locally for the current user without “polluting“ the `go.mod` file.
+     2. install `main` package executables locally for the current user without overriding already installed executables of different versions.
+  5. **Future Changes** — The provided runner is still not a clean solution that uses the Go toolchain without any special logic so as soon as the following changes are made to the Go toolchain (Go 1.17 or later), the runner will be removed again:
+     - [golang/go#42088][] — tracks the process of adding support for the Go module syntax to the `go run` command. This will allow to let the Go toolchain handle the way how compiled executable are stored, located and executed.
+     - [golang/go#44469][golang/go#44469#c-784534876] — tracks the process of making `go install` aware of the `-o` flag like the `go build` command which is the only reason why the provided runner exists.
 
 ### Project Metadata
 
@@ -118,7 +114,7 @@ The package also already provides a [VCS `Repository` interface reference implem
 
 ### Tasks
 
-The [`task`][go-pkg-task] package defines the API for tasks. [`Task`][go-pkg-if-task#task] is the base interface while [`Exec`][go-pkg-if-task#exec] and [`GoModule`][go-pkg-if-task#gomodule] are a specialized to represent the (binary) executable of either an “external“ or Go module based command.
+The [`task`][go-pkg-task] package defines the API for tasks. [`Task`][go-pkg-if-task#task] is the base interface while [`Exec`][go-pkg-if-task#exec] and [`GoModule`][go-pkg-if-task#gomodule] are a specialized to represent the (binary) executable of either an “external“ or Go module-based command.
 
 The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem:
 
@@ -231,7 +227,7 @@ See the [examples](#examples) to learn about more uses cases and way how to stru
 
 ### Build It Yourself
 
-_wand_ comes with tasks and runners for common [Go toolchain][go-pkg-cmd/go] commands, the [gobin][] and other popular modules from the Go ecosystem, but the chance is high that you want to build your own for your specific use cases.
+_wand_ comes with tasks and runners for common [Go toolchain][go-pkg-cmd/go] commands, [gotool][go-pkg-task/gotool] to handle Go module-based executables and other popular modules from the Go ecosystem, but the chance is high that you want to build your own for your specific use cases.
 
 #### Custom Tasks
 
@@ -246,7 +242,7 @@ To create your own task that is compatible with the _wand_ API, implement the [`
    - the returned type of the `ID() *project.GoModuleID` method must provide the import path and module version of the target `main` package.
 
 For sample code of a custom task please see the [examples](#examples) section.
-Based on your task kind, you can also either use one of the [already provided command runners](#command-runners), like for the [Go toolchain][go-pkg-task/golang] and [gobin][], or [implement your own custom runner](#custom-runners).
+Based on your task kind, you can also either use one of the [already provided command runners](#command-runners), like for the [Go toolchain][go-pkg-task/golang] and [gotool][go-pkg-task/gotool], or [implement your own custom runner](#custom-runners).
 
 #### Custom Runners
 
@@ -295,9 +291,6 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [contrib-guide-versioning]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#versioning
 [contrib-guide]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md
 [gh-blob-magefile/mage/go.mod]: https://github.com/magefile/mage/blob/d30a2cfe/go.mod
-[gh-golang/go-ms-145]: https://github.com/golang/go/milestone/145
-[gh-golang/go-wiki-mods#tool_deps]: https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
-[gh-golang/go-wiki]: https://github.com/golang/go/wiki
 [gh-golang/go#25922]: https://github.com/golang/go/issues/25922
 [gh-golang/go#27653]: https://github.com/golang/go/issues/27653
 [gh-golang/go#30515]: https://github.com/golang/go/issues/30515
@@ -315,7 +308,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [gnu-make-docs-shell]: https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html
 [gnu-make-repo]: https://savannah.gnu.org/git/?group=make
 [go-docs-ref-mod]: https://golang.org/ref/mod
-[go-docs-tip-rln-1.16#mods]: https://tip.golang.org/doc/go1.16#modules
+[go-docs-rln-1.16#modules]: https://golang.org/doc/go1.16#modules
 [go-pkg-al-github.com/magefile/mage/mg#namespace]: https://pkg.go.dev/github.com/magefile/mage/mg#Namespace
 [go-pkg-al-task#kind]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Kind
 [go-pkg-al-task#kindbase]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindBase
@@ -328,7 +321,6 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-cmd/go#env_vars]: https://pkg.go.dev/cmd/go/#hdr-Environment_variables
 [go-pkg-cmd/go#env]: https://pkg.go.dev/cmd/go#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
-[go-pkg-cmd/go#mod_cmds]: https://golang.org/ref/mod#mod-commands
 [go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#test]: https://pkg.go.dev/cmd/go#hdr-Test_packages
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
@@ -336,10 +328,9 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-fn-elder#new]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#New
 [go-pkg-fn-project#new]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#New
 [go-pkg-func-app#newstore]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#NewStore
-[go-pkg-func-os#usercachedir]: https://pkg.go.dev/os/#UserCacheDir
 [go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint]: https://pkg.go.dev/github.com/golangci/golangci-lint/cmd/golangci-lint
 [go-pkg-github.com/mitchellh/gox]: https://pkg.go.dev/github.com/mitchellh/gox
-[go-pkg-github.com/myitcv/gobin]: https://pkg.go.dev/github.com/myitcv/gobin
+[go-pkg-github.com/mvdan/gofumpt]: https://github.com/mvdan/gofumpt
 [go-pkg-golang.org/x/tools/cmd/goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
 [go-pkg-if-app#store]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#Store
 [go-pkg-if-project/vcs#repository]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project/vcs#Repository
@@ -356,8 +347,8 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-project/vcs/git]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project/vcs/git
 [go-pkg-stc-app#config]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#Config
 [go-pkg-stc-project#metadata]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project#Metadata
-[go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
 [go-pkg-stc-task/golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
+[go-pkg-stc-task/gotool#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool#Runner
 [go-pkg-task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task
 [go-pkg-task/fs/clean]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/fs/clean
 [go-pkg-task/gofumpt]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gofumpt
@@ -368,12 +359,11 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-task/golang/install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
 [go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
 [go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
+[go-pkg-task/gotool]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool
 [go-pkg-task/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gox
 [go-pkg-wand]: https://pkg.go.dev/github.com/svengreb/wand
-[go-ref-mod]: https://golang.org/ref/mod
-[go-ref-mod#go.mod]: https://golang.org/ref/mod#go-mod-file
-[gobin-wiki-faq]: https://github.com/myitcv/gobin/wiki/FAQ
-[gobin]: https://github.com/myitcv/gobin
+[golang/go#42088]: https:github.com/golang/go/issues/42088
+[golang/go#44469#c-784534876]: https:github.com/golang/go/issues/44469#issuecomment-784534876
 [gradle]: https://gradle.org
 [linux]: https://www.kernel.org
 [mage-deps]: https://magefile.org/dependencies
@@ -385,7 +375,10 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [mage]: https://magefile.org
 [make]: https://www.gnu.org/software/make
 [maven]: https://maven.apache.org
+[node]: https://nodejs.org
 [npm-com]: https://npm.community
+[npm-docs-cli-v7-config-folders#node_modules]: https://docs.npmjs.com/cli/v7/configuring-npm/folders#node-modules
+[npm]: https://www.npmjs.com
 [rust-docs-cargo]: https://doc.rust-lang.org/stable/cargo
 [trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
 [wikip-dsl]: https://en.wikipedia.org/wiki/Domain-specific_language

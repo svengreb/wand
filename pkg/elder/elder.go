@@ -20,13 +20,13 @@ import (
 	"github.com/svengreb/wand/pkg/project"
 	"github.com/svengreb/wand/pkg/task"
 	taskFSClean "github.com/svengreb/wand/pkg/task/fs/clean"
-	taskGobin "github.com/svengreb/wand/pkg/task/gobin"
 	taskGofumpt "github.com/svengreb/wand/pkg/task/gofumpt"
 	taskGoimports "github.com/svengreb/wand/pkg/task/goimports"
 	taskGo "github.com/svengreb/wand/pkg/task/golang"
 	taskGoBuild "github.com/svengreb/wand/pkg/task/golang/build"
 	taskGoTest "github.com/svengreb/wand/pkg/task/golang/test"
 	taskGolangCILint "github.com/svengreb/wand/pkg/task/golangcilint"
+	taskGoTool "github.com/svengreb/wand/pkg/task/gotool"
 	taskGox "github.com/svengreb/wand/pkg/task/gox"
 )
 
@@ -34,26 +34,38 @@ import (
 // for applications of a project.
 type Elder struct {
 	nib.Nib
-
-	as          app.Store
-	gobinRunner *taskGobin.Runner
-	goRunner    *taskGo.Runner
-	opts        *Options
-	project     *project.Metadata
+	as           app.Store
+	goRunner     *taskGo.Runner
+	goToolRunner *taskGoTool.Runner
+	opts         *Options
+	project      *project.Metadata
 }
 
-// Bootstrap runs initialization tasks to ensure the wand is operational.
-// If an error occurs it will be of type *task.ErrRunner.
-func (e *Elder) Bootstrap() error {
-	if valErr := e.gobinRunner.Validate(); valErr != nil {
-		e.Infof("Installing %q", e.gobinRunner.GoMod())
-		if installErr := e.gobinRunner.Install(e.goRunner); installErr != nil {
-			e.Errorf("Failed to install %q: %v", e.gobinRunner.GoMod(), installErr)
-			return fmt.Errorf("install %q: %w", e.gobinRunner.GoMod(), installErr)
+// Bootstrap runs initialization tasks to ensure the wand is operational and sets up the local development environment
+// by allowing to install executables from Go module-based "main" packages.
+// The paths must be valid Go module import paths, that can optionally include the version suffix, in the "pkg@version"
+// format. See https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool for more details about the installation
+// runner.
+// It returns a slice of errors with type *task.ErrRunner containing any error that occurs during the execution.
+func (e *Elder) Bootstrap(goModuleImportPaths ...string) []error {
+	var errs []error
+	for _, r := range []task.Runner{e.goRunner, e.goToolRunner} {
+		if err := r.Validate(); err != nil {
+			errs = append(errs, err)
 		}
 	}
 
-	return nil
+	for _, path := range goModuleImportPaths {
+		gm, gmErr := project.GoModuleFromImportPath(path)
+		if gmErr != nil {
+			errs = append(errs, gmErr)
+		}
+		if installErr := e.goToolRunner.Install(gm); installErr != nil {
+			errs = append(errs, installErr)
+		}
+	}
+
+	return errs
 }
 
 // Clean is a task to remove filesystem paths, e.g. output data like artifacts and reports from previous development,
@@ -66,11 +78,8 @@ func (e *Elder) Clean(appName string, opts ...taskFSClean.Option) ([]string, err
 	if acErr != nil {
 		return []string{}, fmt.Errorf("get %q application configuration: %w", appName, acErr)
 	}
-	t, tErr := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
-	if tErr != nil {
-		return []string{}, tErr
-	}
 
+	t := taskFSClean.New(e.GetProjectMetadata(), ac, opts...)
 	return t.Clean()
 }
 
@@ -147,10 +156,10 @@ func (e *Elder) GoBuild(appName string, opts ...taskGoBuild.Option) error {
 func (e *Elder) Gofumpt(opts ...taskGofumpt.Option) error {
 	t, tErr := taskGofumpt.New(opts...)
 	if tErr != nil {
-		return tErr
+		return fmt.Errorf(`create "gofumpt" task: %w`, tErr)
 	}
 
-	return e.gobinRunner.Run(t)
+	return e.goToolRunner.Run(t)
 }
 
 // Goimports is a task for the "golang.org/x/tools/cmd/goimports" Go module command.
@@ -165,10 +174,10 @@ func (e *Elder) Gofumpt(opts ...taskGofumpt.Option) error {
 func (e *Elder) Goimports(opts ...taskGoimports.Option) error {
 	t, tErr := taskGoimports.New(opts...)
 	if tErr != nil {
-		return tErr
+		return fmt.Errorf(`create "goimports" task: %w`, tErr)
 	}
 
-	return e.gobinRunner.Run(t)
+	return e.goToolRunner.Run(t)
 }
 
 // GolangCILint is a task to run the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module
@@ -185,10 +194,10 @@ func (e *Elder) Goimports(opts ...taskGoimports.Option) error {
 func (e *Elder) GolangCILint(opts ...taskGolangCILint.Option) error {
 	t, tErr := taskGolangCILint.New(opts...)
 	if tErr != nil {
-		return tErr
+		return fmt.Errorf(`create "golangci-lint" task: %w`, tErr)
 	}
 
-	return e.gobinRunner.Run(t)
+	return e.goToolRunner.Run(t)
 }
 
 // GoTest is a task to run the Go toolchain "test" command.
@@ -233,10 +242,10 @@ func (e *Elder) Gox(appName string, opts ...taskGox.Option) error {
 
 	t, tErr := taskGox.New(ac, opts...)
 	if tErr != nil {
-		return tErr
+		return fmt.Errorf(`create "gox" task: %w`, tErr)
 	}
 
-	return e.gobinRunner.Run(t)
+	return e.goToolRunner.Run(t)
 }
 
 // RegisterApp creates and stores a new application configuration.
@@ -289,10 +298,10 @@ func (e *Elder) RegisterApp(name, displayName, pathRel string) error {
 	return nil
 }
 
-// Validate ensures that all tasks are properly initialized and operational.
+// Validate ensures that the wand is properly initialized and operational.
 // It returns an error of type *task.ErrRunner when the validation of any of the supported task fails.
 func (e *Elder) Validate() error {
-	for _, t := range []task.Runner{e.goRunner, e.gobinRunner} {
+	for _, t := range []task.Runner{e.goRunner} {
 		if err := t.Validate(); err != nil {
 			return fmt.Errorf("failed to validate runner: %w", err)
 		}
@@ -305,7 +314,8 @@ func (e *Elder) Validate() error {
 //
 // The module name is determined automatically using the "runtime/debug" package.
 // The absolute path to the root directory is automatically set based on the current working directory.
-// When the WithGenWandDataDir option is set to `true` the directory for wand specific data will be auto-generated.
+// When the WithDisableAutoGenWandDataDir option is set to `false` the auto-generation of the directory for wand
+// specific data will be disabled.
 // Note that the working directory must be set manually when the "magefile" is not placed in the root directory by
 // pointing Mage to it:
 //   - "-d <PATH>" option to set the directory from which "magefiles" are read (defaults to ".").
@@ -336,11 +346,23 @@ func New(opts ...Option) (*Elder, error) {
 
 	e.goRunner = taskGo.NewRunner(e.opts.goRunnerOpts...)
 
-	gobinRunner, gobinRunnerErr := taskGobin.NewRunner(e.opts.gobinRunnerOpts...)
-	if gobinRunnerErr != nil {
-		return nil, fmt.Errorf("failed to create %q runner: %w", "gobin", gobinRunnerErr)
+	goToolRunnerOpts := append(
+		[]taskGoTool.RunnerOption{
+			taskGoTool.WithToolsBinDir(filepath.Join(e.project.Options().WandDataDir, DefaultGoToolsBinDir)),
+		},
+		e.opts.goToolRunnerOpts...,
+	)
+	goToolRunner, goToolRunnerErr := taskGoTool.NewRunner(e.goRunner, goToolRunnerOpts...)
+	if goToolRunnerErr != nil {
+		return nil, fmt.Errorf("create %q runner: %w", taskGoTool.RunnerName, goToolRunnerErr)
 	}
-	e.gobinRunner = gobinRunner
+	e.goToolRunner = goToolRunner
+
+	if !e.opts.disableAutoGenWandDataDir {
+		if err := generateWandDataDir(e.project.Options().WandDataDir); err != nil {
+			return nil, fmt.Errorf("generate wand specific data directory %q: %w", e.project.Options().WandDataDir, err)
+		}
+	}
 
 	if err := e.RegisterApp(e.project.Options().Name, e.project.Options().DisplayName, project.AppRelPath); err != nil {
 		e.ExitPrintf(1, nib.ErrorVerbosity, "registering application %q: %v", e.project.Options().Name, err)
