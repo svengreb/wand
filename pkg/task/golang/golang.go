@@ -34,9 +34,9 @@ func (r *Runner) Handles() task.Kind {
 // Run runs the command.
 // It returns an error of type *task.ErrRunner when any error occurs during the command execution.
 func (r *Runner) Run(t task.Task) error {
-	tExec, tErr := r.runPrepare(t)
+	tExec, tErr := r.prepareTask(t)
 	if tErr != nil {
-		return tErr
+		return fmt.Errorf("runner %q: %w", RunnerName, tErr)
 	}
 
 	if r.opts.Quiet {
@@ -48,9 +48,9 @@ func (r *Runner) Run(t task.Task) error {
 // RunOut runs the command and returns its output.
 // It returns an error of type *task.ErrRunner when any error occurs during the command execution.
 func (r *Runner) RunOut(t task.Task) (string, error) {
-	tExec, tErr := r.runPrepare(t)
+	tExec, tErr := r.prepareTask(t)
 	if tErr != nil {
-		return "", tErr
+		return "", fmt.Errorf("runner %q: %w", RunnerName, tErr)
 	}
 
 	return sh.OutputWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
@@ -64,7 +64,7 @@ func (r *Runner) Validate() error {
 	execExits, fsErr := glFS.RegularFileExists(r.opts.Exec)
 	if fsErr != nil {
 		return &task.ErrRunner{
-			Err:  fmt.Errorf("command runner %q: %w", RunnerName, fsErr),
+			Err:  fmt.Errorf("runner %q: %w", RunnerName, fsErr),
 			Kind: task.ErrRunnerValidation,
 		}
 	}
@@ -73,7 +73,7 @@ func (r *Runner) Validate() error {
 		path, pathErr := exec.LookPath(r.opts.Exec)
 		if pathErr != nil {
 			return &task.ErrRunner{
-				Err:  fmt.Errorf("command runner %q: %q not found in PATH: %w", RunnerName, r.opts.Exec, pathErr),
+				Err:  fmt.Errorf("runner %q: %q not found in PATH: %w", RunnerName, r.opts.Exec, pathErr),
 				Kind: task.ErrRunnerValidation,
 			}
 		}
@@ -83,8 +83,9 @@ func (r *Runner) Validate() error {
 	return nil
 }
 
-// runPrepare checks if the given task is of type task.Exec and prepares the task specific environment.
-func (r *Runner) runPrepare(t task.Task) (task.Exec, error) {
+// prepareTask checks if the given task is of type task.Exec and prepares the task specific environment.
+// It returns an error of type *task.ErrRunner when any error occurs during the execution.
+func (r *Runner) prepareTask(t task.Task) (task.Exec, error) {
 	tExec, ok := t.(task.Exec)
 	if t.Kind() != task.KindExec || !ok {
 		return nil, &task.ErrRunner{

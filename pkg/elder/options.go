@@ -4,12 +4,30 @@
 package elder
 
 import (
+	//nolint:golint // Idiomatic for the Go 1.16 "embed" package.
+	_ "embed"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	glFS "github.com/svengreb/golib/pkg/io/fs"
 	"github.com/svengreb/nib"
 	"github.com/svengreb/nib/inkpen"
 
 	"github.com/svengreb/wand/pkg/project"
-	taskGobin "github.com/svengreb/wand/pkg/task/gobin"
 	taskGo "github.com/svengreb/wand/pkg/task/golang"
+	taskGoTool "github.com/svengreb/wand/pkg/task/gotool"
+)
+
+var (
+	// DefaultGoToolsBinDir is the default directory for compiled executables of Go module-based "main" packages.
+	DefaultGoToolsBinDir = filepath.Join(project.DefaultWandCacheDataDir, "tools", "bin")
+
+	// wandDataGitIgnoreFileName is the name for the written wandDataGitIgnoreTmpl file.
+	wandDataGitIgnoreFileName = ".gitignore"
+
+	//go:embed gitignore.tmpl
+	wandDataGitIgnoreTmpl []byte
 )
 
 // Option is a wand option.
@@ -17,11 +35,15 @@ type Option func(*Options)
 
 // Options are wand options.
 type Options struct {
-	// gobinRunnerOpts are "gobin" runner options.
-	gobinRunnerOpts []taskGobin.RunnerOption
+	// disableAutoGenWandDataDir indicates whether the auto-generation of the directory for wand specific data should be
+	// disabled.
+	disableAutoGenWandDataDir bool
 
 	// goRunnerOpts are Go toolchain runner options.
 	goRunnerOpts []taskGo.RunnerOption
+
+	// goToolRunnerOpts are Go module-based tool runner options.
+	goToolRunnerOpts []taskGoTool.RunnerOption
 
 	// nib is the log-level based line printer for human-facing messages.
 	nib nib.Nib
@@ -40,10 +62,11 @@ func NewOptions(opts ...Option) *Options {
 	return opt
 }
 
-// WithGobinRunnerOptions sets "gobin" runner options.
-func WithGobinRunnerOptions(opts ...taskGobin.RunnerOption) Option {
+// WithDisableAutoGenWandDataDir indicates whether the auto-generation of the directory for wand specific data should be
+// disabled.
+func WithDisableAutoGenWandDataDir(disableAutoGenWandDataDir bool) Option {
 	return func(o *Options) {
-		o.gobinRunnerOpts = append(o.gobinRunnerOpts, opts...)
+		o.disableAutoGenWandDataDir = disableAutoGenWandDataDir
 	}
 }
 
@@ -51,6 +74,13 @@ func WithGobinRunnerOptions(opts ...taskGobin.RunnerOption) Option {
 func WithGoRunnerOptions(opts ...taskGo.RunnerOption) Option {
 	return func(o *Options) {
 		o.goRunnerOpts = append(o.goRunnerOpts, opts...)
+	}
+}
+
+// WithGoToolRunnerOptions sets Go module-based tool runner options.
+func WithGoToolRunnerOptions(opts ...taskGoTool.RunnerOption) Option {
+	return func(o *Options) {
+		o.goToolRunnerOpts = append(o.goToolRunnerOpts, opts...)
 	}
 }
 
@@ -68,4 +98,24 @@ func WithProjectOptions(opts ...project.Option) Option {
 	return func(o *Options) {
 		o.projectOpts = append(o.projectOpts, opts...)
 	}
+}
+
+// generateWandDataDir generates the wand specific data directory structure and files.
+func generateWandDataDir(path string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return fmt.Errorf("make %q directory structure: %w", path, err)
+	}
+
+	gitIgnoreFilePath := filepath.Join(path, wandDataGitIgnoreFileName)
+	gitIgnoreExists, fsErr := glFS.RegularFileExists(gitIgnoreFilePath)
+	if fsErr != nil {
+		return fmt.Errorf("check regular file %q: %w", gitIgnoreFilePath, fsErr)
+	}
+	if !gitIgnoreExists {
+		if err := os.WriteFile(gitIgnoreFilePath, wandDataGitIgnoreTmpl, os.ModePerm); err != nil {
+			return fmt.Errorf("write %q: %w", gitIgnoreFilePath, err)
+		}
+	}
+
+	return nil
 }

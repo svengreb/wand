@@ -27,7 +27,7 @@ type Options struct {
 }
 
 // NewOptions creates new task options.
-func NewOptions(opts ...Option) (*Options, error) {
+func NewOptions(opts ...Option) *Options {
 	opt := &Options{
 		name: taskName,
 	}
@@ -35,7 +35,7 @@ func NewOptions(opts ...Option) (*Options, error) {
 		o(opt)
 	}
 
-	return opt, nil
+	return opt
 }
 
 // WithLimitToAppOutputDir indicates whether only paths within the configured application output directory should be

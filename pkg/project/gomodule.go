@@ -5,15 +5,19 @@ package project
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 )
 
 const (
 	// GoModuleVersionLatest is the "version query suffix" for the latest version of a Go module.
-	//
 	// See https://golang.org/ref/mod#version-queries for more details.
 	GoModuleVersionLatest = "latest"
+
+	// GoModuleVersionSuffixSeparator is the character that separates the Go module version from a import path.
+	GoModuleVersionSuffixSeparator = "@"
 )
 
 // GoModuleID stores partial information to identify a Go module.
@@ -46,9 +50,41 @@ type GoModuleID struct {
 	Version *semver.Version
 }
 
+// ExecName returns the name of the compiled executable when the Go module Path is a "main" package.
+func (gm GoModuleID) ExecName() string {
+	return filepath.Base(gm.Path)
+}
+
 func (gm GoModuleID) String() string {
 	if gm.Version != nil && !gm.IsLatest {
 		return fmt.Sprintf("%s@%s", gm.Path, gm.Version.Original())
 	}
 	return fmt.Sprintf("%s@%s", gm.Path, GoModuleVersionLatest)
+}
+
+// GoModuleFromImportPath creates a GoModuleID from the given import path.
+// The path must be a valid Go module import path, that can optionally include the version suffix, in the "pkg@version"
+// format.
+func GoModuleFromImportPath(importPath string) (*GoModuleID, error) {
+	pathElements := strings.Split(importPath, GoModuleVersionSuffixSeparator)
+	if len(pathElements) == 0 {
+		return nil, fmt.Errorf("invalid import path: %q", importPath)
+	}
+
+	gm := &GoModuleID{Path: pathElements[0]}
+	// Handle as latest Go module version when the import path has no separator or the suffix equals "latest".
+	if len(pathElements) == 1 || pathElements[len(pathElements)-1] == GoModuleVersionLatest {
+		gm.IsLatest = true
+		return gm, nil
+	}
+
+	version, semVerErr := semver.NewVersion(pathElements[1])
+	if semVerErr != nil {
+		return nil, &ErrProject{
+			Err:  fmt.Errorf("parse version from import path %q: %w", importPath, semVerErr),
+			Kind: ErrDetermineGoModuleInformation,
+		}
+	}
+	gm.Version = version
+	return gm, nil
 }
