@@ -1,9 +1,14 @@
 # Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 # This source code is licensed under the MIT license found in the LICENSE file.
 
+# Configurations for EditorConfig.
+# See https://editorconfig.org/#file-format-details for more details.
+
 # +--------------------+
 # + Base Configuration +
 # +--------------------+
+root = true
+
 [*]
 charset = utf-8
 end_of_line = lf

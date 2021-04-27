@@ -4,7 +4,7 @@
  */
 
 /**
- * The configuration for Prettier.
+ * Configurations for Prettier.
  *
  * @see https://prettier.io/docs/en/configuration.html
  * @see https://prettier.io/docs/en/options.html

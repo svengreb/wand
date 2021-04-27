@@ -1,7 +1,7 @@
 # Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 # This source code is licensed under the MIT license found in the LICENSE file.
 
-# Configuration to specify paths to ignore.
+# Path match pattern to intentionally ignore untracked files and directories.
 # See https://git-scm.com/docs/gitignore for more details.
 
 # +--------------------+
@@ -17,9 +17,6 @@
 # + Node.js +
 # +---------+
 **/node_modules/
-yarn-debug.log*
-yarn-error.log*
-.yarn-integrity
 
 # +-------------------+
 # + Project Structure +
