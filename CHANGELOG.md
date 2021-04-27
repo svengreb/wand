@@ -20,7 +20,7 @@ This release comes with support for Go 1.16 features like the new `install` comm
 ↠ As of Go version 1.16 [`go install $pkg@$version`][go-blog-1.16-modules] allows to install commands without affecting the `main` module. Additionally commands like `go build` and `go test` no longer modify `go.mod` and `go.sum` files by default but report an error if a module requirement or checksum needs to be added or updated (as if the `-mod=readonly` flag were used).
 This can be used as alternative to the already existing [`gobin` runner][go-pkg-v0.4.1-pkg-task-gobin].
 
-To support the [`go install` command of the Go toolchain][go-pkg-cmd#install], a new [`Task`][go-pkg-wand-pkg-task#task] has been implemented in the new [`install`][go-pkg-wand-pkg-task-golang-install] package that can be used through a [Go toolchain `Runner`][go-pkg-wand-pkg-task-golang#runner].
+To support the [`go install` command of the Go toolchain][go-pkg-cmd/go#install], a new [`Task`][go-pkg-if-task#task] has been implemented in the new [`install`][go-pkg-wand-pkg-task-golang-install] package that can be used through a [Go toolchain `Runner`][go-pkg-wand-pkg-task-golang#runner].
 The task is customizable through the following functions:
 
 - `WithEnv(env map[string]string) install.Option` — sets the task specific environment.
@@ -405,7 +405,7 @@ The local installation of executables built from Go modules/packages has always 
 Unfortunately the way the [`go install` command][go-pkg-cmd/go#install] of Go versions less or equal to 1.15 handles the installation of an Go module/package executable is still not optimal.
 
 The general problem of tool dependencies is a long-time known issue/weak point of the current Go toolchain and is a highly rated change request from the Go community with discussions like [golang/go#30515][gh-golang/go#30515], [golang/go#25922][gh-golang/go#25922] and [golang/go#27653][gh-golang/go#27653] to improve this essential feature, but they‘ve been around for quite a long time without a solution that works without introducing breaking changes and most users and the Go team agree on.
-Luckily, this topic was finally picked up for [the next upcoming Go release version 1.16][gh-ms-golang/go#145] and [gh-golang/go#40276][] introduces a way to install executables in module mode outside a module. The [release note preview also already includes details about this change][go-docs-tip-rln-1.16#mod] and how installation of executables from Go modules will be handled in the future.
+Luckily, this topic was finally picked up for [the next upcoming Go release version 1.16][gh-golang/go-ms-145] and [gh-golang/go#40276][] introduces a way to install executables in module mode outside a module. The [release note preview also already includes details about this change][go-docs-tip-rln-1.16#mod] and how installation of executables from Go modules will be handled in the future.
 
 ##### The Workaround
 
@@ -672,17 +672,20 @@ otherwise Markdown elements are not parsed and rendered!
 
 <!--lint disable final-definition-->
 
-<!-- Base Links -->
+<!-- Base -->
 
-<!-- Shared Links -->
+<!-- Shared -->
 
+[gh-golang/go-ms-145]: https://github.com/golang/go/milestone/145
 [gh-markbates/pkger#114]: https://github.com/markbates/pkger/issues/114
+[go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
 [go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
 [go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
 [go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
 [go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
 [go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
 [go-ref-mod]: https://golang.org/ref/mod
 [mage]: https://magefile.org
@@ -701,7 +704,6 @@ otherwise Markdown elements are not parsed and rendered!
 [gh-golangci/golangci-lint-tree-cmd/golangci-lint]: https://github.com/golangci/golangci-lint/tree/master/cmd/golangci-lint
 [gh-golangci/golangci-lint]: https://github.com/golangci/golangci-lint
 [gh-mitchellh/gox]: https://github.com/mitchellh/gox
-[gh-ms-golang/go#145]: https://github.com/golang/go/milestone/145
 [gh-myitcv/gobin-wiki-faq]: https://github.com/myitcv/gobin/wiki/FAQ
 [gh-myitcv/gobin]: https://github.com/myitcv/gobin
 [gh-svengreb/tmpl-go-rl-v0.3.0]: https://github.com/svengreb/tmpl-go/releases/tag/v0.3.0
@@ -721,7 +723,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-cmd/go#build]: https://pkg.go.dev/cmd/go/#hdr-Compile_packages_and_dependencies
 [go-pkg-cmd/go#env_vars]: https://pkg.go.dev/cmd/go/#hdr-Environment_variables
 [go-pkg-cmd/go#get]: https://pkg.go.dev/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
-[go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-cmd/go#print_env]: https://pkg.go.dev/cmd/go/#hdr-Print_Go_environment_information
 [go-pkg-cmd/go#test]: https://pkg.go.dev/cmd/go/#hdr-Test_packages
 [go-pkg-const-spell#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#KindGoModule
@@ -771,7 +772,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-if-task#exec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Exec
 [go-pkg-if-task#options]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Options
 [go-pkg-if-task#runnerexec]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#RunnerExec
-[go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [mage-docs-targets]: https://magefile.org/targets
 [wikip-cli#anaton]: https://en.wikipedia.org/wiki/Command-line_interface#Anatomy_of_a_shell_CLI
 [wikip-exec]: https://en.wikipedia.org/wiki/Executable
@@ -779,7 +779,6 @@ otherwise Markdown elements are not parsed and rendered!
 <!-- v0.3.0 -->
 
 [gh-compare-tag-v0.2.0_v0.3.0]: https://github.com/svengreb/wand/compare/v0.2.0...v0.3.0
-[gh-golang/go-ms-145]: https://github.com/golang/go/milestone/145
 [gh-golang/go#41191]: https://github.com/golang/go/issues/41191
 [gh-imdario/mergo-comp-v0.3.9_v0.3.11]: https://github.com/imdario/mergo/compare/v0.3.9...v0.3.11
 [gh-markbates/pkger#109]: https://github.com/markbates/pkger/issues/109
@@ -819,10 +818,8 @@ otherwise Markdown elements are not parsed and rendered!
 [go-blog-1.16-modules]: https://blog.golang.org/go116-module-changes#TOC_4.
 [go-blog-1.16]: https://blog.golang.org/go1.16
 [go-docs-rln-1.16#embed]: https://golang.org/doc/go1.16#library-embed
-[go-pkg-cmd#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-embed]: https://pkg.go.dev/embed
 [go-pkg-v0.4.1-pkg-task-gobin]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/gobin
 [go-pkg-v0.4.1-pkg-task-pkger]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/pkger
 [go-pkg-wand-pkg-task-golang-install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
 [go-pkg-wand-pkg-task-golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
-[go-pkg-wand-pkg-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task

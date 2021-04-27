@@ -4,7 +4,8 @@
 package elder
 
 import (
-	//nolint:golint // Idiomatic for the Go 1.16 "embed" package.
+	// See https://github.com/golang/go/issues/38968 for more details.
+	//nolint:golint,nolintlint // Idiomatic for the Go 1.16 "embed" package.
 	_ "embed"
 	"fmt"
 	"os"

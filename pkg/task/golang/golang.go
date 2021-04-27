@@ -40,9 +40,21 @@ func (r *Runner) Run(t task.Task) error {
 	}
 
 	if r.opts.Quiet {
-		return sh.RunWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+		if err := sh.RunWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...); err != nil {
+			return &task.ErrRunner{
+				Err:  fmt.Errorf("run task %q: %w", t.Name(), err),
+				Kind: task.ErrRun,
+			}
+		}
 	}
-	return sh.RunWithV(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+	if err := sh.RunWithV(r.opts.Env, r.opts.Exec, tExec.BuildParams()...); err != nil {
+		return &task.ErrRunner{
+			Err:  fmt.Errorf("run task %q: %w", t.Name(), err),
+			Kind: task.ErrRun,
+		}
+	}
+
+	return nil
 }
 
 // RunOut runs the command and returns its output.
@@ -53,7 +65,14 @@ func (r *Runner) RunOut(t task.Task) (string, error) {
 		return "", fmt.Errorf("runner %q: %w", RunnerName, tErr)
 	}
 
-	return sh.OutputWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+	out, runErr := sh.OutputWith(r.opts.Env, r.opts.Exec, tExec.BuildParams()...)
+	if runErr != nil {
+		return "", &task.ErrRunner{
+			Err:  fmt.Errorf("run task %q: %w", t.Name(), runErr),
+			Kind: task.ErrRun,
+		}
+	}
+	return out, nil
 }
 
 // Validate validates the command executable.

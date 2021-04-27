@@ -3,8 +3,9 @@
 
 # Configuration for the GitHub feature to automatically request reviews from the code owners
 # when a pull request changes any owned files.
-# See:
-#   1. https://help.github.com/articles/about-codeowners
+#
+# References:
+#   1. https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
 #   2. https://github.com/blog/2392-introducing-code-owners
 
 # +----------------------+

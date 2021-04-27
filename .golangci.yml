@@ -32,8 +32,8 @@ linters:
     - dogsled
     - dupl
     - errcheck
-    - errorlint
     - exhaustive
+    - exportloopref
     - gochecknoinits
     - goconst
     - gocritic
@@ -50,13 +50,11 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
     - noctx
     - nolintlint
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
@@ -67,7 +65,6 @@ linters:
     - unused
     - varcheck
     - whitespace
-    - wrapcheck
   # Run all linters, not only fast ones.
   fast: false
 
@@ -133,6 +130,10 @@ linters-settings:
   govet:
     check-shadowing: true
 
+  importas:
+    execSupport: github.com/svengreb/wand/internal/support/exec
+    osSupport: github.com/svengreb/wand/internal/support/os
+
   lll:
     line-length: 160
 
@@ -148,4 +149,4 @@ run:
   deadline: 15m
 
 service:
-  golangci-lint-version: 1.32.x
+  golangci-lint-version: 1.39.x

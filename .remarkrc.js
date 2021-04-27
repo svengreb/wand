@@ -4,10 +4,10 @@
  */
 
 /**
- * The configuration for remark-lint.
+ * Configurations for remark-lint.
  *
  * @see https://github.com/remarkjs/remark-lint
  */
 module.exports = {
-  plugins: ["remark-preset-lint-arcticicestudio"],
+  plugins: ["@arcticicestudio/remark-preset-lint"],
 };

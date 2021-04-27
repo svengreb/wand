@@ -1,7 +1,7 @@
 # Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 # This source code is licensed under the MIT license found in the LICENSE file.
 
-# Configuration to specify paths to ignore.
+# Path match pattern to ignore (i.e. not reformat) certain files and folders.
 # See https://prettier.io/docs/en/ignore for more details.
 
 **/node_modules/*
