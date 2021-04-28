@@ -17,7 +17,7 @@ const (
 	DefaultGoModulePath = "github.com/golangci/golangci-lint/cmd/golangci-lint"
 
 	// DefaultGoModuleVersion is the default module version.
-	DefaultGoModuleVersion = "v1.32.0"
+	DefaultGoModuleVersion = "v1.39.0"
 
 	// taskName is the name of the task.
 	taskName = "golangcilint"

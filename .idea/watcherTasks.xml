@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectTasksOptions">
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="-e -l -local github.com/svengreb/wand -w $FilePath$" />
+      <option name="checkSyntaxErrors" value="true" />
+      <option name="description" />
+      <option name="exitCodeBehavior" value="ERROR" />
+      <option name="fileExtension" value="go" />
+      <option name="immediateSync" value="false" />
+      <option name="name" value="goimports" />
+      <option name="output" value="$FilePath$" />
+      <option name="outputFilters">
+        <array />
+      </option>
+      <option name="outputFromStdout" value="false" />
+      <option name="program" value="$ProjectFileDir$/.wand/cache/tools/bin/goimports/0.1.0/goimports" />
+      <option name="runOnExternalChanges" value="false" />
+      <option name="scopeName" value="Current File" />
+      <option name="trackOnlyRoot" value="true" />
+      <option name="workingDir" value="$ProjectFileDir$" />
+      <envs>
+        <env name="GOROOT" value="$GOROOT$" />
+        <env name="GOPATH" value="$GOPATH$" />
+        <env name="PATH" value="$GoBinDirs$" />
+      </envs>
+    </TaskOptions>
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="-e -extra -l -s -w $FilePath$" />
+      <option name="checkSyntaxErrors" value="true" />
+      <option name="description" />
+      <option name="exitCodeBehavior" value="ERROR" />
+      <option name="fileExtension" value="go" />
+      <option name="immediateSync" value="false" />
+      <option name="name" value="gofumpt" />
+      <option name="output" value="$FilePath$" />
+      <option name="outputFilters">
+        <array />
+      </option>
+      <option name="outputFromStdout" value="false" />
+      <option name="program" value="$ProjectFileDir$/.wand/cache/tools/bin/gofumpt/0.1.1/gofumpt" />
+      <option name="runOnExternalChanges" value="false" />
+      <option name="scopeName" value="Current File" />
+      <option name="trackOnlyRoot" value="true" />
+      <option name="workingDir" value="$ProjectFileDir$" />
+      <envs>
+        <env name="GOROOT" value="$GOROOT$" />
+        <env name="GOPATH" value="$GOPATH$" />
+        <env name="PATH" value="$GoBinDirs$" />
+      </envs>
+    </TaskOptions>
+  </component>
+</project>
