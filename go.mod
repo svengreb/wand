@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/fatih/color v1.10.0
 	github.com/imdario/mergo v0.3.12
 	github.com/magefile/mage v1.11.0
 	github.com/pkg/errors v0.9.1 // indirect

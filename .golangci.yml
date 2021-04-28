@@ -89,6 +89,10 @@ linters-settings:
     # Example: `a := b.(CustomStruct)`
     check-type-assertions: true
 
+  gci:
+    # A comma-separated list of prefixes for local package imports to be put after 3rd-party packages.
+    local-prefixes: github.com/svengreb/wand
+
   goconst:
     min-len: 2
     min-occurrences: 3
