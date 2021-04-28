@@ -26,6 +26,7 @@ import (
 	taskGoBuild "github.com/svengreb/wand/pkg/task/golang/build"
 	taskGoTest "github.com/svengreb/wand/pkg/task/golang/test"
 	taskGolangCILint "github.com/svengreb/wand/pkg/task/golangcilint"
+	taskGoModUpgrade "github.com/svengreb/wand/pkg/task/gomodupgrade"
 	taskGoTool "github.com/svengreb/wand/pkg/task/gotool"
 	taskGox "github.com/svengreb/wand/pkg/task/gox"
 )
@@ -195,6 +196,23 @@ func (e *Elder) GolangCILint(opts ...taskGolangCILint.Option) error {
 	t, tErr := taskGolangCILint.New(opts...)
 	if tErr != nil {
 		return fmt.Errorf(`create "golangci-lint" task: %w`, tErr)
+	}
+
+	return e.goToolRunner.Run(t)
+}
+
+// GoModUpgrade is a task for the "github.com/oligot/go-mod-upgrade" Go module command.
+// "go-mod-upgrade" allows to update outdated Go module dependencies interactively.
+// When any error occurs it will be of type *task.ErrRunner.
+//
+// See the "github.com/svengreb/wand/pkg/task/gomodupgrade" package for all available options.
+//
+// See https://pkg.go.dev/github.com/oligot/go-mod-upgrade for more details about "go-mod-upgrade".
+// The source code of "go-mod-upgrade" is available at https://github.com/oligot/go-mod-upgrade.
+func (e *Elder) GoModUpgrade(opts ...taskGoModUpgrade.Option) error {
+	t, tErr := taskGoModUpgrade.New(opts...)
+	if tErr != nil {
+		return fmt.Errorf(`create "gomodupgrade" task: %w`, tErr)
 	}
 
 	return e.goToolRunner.Run(t)

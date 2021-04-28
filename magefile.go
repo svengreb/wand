@@ -262,6 +262,14 @@ func TestRace() {
 	))
 }
 
+// UpgradeMods updates outdated Go module dependencies interactively.
+func UpgradeMods() {
+	ew.Infof("Updating outdated Go dependencies")
+	if err := ew.GoModUpgrade(); err != nil {
+		ew.ExitPrintf(1, nib.ErrorVerbosity, "%s\n  ↳ %v", color.RedString("Updating outdated dependencies failed:"), err)
+	}
+}
+
 // printRawf writes a message to the underlying io.Writer of ew without any specific formatting.
 // If an error occurs while writing to the underlying io.Writer the message is printed to os.Stdout instead.
 // When this also returns an error the error is written to os.Stderr instead.
