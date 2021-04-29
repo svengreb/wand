@@ -16,5 +16,5 @@ const (
 	Name = "wand"
 
 	// ReleaseVersion is the current project release version.
-	ReleaseVersion = "v0.5.0"
+	ReleaseVersion = "v0.6.0"
 )

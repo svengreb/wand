@@ -4,6 +4,124 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.6.0
+
+![Release Date: 2021-04-29](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-04-29&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.6.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/10) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.6.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/7)
+
+⇅ [Show all commits][gh-compare-tag-v0.5.0_v0.6.0]
+
+## Features
+
+<details>
+<summary><strong>Expose task name via <code>Task</code> interface</strong> — #79, #87 ⇄ #80, #88 (⊶ bd158245, 8b30110e)</summary>
+
+↠ Most tasks provided a `TaskName` package constant that contained the name of the task, but this was not an idiomatic and consistent way. To make sure that this information is part of the API, the new `Name() string` method has been added to the [`Task` interface][go-pkg-task#task].
+
+</details>
+
+<details>
+<summary><strong>Task for Go toolchain <code>env</code> command</strong> — #81 ⇄ #82 (⊶ 5e3764a3)</summary>
+
+↠ To support the [`go env` command of the Go toolchain][go-pkg-cmd/go#install], a new [`Task`][go-pkg-task#task] has been implemented in the new [`env`][go-pkg-task/golang/env] package that can be used through a [Go toolchain `Runner`][go-pkg-task/golang#runner].
+The task is customizable through the following functions:
+
+- `WithEnv(env map[string]string) env.Option` — sets the task specific environment.
+- `WithEnvVars(envVars ...string) env.Option` — sets the names of the target environment variables.
+- `WithExtraArgs(extraArgs ...string) env.Option` — sets additional arguments to pass to the command.
+
+</details>
+
+<details>
+<summary><strong><code>RunOut</code> method for <code>Runner</code> interface</strong> — #83 ⇄ #84 (⊶ d8180656)</summary>
+
+↠ The `Run` method of the [`Runner` interface][go-pkg-v0.5.0-task#runner] allows to run a command, but did not return its output. This was blocking when running commands like `go env GOBIN` to [get the path to the `GOBIN` environment variable][go-pkg-cmd/go#env].
+To support such uses cases, the new `RunOut(Task) (string, error)` method has been added to the `Runner` interface that runs a command and returns its output.
+
+</details>
+
+<details>
+<summary><strong>Replace deprecated <code>gobin</code> with custom <code>go install</code> based task runner</strong> — #89 ⇄ #90 (⊶ 9c510a7c)</summary>
+
+↠ This feature supersedes #78 which documents how the [official deprecation][gh-myitcv/gobin#103] of [`gobin`][gh-myitcv/gobin] in favor of the new Go 1.16 [`go install pkg@version`][go-pkg-cmd/go#install] syntax feature should have been handled for this project. The idea was to replace the [`gobin` task runner][go-pkg-v0.5.0-task/gobin#runner] with a one that leverages [bingo][gh-bwplotka/bingo], a project similar to `gobin`, that comes with many great features and also allows to manage development tools on a per-module basis. The problem is that `bingo` uses some non-default and nontransparent mechanisms under the hood and automatically generates files in the repository without the option to disable this behavior. It does not make use of the `go install` command but relies on custom dependency resolution mechanisms, making it prone to future changes in the Go toolchain and therefore not a good choice for the maintainability of projects.
+
+### `go install` is still not perfect
+
+Support for the new `go install` features, which allow to install commands without affecting the `main` module, have already been added in #71 as an alternative to `gobin`, but one significant problem was still not addressed: install module/package executables globally without overriding already installed executables of different versions.
+Since `go install` will always place compiled binaries in the path defined by `go env GOBIN`, any already existing executable with the same name will be replaced. It is not possible to install a module command with two different versions since `go install` still messes up the local user environment.
+
+### The Workaround: Hybrid `go install` task runner
+
+The solution was to implement a custom [`Runner`][go-pkg-task#runner] that uses `go install` under the hood, but places the compiled executable in a custom cache directory instead of `go env GOBIN`. The runner checks if the executable already exists, installs it if not so, and executes it afterwards.
+
+The concept of storing dependencies locally on a per-project basis is well-known from the [`node_modules` directory][npm-docs-cli-v7-config-folders#node_modules] of the [Node][] package manager [npm][]. Storing executables in a cache directory within the repository (not tracked by Git) allows to use `go install` mechanisms while not affect the global user environment and executables stored in `go env GOBIN`. The runner achieves this by changing the `GOBIN` environment variable to the custom cache directory during the execution of `go install`. This way it bypasses the need for “dirty hacks“ while using a custom output path.
+
+The only known disadvantage is the increased usage of storage disk space, but since most Go executables are small in size anyway, this is perfectly acceptable compared to the clearly outweighing advantages.
+
+Note that the runner dynamically runs executables based on the given task so `Validate() error` is a _NOOP_.
+
+### Upcoming Changes
+
+The solution described above works totally fine, but is still not a clean solution that uses the Go toolchain without any special logic so as soon as the following changes are made to the Go toolchain (Go 1.17 or later), the custom runner will be removed again:
+
+- [golang/go/issues#42088][gh-golang/go#42088] — tracks the process of adding support for the Go module syntax to the `go run` command. This will allow to let the Go toolchain handle the way how compiled executable are stored, located and executed.
+- [golang/go#44469][gh-golang/go#44469-c-784534876] — tracks the process of making `go install` aware of the `-o` flag like the `go build` command which is the only reason why the custom runner has been implemented.
+
+### Further Adjustments
+
+Because the new custom task runner dynamically runs executables based on the given task, the [`Bootstrap` method][go-pkg-v0.5.0-elder#elder.boostrap] of the [`Wand`][go-pkg#wand] reference implementation [`Elder`][go-pkg-elder#elder] now additionally allows to pass Go module import paths, optionally including a version suffix (`pkg@version`), to install executables from Go module-based `main` packages into the local cache directory. This way the local development environment can be set up, for e.g. by running it as [startup task][jetbrains-docs-idea-startup_tasks] in _JetBrains_ IDEs.
+The method also ensures that the local cache directory exists and will create a `.gitignore` file that includes ignore pattern for the cache directory.
+
+</details>
+
+<details>
+<summary><strong>Task for <code>go-mod-upgrade</code> Go module command</strong> — #95 ⇄ #96 (⊶ c944173f)</summary>
+
+↠ The [github.com/oligot/go-mod-upgrade][gh-oligot/go-mod-upgrade] Go module provides the `go-mod-upgrade` command, a tool that to update outdated Go module dependencies interactively.
+
+To configure and run the `go-mod-upgrade` command, a new [`task.GoModule`][go-pkg-task#gomodule] has been implemented in the new [`gomodupgrade`][go-pkg-task/gomodupgrade] package. It can be be run using a [command runner][go-pkg-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-task#kindgomodule].
+
+The task is customizable through the following functions:
+
+- `WithEnv(map[string]string) gomodupgrade.Option` — sets the task specific environment.
+- `WithExtraArgs(...string) gomodupgrade.Option` — sets additional arguments to pass to the command.
+- `WithModulePath(string) gomodupgrade.Option` — sets the module import path.
+- `WithModuleVersion(*semver.Version) gomodupgrade.Option` — sets the module version.
+
+The [`Elder`][go-pkg-elder] reference implementation will provide a new [`GoModUpgrade` method][go-pkg-elder#elder.gomodupgrade].
+
+</details>
+
+## Improvements
+
+<details>
+<summary><strong>Remove unnecessary <code>Wand</code> parameter in <code>Task</code> creation functions</strong> — #76 ⇄ #77 (⊶ 536556b6)</summary>
+
+↠ Most `Task` creation functions [<sup>1</sup>][go-pkg-v0.5.0-task/gofumpt#new] [<sup>2</sup>][go-pkg-v0.5.0-task/goimports#new] [<sup>3</sup>][go-pkg-v0.5.0-task/golang/build#new] [<sup>4</sup>][go-pkg-v0.5.0-task/golang/install#new] required a `Wand` as parameter which was not used but blocked the internal usage for task runners. Therefore these parameters have been removed. When necessary, it can be added individually later on or can be reintroduced through a dedicated function with extended parameters to cover different use cases.
+
+</details>
+
+<details>
+<summary><strong>Remove unnecessary <code>app.Config</code> parameter from <code>Task</code> creation functions</strong> — #85 ⇄ #86 (⊶ 72dd6a1a)</summary>
+
+↠ Some functions that create a [`Task`][go-pkg-task#task] required an [`app.Config` struct][go-pkg-v0.5.0-app#config], but most tasks did not use the data in any way. To improve the code quality and simplify the internal usage of tasks these parameters have been removed as well as the field from the structs that implement the `Task` interfaces.
+
+</details>
+
+<details>
+<summary><strong>Update to <code>tmpl-go</code> template repository version <code>0.8.0</code></strong> — #91 ⇄ #92 (⊶ 3e189171)</summary>
+
+↠ Updated to [`tmpl-go` version `0.8.0`][gh-svengreb/tmpl-go-rl-v0.8.0] which [updates `golangci-lint` to version `1.39.0`][gh-svengreb/tmpl-go#56] and [the `tmpl` repository version `0.9.0`][gh-svengreb/tmpl-go#58].
+
+</details>
+
+<details>
+<summary><strong>Dogfooding: Introduce Mage with wand toolkit</strong> — #93 ⇄ #94 (⊶ 85c466d7)</summary>
+
+↠ The project only used _GitHub Action_ workflows for CI but not _Mage_ to automate tasks for itself though.
+Following the [“dogfooding“ concept][wikip-eat_own_dog_food] _Mage_ has finally been added to the repository, using wand as toolkit through the [`Elder` wand reference][go-pkg-elder#elder] implementation.
+
+</details>
+
 # 0.5.0
 
 ![Release Date: 2021-04-22](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-04-22&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.5.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/9) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.5.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/6)
@@ -20,7 +138,7 @@ This release comes with support for Go 1.16 features like the new `install` comm
 ↠ As of Go version 1.16 [`go install $pkg@$version`][go-blog-1.16-modules] allows to install commands without affecting the `main` module. Additionally commands like `go build` and `go test` no longer modify `go.mod` and `go.sum` files by default but report an error if a module requirement or checksum needs to be added or updated (as if the `-mod=readonly` flag were used).
 This can be used as alternative to the already existing [`gobin` runner][go-pkg-v0.4.1-pkg-task-gobin].
 
-To support the [`go install` command of the Go toolchain][go-pkg-cmd/go#install], a new [`Task`][go-pkg-if-task#task] has been implemented in the new [`install`][go-pkg-wand-pkg-task-golang-install] package that can be used through a [Go toolchain `Runner`][go-pkg-wand-pkg-task-golang#runner].
+To support the [`go install` command of the Go toolchain][go-pkg-cmd/go#install], a new [`Task`][go-pkg-task#task] has been implemented in the new [`install`][go-pkg-wand-pkg-task-golang-install] package that can be used through a [Go toolchain `Runner`][go-pkg-task/golang#runner].
 The task is customizable through the following functions:
 
 - `WithEnv(env map[string]string) install.Option` — sets the task specific environment.
@@ -103,7 +221,7 @@ This release version introduces a new task for the “mvdan.cc/gofumpt“ Go mod
 
 ↠ The [mvdan.cc/gofumpt][go-pkg-mvdan.cc/gofumpt] Go module provides the `gofumpt` command, a tool that enforces a stricter format than [`gofmt`][go-pkg-cmd/gofmt] and [provides additional rules][gh-mvdan/gofumpt#rules], while being backwards compatible. It is a modified fork of `gofmt` so it can be used as a drop-in replacement.
 
-To configure and run the `gofumpt` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in the new [gofumpt][go-pkg-task/gofumpt] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
+To configure and run the `gofumpt` command, a new [`task.GoModule`][go-pkg-task#gomodule] has been implemented in the new [gofumpt][go-pkg-task/gofumpt] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-task#kindgomodule].
 
 The task is customizable through the following functions:
 
@@ -136,7 +254,7 @@ This release version introduces a new task for the “github.com/markbates/pkger
 
 ↠ The [github.com/markbates/pkger][go-pkg-github.com/markbates/pkger] Go module provides the `pkger` command, a tool for embedding static files into Go binaries.
 
-To configure and run the `pkger` command, a new [`task.GoModule`][go-pkg-if-task#gomodule] has been implemented in a the [pkger][go-pkg-task/pkger] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-if-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-const-task#kindgomodule].
+To configure and run the `pkger` command, a new [`task.GoModule`][go-pkg-task#gomodule] has been implemented in a the [pkger][go-pkg-task/pkger] package that can be run using the [gobin command runner][go-pkg-stc-task/gobin#runner] or any other [command runner][go-pkg-task#runner] that handles tasks of kind [`KindGoModule`][go-pkg-task#kindgomodule].
 
 The task is customizable through the following functions:
 
@@ -204,7 +322,7 @@ The basic mindset of the API will remain partially the same, but it will be desi
 
 ##### Command Runner
 
-[🅸 `task.Runner`][go-pkg-if-task#runner] is a new base interface that runs a command with parameters in a specific environment. It can be compared to the previous [🅸 `cast.Caster`][go-pkg-if-cast#caster] interface, but provides a cleaner method set accepting the new [🅸 `task.Task`][go-pkg-if-task#task] interface.
+[🅸 `task.Runner`][go-pkg-task#runner] is a new base interface that runs a command with parameters in a specific environment. It can be compared to the previous [🅸 `cast.Caster`][go-pkg-if-cast#caster] interface, but provides a cleaner method set accepting the new [🅸 `task.Task`][go-pkg-task#task] interface.
 
 - 🅼 `Handles() task.Kind` — returns the supported [task kind][go-pkg-al-task#kind].
 - 🅼 `Run(task.Task) error` — runs a command.
@@ -216,7 +334,7 @@ The new [🅸 `task.RunnerExec`][go-pkg-if-task#runnerexec] interface is a speci
 
 ##### Tasks
 
-[🅸 `task.Task`][go-pkg-if-task#task] is the new interface that is scoped for Mage [“target“][mage-docs-targets] usage. It can be compared to the previous [🅸 `spell.Incantation`][go-pkg-if-spell#incantation] interface, but provides a smaller method set without `Formula() []string`.
+[🅸 `task.Task`][go-pkg-task#task] is the new interface that is scoped for Mage [“target“][mage-docs-targets] usage. It can be compared to the previous [🅸 `spell.Incantation`][go-pkg-if-spell#incantation] interface, but provides a smaller method set without `Formula() []string`.
 
 - 🅼 `Kind() task.Kind` — returns the [task kind][go-pkg-al-task#kind].
 - 🅼 `Options() task.Options` — returns the [task options][go-pkg-if-task#options].
@@ -226,7 +344,7 @@ The new [🅸 `task.Exec`][go-pkg-if-task#exec] interface is a specialized `task
 - 🅼 `BuildParams() []string` — builds the parameters for a command runner where parameters can consist of options, flags and arguments.
 - 🅼 `Env() map[string]string` — returns the task specific environment.
 
-The new [🅸 `task.GoModule`][go-pkg-if-task#gomodule] interface is a specialized `task.Exec` for a executable Go module command. It can be compared to the previous [`spell.GoModule`][go-pkg-if-spell#gomodule] interface and the method set has not changed except a renaming of the `GoModuleID() *project.GoModuleID` to the more appropriate name `ID() *project.GoModuleID`. See the official [Go module reference documentation][go-ref-mod] for more details about Go modules.
+The new [🅸 `task.GoModule`][go-pkg-task#gomodule] interface is a specialized `task.Exec` for a executable Go module command. It can be compared to the previous [`spell.GoModule`][go-pkg-if-spell#gomodule] interface and the method set has not changed except a renaming of the `GoModuleID() *project.GoModuleID` to the more appropriate name `ID() *project.GoModuleID`. See the official [Go module reference documentation][go-ref-mod] for more details about Go modules.
 
 - 🅼 `ID() *project.GoModuleID` — returns the identifier of a Go module.
 
@@ -597,7 +715,7 @@ The spell incantation is customizable through the following functions:
 <details>
 <summary><strong>Wand reference implementation “elder“</strong> — #41 ⇄ #42 (⊶ 6397641b)</summary>
 
-↠ The default way to use the [_wand_ API][go-pkg-if#wand], with its [casters][go-pkg-cast] and [spells][go-pkg-spell], is the reference implementation [“elder“][go-pkg-elder].
+↠ The default way to use the [_wand_ API][go-pkg#wand], with its [casters][go-pkg-cast] and [spells][go-pkg-spell], is the reference implementation [“elder“][go-pkg-elder].
 It provides a way to use all _wand_ spells and additionally comes with helper methods to bootstrap a project, validate all _casters_ and simplify logging for process exits:
 
 - `Bootstrap() error` — runs initialization tasks to ensure the wand is operational. This includes the installation of configured caster like [`cast.BinaryCaster`][go-pkg-if-cast#binarycaster] that can handle spell incantations of kind [`spell.KindGoModule`][go-pkg-const-spell#kindgomodule].
@@ -678,15 +796,18 @@ otherwise Markdown elements are not parsed and rendered!
 
 [gh-golang/go-ms-145]: https://github.com/golang/go/milestone/145
 [gh-markbates/pkger#114]: https://github.com/markbates/pkger/issues/114
+[gh-myitcv/gobin]: https://github.com/myitcv/gobin
 [go-pkg-cmd/go#install]: https://pkg.go.dev/cmd/go#hdr-Compile_and_install_packages_and_dependencies
 [go-pkg-cmd/gofmt]: https://pkg.go.dev/cmd/gofmt
-[go-pkg-const-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
 [go-pkg-elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder
 [go-pkg-github.com/markbates/pkger]: https://pkg.go.dev/github.com/markbates/pkger
-[go-pkg-if-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
-[go-pkg-if-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
-[go-pkg-if-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
 [go-pkg-stc-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gobin#Runner
+[go-pkg-task/golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
+[go-pkg-task#gomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#GoModule
+[go-pkg-task#kindgomodule]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#KindGoModule
+[go-pkg-task#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Runner
+[go-pkg-task#task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task#Task
+[go-pkg#wand]: https://pkg.go.dev/github.com/svengreb/wand#Wand
 [go-ref-mod]: https://golang.org/ref/mod
 [mage]: https://magefile.org
 [trunkbasedev-monorepos]: https://trunkbaseddevelopment.com/monorepos
@@ -705,7 +826,6 @@ otherwise Markdown elements are not parsed and rendered!
 [gh-golangci/golangci-lint]: https://github.com/golangci/golangci-lint
 [gh-mitchellh/gox]: https://github.com/mitchellh/gox
 [gh-myitcv/gobin-wiki-faq]: https://github.com/myitcv/gobin/wiki/FAQ
-[gh-myitcv/gobin]: https://github.com/myitcv/gobin
 [gh-svengreb/tmpl-go-rl-v0.3.0]: https://github.com/svengreb/tmpl-go/releases/tag/v0.3.0
 [gh-svengreb/tmpl-go-tree-apps]: https://github.com/svengreb/tmpl-go/tree/main/apps
 [gh-svengreb/tmpl-go]: https://github.com/svengreb/tmpl-go
@@ -738,7 +858,6 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-if-spell#gocode]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#GoCode
 [go-pkg-if-spell#incantation]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Incantation
 [go-pkg-if-spell#mixin]: https://pkg.go.dev/github.com/svengreb/wand/pkg/spell#Mixin
-[go-pkg-if#wand]: https://pkg.go.dev/github.com/svengreb/wand#Wand
 [go-pkg-os#cachedir]: https://pkg.go.dev/os/#UserCacheDir
 [go-pkg-project]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project
 [go-pkg-runtime/debug]: https://pkg.go.dev/runtime/debug
@@ -822,4 +941,33 @@ otherwise Markdown elements are not parsed and rendered!
 [go-pkg-v0.4.1-pkg-task-gobin]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/gobin
 [go-pkg-v0.4.1-pkg-task-pkger]: https://pkg.go.dev/github.com/svengreb/wand@v0.4.1/pkg/task/pkger
 [go-pkg-wand-pkg-task-golang-install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
-[go-pkg-wand-pkg-task-golang#runner]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang#Runner
+
+<!-- v0.6.0 -->
+
+[gh-bwplotka/bingo]: https://github.com/bwplotka/bingo
+[gh-compare-tag-v0.5.0_v0.6.0]: https://github.com/svengreb/wand/compare/v0.5.0...v0.6.0
+[gh-golang/go#42088]: https://github.com/golang/go/issues/42088
+[gh-golang/go#44469-c-784534876]: https://github.com/golang/go/issues/44469#issuecomment-784534876
+[gh-myitcv/gobin#103]: https://github.com/myitcv/gobin/issues/103
+[gh-oligot/go-mod-upgrade]: https://github.com/oligot/go-mod-upgrade
+[gh-svengreb/tmpl-go-rl-v0.8.0]: https://github.com/svengreb/tmpl-go/releases/tag/v0.8.0
+[gh-svengreb/tmpl-go#56]: https://github.com/svengreb/tmpl-go/issues/56
+[gh-svengreb/tmpl-go#58]: https://github.com/svengreb/tmpl-go/issues/58
+[go-pkg-cmd/go#env]: https://pkg.go.dev/cmd/go#hdr-Print_Go_environment_information
+[go-pkg-elder#elder.gomodupgrade]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#Elder.GoModUpgrade
+[go-pkg-elder#elder]: https://pkg.go.dev/github.com/svengreb/wand/pkg/elder#Elder
+[go-pkg-task/golang/env]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/env
+[go-pkg-task/gomodupgrade]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gomodupgrade
+[go-pkg-v0.5.0-app#config]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/app#Config
+[go-pkg-v0.5.0-elder#elder.boostrap]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/elder#Elder.Bootstrap
+[go-pkg-v0.5.0-task/gobin#runner]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task/gobin#Runner
+[go-pkg-v0.5.0-task/gofumpt#new]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task/gofumpt#New
+[go-pkg-v0.5.0-task/goimports#new]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task/goimports#New
+[go-pkg-v0.5.0-task/golang/build#new]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task/golang/build#New
+[go-pkg-v0.5.0-task/golang/install#new]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task/golang/install#New
+[go-pkg-v0.5.0-task#runner]: https://pkg.go.dev/github.com/svengreb/wand@v0.5.0/pkg/task#Runner
+[jetbrains-docs-idea-startup_tasks]: https://www.jetbrains.com/help/idea/settings-tools-startup-tasks.html
+[node]: https://nodejs.org
+[npm-docs-cli-v7-config-folders#node_modules]: https://docs.npmjs.com/cli/v7/configuring-npm/folders#node-modules
+[npm]: https://www.npmjs.com
+[wikip-eat_own_dog_food]: https://en.wikipedia.org/wiki/Eating_your_own_dog_food

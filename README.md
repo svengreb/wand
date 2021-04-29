@@ -118,6 +118,7 @@ The [`task`][go-pkg-task] package defines the API for tasks. [`Task`][go-pkg-if-
 
 The package also already provides tasks for basic [Go toolchain][go-pkg-cmd/go] commands and popular modules from the Go ecosystem:
 
+- **`go-mod-upgrade`** — the [`gomodupgrade`][go-pkg-task/gomodupgrade] package provides a task for the [`github.com/oligot/go-mod-upgrade`][go-pkg-github.com/oligot/go-mod-upgrade] Go module command. `go-mod-upgrade` allows to update outdated Go module dependencies interactively. The source code of `go-mod-upgrade` is [available in the GitHub repository][gh-oligot/go-mod-upgrade].
 - **`gofumpt`** — the [`gofumpt`][go-pkg-task/gofumpt] package provides a task for the [`mvdan.cc/gofumpt`][go-pkg-mvdan.cc/gofumpt] Go module command. `gofumpt` enforces a stricter format than [`gofmt`][go-pkg-cmd/gofmt] and provides additional rules, while being backwards compatible. It is a modified fork of `gofmt` so it can be used as a drop-in replacement.
 - **`goimports`** — the [`goimports`][go-pkg-task/goimports] package provides a task for the [`golang.org/x/tools/cmd/goimports`][go-pkg-golang.org/x/tools/cmd/goimports] Go module command. `goimports` allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in the same style as [`gofmt`][go-pkg-cmd/gofmt] so it can be used as a replacement. The source code of `goimports` is [available in the GitHub repository][gh-golang/tools-tree-cmd/goimports].
 - **Go** — The [`golang`][go-pkg-task/golang] package provides tasks for [Go toolchain][go-pkg-cmd/go] commands.
@@ -298,6 +299,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [gh-golang/tools-tree-cmd/goimports]: https://github.com/golang/tools/tree/master/cmd/goimports
 [gh-golangci/golangci-lint]: https://github.com/golangci/golangci-lint/tree/master/cmd/golangci-lint
 [gh-mitchellh/gox]: https://github.com/mitchellh/gox
+[gh-oligot/go-mod-upgrade]: https://github.com/oligot/go-mod-upgrade
 [gh-tree-examples]: https://github.com/svengreb/wand/tree/main/examples
 [gh-tree-examples/custom_runner]: https://github.com/svengreb/wand/tree/main/examples/custom_runner
 [gh-tree-examples/custom_task]: https://github.com/svengreb/wand/tree/main/examples/custom_task
@@ -331,6 +333,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-github.com/golangci/golangci-lint/cmd/golangci-lint]: https://pkg.go.dev/github.com/golangci/golangci-lint/cmd/golangci-lint
 [go-pkg-github.com/mitchellh/gox]: https://pkg.go.dev/github.com/mitchellh/gox
 [go-pkg-github.com/mvdan/gofumpt]: https://github.com/mvdan/gofumpt
+[go-pkg-github.com/oligot/go-mod-upgrade]: https://pkg.go.dev/github.com/oligot/go-mod-upgrade
 [go-pkg-golang.org/x/tools/cmd/goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
 [go-pkg-if-app#store]: https://pkg.go.dev/github.com/svengreb/wand/pkg/app#Store
 [go-pkg-if-project/vcs#repository]: https://pkg.go.dev/github.com/svengreb/wand/pkg/project/vcs#Repository
@@ -359,6 +362,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [go-pkg-task/golang/install]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/install
 [go-pkg-task/golang/test]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/test
 [go-pkg-task/golangcilint]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golangcilint
+[go-pkg-task/gomodupgrade]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gomodupgrade
 [go-pkg-task/gotool]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool
 [go-pkg-task/gox]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gox
 [go-pkg-wand]: https://pkg.go.dev/github.com/svengreb/wand
