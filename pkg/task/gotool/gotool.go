@@ -1,6 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
+//go:build go1.16
 // +build go1.16
 
 // Package gotool provides a runner to install and run compiled executables of Go module-based "main" packages.

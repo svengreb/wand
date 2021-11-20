@@ -1,6 +1,7 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the LICENSE file.
 
+//go:build mage
 // +build mage
 
 // wand - a simple and powerful toolkit for Mage.
@@ -12,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/svengreb/nib"
@@ -212,7 +214,10 @@ func Lint() {
 	mg.SerialDeps(
 		func() {
 			ew.Infof(`Running configured "golangci-lint" linters`)
-			err := ew.GolangCILint(taskGolangCI.WithVerboseOutput(true))
+			err := ew.GolangCILint(
+				taskGolangCI.WithVerboseOutput(true),
+				taskGolangCI.WithModuleVersion(semver.MustParse("1.43.0")),
+			)
 			if err != nil {
 				ew.ExitPrintf(1, nib.ErrorVerbosity, "Linting failed:\n  ↳ %v", err)
 			}

@@ -26,12 +26,14 @@ issues:
 linters:
   disable-all: true
   enable:
+    - bidichk
     - bodyclose
     - deadcode
     - depguard
     - dogsled
     - dupl
     - errcheck
+    - errorlint
     - exhaustive
     - exportloopref
     - gochecknoinits
@@ -42,7 +44,6 @@ linters:
     - gofumpt
     - goheader
     - goimports
-    - golint
     - gomnd
     - gomodguard
     - goprintffuncname
@@ -53,11 +54,14 @@ linters:
     - lll
     - misspell
     - nakedret
+    - nilnil
     - noctx
     - nolintlint
+    - revive
     - staticcheck
     - structcheck
     - stylecheck
+    - tenv
     - tparallel
     - typecheck
     - unconvert
@@ -65,6 +69,7 @@ linters:
     - unused
     - varcheck
     - whitespace
+    - wrapcheck
   # Run all linters, not only fast ones.
   fast: false
 
@@ -89,6 +94,12 @@ linters-settings:
     # Example: `a := b.(CustomStruct)`
     check-type-assertions: true
 
+  errorlint:
+    # Prevent false-positive matches for code lines that explicitly do not wrap the error to prevent it become part of
+    # the public API.
+    # See https://github.com/svengreb/tmpl-go/issues/39 and https://github.com/svengreb/tmpl-go/issues/64 for details.
+    errorf: false
+
   gci:
     # A comma-separated list of prefixes for local package imports to be put after 3rd-party packages.
     local-prefixes: github.com/svengreb/wand
@@ -105,6 +116,7 @@ linters-settings:
 
   gofumpt:
     extra-rules: true
+    lang-version: "1.17"
 
   goheader:
     values:
@@ -120,9 +132,6 @@ linters-settings:
   goimports:
     # A comma-separated list of prefixes for local package imports to be put after 3rd-party packages.
     local-prefixes: github.com/svengreb/wand
-
-  golint:
-    min-confidence: 0.0
 
   gomnd:
     settings:
@@ -140,6 +149,7 @@ linters-settings:
 
   lll:
     line-length: 160
+    tab-width: 2
 
   misspell:
     locale: US
@@ -148,9 +158,74 @@ linters-settings:
       - magefile
       - nib
 
+  # See https://github.com/mgechev/revive#available-rules and
+  # https://github.com/mgechev/revive#recommended-configuration for more details.
+  revive:
+    ignore-generated-header: false
+    severity: warning
+    error-code: 1
+    # Ignore linting errors with less than 0.2 confidence.
+    confidence: 0.2
+    rules:
+      - name: atomic
+      - name: context-as-argument
+      - name: deep-exit
+      - name: defer
+      - name: duplicated-imports
+        severity: error
+      - name: early-return
+      - name: empty-block
+      - name: empty-lines
+      - name: error-naming
+      - name: error-return
+        severity: error
+      - name: error-strings
+      - name: errorf
+      - name: exported
+        arguments:
+          - checkPrivateReceivers
+          - disableStutteringCheck
+      - name: identical-branches
+      - name: if-return
+      - name: import-shadowing
+        severity: error
+      - name: increment-decrement
+      - name: indent-error-flow
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: redefines-builtin-id
+        severity: error
+      - name: string-of-int
+        severity: error
+      - name: superfluous-else
+      - name: time-equal
+      - name: time-naming
+      - name: unconditional-recursion
+      - name: unexported-naming
+      - name: unexported-return
+      - name: unhandled-error
+      - name: unreachable-code
+      - name: useless-break
+      - name: var-declaration
+
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        bson: goCamel
+        json: goCamel
+        mapstructure: snake
+        xml: goCamel
+        yaml: goCamel
+
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/svengreb/wand/*
+
 # Options for analysis runs.
 run:
   deadline: 15m
 
 service:
-  golangci-lint-version: 1.39.x
+  golangci-lint-version: 1.43.x
