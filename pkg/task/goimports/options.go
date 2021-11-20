@@ -17,7 +17,7 @@ const (
 	DefaultGoModulePath = "golang.org/x/tools/cmd/goimports"
 
 	// DefaultGoModuleVersion is the default Go module version of the runner command.
-	DefaultGoModuleVersion = "v0.1.0"
+	DefaultGoModuleVersion = "v0.1.7"
 
 	// taskName is the name of the task.
 	taskName = "goimports"

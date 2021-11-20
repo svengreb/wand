@@ -54,10 +54,6 @@ func (t *Task) BuildParams() []string {
 		params = append(params, "-e")
 	}
 
-	if t.opts.simplify {
-		params = append(params, "-s")
-	}
-
 	// Include additionally configured arguments.
 	params = append(params, t.opts.extraArgs...)
 

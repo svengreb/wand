@@ -197,7 +197,6 @@ func Format() {
 				taskGofumpt.WithListNonCompliantFiles(true),
 				taskGofumpt.WithPersistedChanges(true),
 				taskGofumpt.WithReportAllErrors(true),
-				taskGofumpt.WithSimplify(true),
 			}
 			if err := ew.Gofumpt(opts...); err != nil {
 				ew.ExitPrintf(1, nib.ErrorVerbosity, "Formatting failed:\n  ↳ %v", err)

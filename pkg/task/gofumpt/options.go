@@ -17,7 +17,7 @@ const (
 	DefaultGoModulePath = "mvdan.cc/gofumpt"
 
 	// DefaultGoModuleVersion is the default Go module version of the runner command.
-	DefaultGoModuleVersion = "v0.1.1"
+	DefaultGoModuleVersion = "v0.2.0"
 
 	// taskName is the name of the task.
 	taskName = "gofumpt"
@@ -57,9 +57,6 @@ type Options struct {
 
 	// reportAllErrors indicates whether all errors should be printed instead of only the first 10 on different lines.
 	reportAllErrors bool
-
-	// simplify indicates whether code should be simplified.
-	simplify bool
 }
 
 // NewOptions creates new task options.
@@ -154,12 +151,5 @@ func WithPersistedChanges(persistChanges bool) Option {
 func WithReportAllErrors(reportAllErrors bool) Option {
 	return func(o *Options) {
 		o.reportAllErrors = reportAllErrors
-	}
-}
-
-// WithSimplify indicates whether code should be simplified.
-func WithSimplify(simplify bool) Option {
-	return func(o *Options) {
-		o.simplify = simplify
 	}
 }
