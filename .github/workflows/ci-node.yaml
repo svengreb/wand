@@ -1,0 +1,47 @@
+# Copyright (c) 2019-present Sven Greb <development@svengreb.de>
+# This source code is licensed under the MIT license found in the LICENSE file.
+
+# GitHub Action Workflow for continuous integration jobs.
+# See https://docs.github.com/en/actions and https://github.com/features/actions for more details.
+
+name: ci-node
+on:
+  push:
+    paths:
+      - "**.js"
+      - "**.json"
+      - "**.md"
+      - "**.yaml"
+      - "**.yml"
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+    paths:
+      - "**.js"
+      - "**.json"
+      - "**.md"
+      - "**.yaml"
+      - "**.yml"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print metadata and context information
+        run: |
+          echo "Git SHA: $GITHUB_SHA"
+          echo "Git Ref: $GITHUB_REF"
+          echo "Workflow Actor: $GITHUB_ACTOR"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js version 16
+        uses: actions/setup-node@v2.4.1
+        with:
+          node-version: "16"
+          cache: "npm"
+      - name: Install Node modules
+        run: npm ci
+      - name: Run linters in CI/CD mode
+        run: npm run lint:ci
