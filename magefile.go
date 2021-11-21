@@ -110,6 +110,7 @@ func init() {
 			wandProj.WithName(projectSupport.Name),
 			wandProj.WithDisplayName(projectSupport.DisplayName),
 			wandProj.WithVCSKind(wandProjVCS.KindGit),
+			wandProj.WithDefaultVersion(projectSupport.ReleaseVersion),
 		),
 		elder.WithGoRunnerOptions(
 			taskGo.WithRunnerEnv(osSupport.EnvSliceToMap(os.Environ())),
