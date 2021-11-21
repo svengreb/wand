@@ -5,6 +5,9 @@
 # See https://golangci-lint.run/usage/configuration for more details.
 
 issues:
+  # Prevent linter rules/issues, that are explicitly enabled by this configuration, to be ignored due to golangci-lint's
+  # set of issues that are ignored by default.
+  exclude-use-default: false
   exclude-rules:
     # Prevent issues on `go generate` command directive lines.
     - linters:
