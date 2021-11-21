@@ -50,6 +50,11 @@ jobs:
           echo "Workflow Actor: $GITHUB_ACTOR"
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          # Ensure to fetch all history for all tags and branches for other steps, e.g. when bootstrapping the tools,
+          # otherwise this can result in errors when trying to query for repository metadata like the tag.
+          # See https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches for more details.
+          fetch-depth: 0
       - name: Install Go 1.17
         uses: actions/setup-go@v2
         with:
