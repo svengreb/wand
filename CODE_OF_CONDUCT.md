@@ -2,7 +2,7 @@
 
 All (core) team members, contributors/committers and volunteers in this project are required to act according to the following Code of Conduct. We ask you to follow these guidelines which help steer our interactions and strive to keep this a positive and growing project and help us provide and ensure a safe environment for everyone.
 
-If you are being harassed, notice that someone else is being harassed, or have any other concerns, please contact me at support@svengreb.de or directly to one of the core team members via [email][mailmap]. Your reports will be taken seriously and not dismissed or argued with.
+If you are being harassed, notice that someone else is being harassed, or have any other concerns, please contact me at support@svengreb.de or directly to one of the core team members via [email][3]. Your reports will be taken seriously and not dismissed or argued with.
 
 ## What we believe in and how we act
 
@@ -13,7 +13,7 @@ If you are being harassed, notice that someone else is being harassed, or have a
 - We are focusing on what is best for the community.
 - We are respectful of others, their positions, their skills, their commitments and their efforts.
 - We are attentive in our communications, whether in person or online, and we are tactful and respectful when approaching differing views and experiences.
-- We are aware that language shapes reality. Thus, we use inclusive, gender-neutral language in the documents we provide and when we talk to people. When referring to a group of people, we aim to use gender-neutral terms like “team”, “folks” or “everyone”. <sup>[1][ref-gender-neutral-docs]</sup>
+- We are aware that language shapes reality. Thus, we use inclusive, gender-neutral language in the documents we provide and when we talk to people. When referring to a group of people, we aim to use gender-neutral terms like “team”, “folks” or “everyone”. <sup>[1][5]</sup>
 - We respect that people have differences of opinion and criticize constructively.
 
 ## Unacceptable Behavior
@@ -34,7 +34,7 @@ The members of the core team and project maintainers are responsible for clarify
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting us via support@svengreb.de or directly to one of the project core team members or owner via [email][mailmap]. The project team will review and investigate all complaints, and will respond in a way that it deems appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting us via support@svengreb.de or directly to one of the project core team members or owner via [email][3]. The project team will review and investigate all complaints, and will respond in a way that it deems appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
 
 Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project's leadership.
 
@@ -52,10 +52,10 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ---
 
-Thanks for the inspirations and attributions to GitHub's [Open Source Guides][oss-guides], [Hoodie's Code of Conduct][hoodie-coc] and the [Contributor Covenant Version 1.4][contrib-cov-1.4].
+Thanks for the inspirations and attributions to GitHub's [Open Source Guides][4], [Hoodie's Code of Conduct][2] and the [Contributor Covenant Version 1.4][1].
 
-[contrib-cov-1.4]: https://contributor-covenant.org/version/1/4/code-of-conduct
-[hoodie-coc]: http://hood.ie/code-of-conduct
-[mailmap]: https://github.com/svengreb/wand/blob/main/.mailmap
-[oss-guides]: https://opensource.guide
-[ref-gender-neutral-docs]: https://modelviewculture.com/pieces/gendered-language-feature-or-bug-in-software-documentation
+[1]: https://contributor-covenant.org/version/1/4/code-of-conduct
+[2]: http://hood.ie/code-of-conduct
+[3]: https://github.com/svengreb/wand/blob/main/.mailmap
+[4]: https://opensource.guide
+[5]: https://modelviewculture.com/pieces/gendered-language-feature-or-bug-in-software-documentation
