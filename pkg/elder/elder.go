@@ -110,6 +110,7 @@ func (e *Elder) ExitPrintf(code int, verb nib.Verbosity, format string, args ...
 		// noop
 	}
 
+	//nolint:revive // Exiting is an explicit logic of this method.
 	os.Exit(code)
 }
 
