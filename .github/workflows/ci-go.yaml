@@ -70,7 +70,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-
       - name: Run unit tests with coverage and race detector
         run: go run make.go testCover testRace
       - name: Run integration tests
