@@ -27,7 +27,7 @@ jobs:
           echo "Git Ref: $GITHUB_REF"
           echo "Workflow Actor: $GITHUB_ACTOR"
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Go 1.17
         uses: actions/setup-go@v2
         with:
@@ -49,7 +49,7 @@ jobs:
           echo "Git Ref: $GITHUB_REF"
           echo "Workflow Actor: $GITHUB_ACTOR"
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Ensure to fetch all history for all tags and branches for other steps, e.g. when bootstrapping the tools,
           # otherwise this can result in errors when trying to query for repository metadata like the tag.
