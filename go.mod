@@ -7,7 +7,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/imdario/mergo v0.3.12
 	github.com/magefile/mage v1.11.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/svengreb/golib v0.1.0
 	github.com/svengreb/nib v0.2.0
 )
