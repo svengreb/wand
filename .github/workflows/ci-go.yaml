@@ -62,7 +62,7 @@ jobs:
       - name: Bootstrap tools
         run: go run make.go bootstrap
       - name: Cache Go dependencies and build outputs
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.1
         with:
           path: |
             ~/.cache/go-build
