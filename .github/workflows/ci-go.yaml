@@ -29,7 +29,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install Go 1.17
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: "1.17.x"
       - name: "Run golangci-lint"
@@ -56,7 +56,7 @@ jobs:
           # See https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches for more details.
           fetch-depth: 0
       - name: Install Go 1.17
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: "1.17.x"
       - name: Bootstrap tools
