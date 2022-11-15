@@ -177,10 +177,10 @@ Thanks for the inspirations and attributions to GitHub's [Open Source Guides][26
 
 [1]: http://sscce.org
 [2]: https://semver.org
-[3]: https://github.com/atom/atom/blob/master/CONTRIBUTING.md
+[3]: https://github.com/atom/atom/blob/master/contributing.md
 [4]: https://github.com/svengreb/wand/tree/main
-[5]: https://github.com/svengreb/wand/blob/main/CHANGELOG.md
-[6]: https://github.com/svengreb/wand/blob/main/CODE_OF_CONDUCT.md
+[5]: https://github.com/svengreb/wand/blob/main/changelog.md
+[6]: https://github.com/svengreb/wand/blob/main/code_of_conduct.md
 [7]: https://gist.github.com
 [8]: https://github.com/svengreb/wand/labels/type-question
 [9]: https://github.com/svengreb/wand/blob/main/.github/ISSUE_TEMPLATE/bugs.md

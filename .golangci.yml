@@ -1,5 +1,5 @@
 # Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-# This source code is licensed under the MIT license found in the LICENSE file.
+# This source code is licensed under the MIT license found in the license file.
 
 # Configuration for golangci-lint.
 # See https://golangci-lint.run/usage/configuration for more details.
@@ -130,7 +130,7 @@ linters-settings:
         EMAIL: .*@svengreb\.de
     template: |-
       Copyright (c) {{ YEAR }} {{ AUTHOR }} <{{ EMAIL }}>
-      This source code is licensed under the MIT license found in the LICENSE file.
+      This source code is licensed under the MIT license found in the license file.
 
   goimports:
     # A comma-separated list of prefixes for local package imports to be put after 3rd-party packages.

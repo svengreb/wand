@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package elder is a wand reference implementation that provides common Mage tasks and stores application
 // configurations and metadata of a project.
@@ -342,12 +342,12 @@ func (e *Elder) Validate() error {
 //
 // If any error occurs it will be of type *cmd.ErrCmd or *project.ErrProject.
 //
-// References
+// References:
 //
-//   (1) https://magefile.org/#usage
-//   (2) https://golang.org/pkg/os/#Getwd
-//   (3) https://golang.org/pkg/runtime/debug/#ReadBuildInfo
-//   (4) https://pkg.go.dev/runtime/debug
+//  1. https://magefile.org/#usage
+//  2. https://golang.org/pkg/os/#Getwd
+//  3. https://golang.org/pkg/runtime/debug/#ReadBuildInfo
+//  4. https://pkg.go.dev/runtime/debug
 func New(opts ...Option) (*Elder, error) {
 	opt := NewOptions(opts...)
 

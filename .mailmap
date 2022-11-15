@@ -1,5 +1,5 @@
 # Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-# This source code is licensed under the MIT license found in the LICENSE file.
+# This source code is licensed under the MIT license found in the license file.
 
 # Configuration for the Git mail mapping feature to coalesce together commits by the same person in the shortlog,
 # where their name and/or email address was spelled differently or has been changed.

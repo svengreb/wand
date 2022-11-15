@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package gofumpt provides a task for the "mvdan.cc/gofumpt" Go module command.
 // "gofumpt" enforce a stricter format than "https://pkg.go.dev/cmd/gofmt" and provides additional rules, while being

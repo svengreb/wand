@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package golangcilint provides a task for the "github.com/golangci/golangci-lint/cmd/golangci-lint" Go module command.
 // "golangci-lint" a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and

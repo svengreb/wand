@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package project provides global project information and metadata, such as the project, module and display name and
 // release version.

@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package gox provides a task for the github.com/mitchellh/gox Go module command.
 // "gox" is a dead simple, no frills Go cross compile tool that behaves a lot like the standard Go toolchain "build"

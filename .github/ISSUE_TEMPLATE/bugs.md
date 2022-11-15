@@ -5,7 +5,7 @@ about: Report a bug that is caused by the code in this repository
 
 <!-- Click on the "Preview" tab to render the instructions in a more readable format -->
 
-> **Please read the [contribution guidelines](https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md) before filling out this issue template**.
+> **Please read the [contribution guidelines](https://github.com/svengreb/wand/blob/main/contributing.md) before filling out this issue template**.
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ What actually happens?
 
 ## Example
 
-Provide a [MCVE - The Minimal, Complete, and Verifiable Example](https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#mcve)
+Provide a [MCVE - The Minimal, Complete, and Verifiable Example](https://github.com/svengreb/wand/blob/main/contributing.md#mcve)
 
 **This is a optional section, but it can drastically increase the speed at which this issue can be processed since it takes away the time-consuming reconstruction to reproduce the bug.**
 The recommended way is to upload it as [Gist](https://gist.github.com) or new repository to GitHub, but of course you can [attach it to this issue](https://docs.github.com/en/github/managing-your-work-on-github/file-attachments-on-issues-and-pull-requests), use any free file hosting service or paste the code in [Markdown code blocks](https://docs.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax) into this issue.

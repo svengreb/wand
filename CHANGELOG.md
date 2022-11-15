@@ -4,6 +4,42 @@
 
 <!--lint disable no-duplicate-headings no-duplicate-headings-in-section-->
 
+# 0.8.0
+
+![Release Date: 2022-11-15](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2022-11-15&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.8.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/users/svengreb/projects/6/views/3) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.6.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/9)
+
+⇅ [Show all commits][187]
+
+## Improvements
+
+<details>
+<summary><strong>Improve <code>runtime/debug</code> Go 1.18 incompatibility via stable <code>go.mod</code> file parsing</strong> — #129 ⇄ #130 (⊶ df291299)</summary>
+
+↠ [As of Go 1.18][192] the [debug.ReadBuildInfo][193] function does not work for Mage executables anymore because the way how module information is stored changed. Therefore the fields of the returned [debug.Module][194] type only has zero values, including the module path. The [debug.Module.Version][195] field has a [default value][196] (`(devel)`) which is not Semver compatible and causes the parsing to fail. [The change in Go 1.18][200] also [came with the new `debug/buildinfo` package][201] which allows to read the information from compiled binaries while the `runtime/debug.ReadBuildInfo` function returns information from within the running binary. Both are not suitable anymore which is also described in the Go 1.18 `version` command release notes:
+
+> The underlying data format of the embedded build information can change with new `go` releases, so an older version of `go` may not handle the build information produced with a newer version of `go`. To read the version information from a binary built with `go` 1.18, use the `go` version command and the `debug/buildinfo` package from `go` 1.18+.
+
+To get the required module information that was previously provided by the [runtime/debug][197] package the official [golang.org/x/mod/modfile][198] package is now used instead that provides the implementation for a parser and formatter for [`go.mod` files][199] [^1]. This allows to safely get the module path without the need to depend on runtime/dynamic logic that might change in future Go versions.
+
+Note that **this change also increased the minimum Go version from `1.17` to `1.19`!**
+
+</details>
+
+## Bug Fixes
+
+<details>
+<summary><strong>Update to <code>tmpl-go</code> template repository version <code>0.11.0</code> and <code>0.12.0</code></strong> — #112, #127 ⇄ #113, #128 (⊶ a4e2a38f, c4fe6cfc)</summary>
+
+↠ Updated to [`tmpl-go` version `0.11.0`][203] and [`0.12.0`][204] which…
+
+1. [fixed `golangci-lint` running errors due to `revive`s unknown `time-equal` rule][189].
+2. [disabled the `revive` linter rule `package-comments`][190].
+3. [updated to the `tmpl` template repository version `0.11.0`][202].
+
+See the [full `tmpl-go` version `0.11.0`][203] and [`0.12.0`][204] and changelogs for all details.
+
+</details>
+
 # 0.7.0
 
 ![Release Date: 2021-11-21](https://img.shields.io/static/v1?style=flat-square&label=Release%20Date&message=2021-11-21&colorA=4c566a&colorB=88c0d0) [![Project Board](https://img.shields.io/static/v1?style=flat-square&label=Project%20Board&message=0.7.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/projects/11) [![Milestone](https://img.shields.io/static/v1?style=flat-square&label=Milestone&message=0.6.0&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0)](https://github.com/svengreb/wand/milestone/8)
@@ -840,7 +876,7 @@ It is customizable through the following functions:
 
 <p align="center">Copyright &copy; 2019-present <a href="https://www.svengreb.de" target="_blank" rel="noreferrer">Sven Greb</a></p>
 
-<p align="center"><a href="https://github.com/svengreb/wand/blob/main/LICENSE" target="_blank" rel="noreferrer"><img src="https://img.shields.io/static/v1.svg?style=flat-square&label=License&message=MIT&logoColor=eceff4&logo=github&colorA=4c566a&colorB=88c0d0"/></a></p>
+<p align="center"><a href="https://github.com/svengreb/wand/blob/main/license" target="_blank" rel="noreferrer"><img src="https://img.shields.io/static/v1.svg?style=flat-square&label=License&message=MIT&logoColor=eceff4&logo=github&colorA=4c566a&colorB=88c0d0"/></a></p>
 
 <!--
 +------------------+
@@ -890,6 +926,7 @@ otherwise Markdown elements are not parsed and rendered!
 [21]: https://trunkbaseddevelopment.com/monorepos
 [22]: https://en.wikipedia.org/wiki/Harry_Potter
 [58]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
+[115]: https://github.com/actions/setup-node
 
 <!-- v0.1.0 -->
 
@@ -996,7 +1033,6 @@ otherwise Markdown elements are not parsed and rendered!
 <!-- v0.4.1 -->
 
 [114]: https://github.com/actions/setup-node/compare/v2.1.3...c46424ee
-[115]: https://github.com/actions/setup-node
 [116]: https://github.com/svengreb/wand/compare/v0.4.0...v0.4.1
 [117]: https://github.com/magefile/mage/compare/v1.10.0...v1.11.0
 [118]: https://pkg.go.dev/os/#Environ
@@ -1074,3 +1110,26 @@ otherwise Markdown elements are not parsed and rendered!
 [184]: https://github.com/svengreb/tmpl-go/releases/tag/v0.10.0
 [185]: https://github.com/svengreb/tmpl-go/issues/72
 [186]: https://github.com/svengreb/tmpl-go/issues/74
+
+<!-- v0.8.0 -->
+
+[187]: https://github.com/svengreb/wand/compare/v0.7.0...v0.7.1
+[189]: https://github.com/svengreb/tmpl-go/issues/76
+[190]: https://github.com/svengreb/tmpl-go/issues/78
+[192]: https://github.com/golang/go/commit/9cec77ac#diff-abdadaf0d85a2e6c8e45da716909b2697d830b0c75149b9e35accda9c38622bdR2234
+[193]: https://pkg.go.dev/runtime/debug@go1.18#ReadBuildInfo
+[194]: https://pkg.go.dev/runtime/debug#Module
+[195]: https://github.com/golang/go/blob/9cec77ac/src/runtime/debug/mod.go#L52
+[196]: https://github.com/golang/go/blob/122a22e0e9eba7fe712030d429fc4bcf6f447f5e/src/cmd/go/internal/load/pkg.go#L2288
+[197]: https://pkg.go.dev/runtime/debug@go1.18.8
+[198]: https://pkg.go.dev/golang.org/x/mod/modfile
+[199]: https://pkg.go.dev/cmd/go#hdr-The_go_mod_file
+[200]: https://tip.golang.org/doc/go1.18#go-version
+[201]: https://tip.golang.org/doc/go1.18#debug/buildinfo
+[202]: https://github.com/svengreb/tmpl-go/issues/91
+[203]: https://github.com/svengreb/tmpl-go/releases/tag/v0.11.0
+[204]: https://github.com/svengreb/tmpl-go/releases/tag/v0.12.0
+
+<!--lint disable no-duplicate-definitions-->
+
+[^1]: https://go.dev/ref/mod#go-mod-file

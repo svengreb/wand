@@ -1,5 +1,5 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
-// This source code is licensed under the MIT license found in the LICENSE file.
+// This source code is licensed under the MIT license found in the license file.
 
 // Package goimports provides a task for the "golang.org/x/tools/cmd/goimports" Go module command.
 // "goimports" allows to update Go import lines, add missing ones and remove unreferenced ones. It also formats code in

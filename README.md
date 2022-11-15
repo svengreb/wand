@@ -1,6 +1,6 @@
 <p align="center"><img src="https://raw.githubusercontent.com/svengreb/wand/main/assets/images/repository-hero.svg?sanitize=true"/></p>
 
-<p align="center"><a href="https://github.com/svengreb/wand/releases/latest" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Release&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a> <a href="https://github.com/svengreb/wand/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Changelog&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a> <a href="https://pkg.go.dev/github.com/svengreb/wand" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=GoDoc&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a></p>
+<p align="center"><a href="https://github.com/svengreb/wand/releases/latest" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Release&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a> <a href="https://github.com/svengreb/wand/blob/main/changelog.md" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=Changelog&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a> <a href="https://pkg.go.dev/github.com/svengreb/wand" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/release/svengreb/wand.svg?style=flat-square&label=GoDoc&logo=github&logoColor=eceff4&colorA=4c566a&colorB=88c0d0"/></a></p>
 
 <p align="center"><a href="https://github.com/svengreb/wand/actions?query=workflow%3Aci-go" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/workflow/status/svengreb/wand/ci-go.svg?style=flat-square&label=CI%20Go&logo=github&logoColor=eceff4&colorA=4c566a"/></a> <a href="https://github.com/svengreb/wand/actions?query=workflow%3Aci-node" target="_blank" rel="noreferrer"><img src="https://img.shields.io/github/workflow/status/svengreb/wand/ci-node.svg?style=flat-square&label=CI%20Node&logo=github&logoColor=eceff4&colorA=4c566a"/></a> <a href="https://codecov.io/gh/svengreb/wand" target="_blank" rel="noreferrer"><img src="https://img.shields.io/codecov/c/github/svengreb/wand/main.svg?style=flat-square&label=Coverage&logo=codecov&logoColor=eceff4&colorA=4c566a"/></a></p>
 
@@ -278,7 +278,7 @@ The guide also includes information about [minimal, complete, and verifiable exa
 
 <p align="center">Copyright &copy; 2019-present <a href="https://www.svengreb.de" target="_blank" rel="noreferrer">Sven Greb</a></p>
 
-<p align="center"><a href="https://github.com/svengreb/wand/blob/main/LICENSE" target="_blank" rel="noreferrer"><img src="https://img.shields.io/static/v1.svg?style=flat-square&label=License&message=MIT&logoColor=eceff4&logo=github&colorA=4c566a&colorB=88c0d0"/></a></p>
+<p align="center"><a href="https://github.com/svengreb/wand/blob/main/license" target="_blank" rel="noreferrer"><img src="https://img.shields.io/static/v1.svg?style=flat-square&label=License&message=MIT&logoColor=eceff4&logo=github&colorA=4c566a&colorB=88c0d0"/></a></p>
 
 [1]: https://magefile.org
 [2]: https://nodejs.org
@@ -290,17 +290,17 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [8]: https://maven.apache.org
 [9]: https://www.gnu.org/software/make
 [10]: https:github.com/golang/go/issues/42088
-[11]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#branch-organization
-[12]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#bug-reports
-[13]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#documentations
-[14]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#enhancement-suggestions
-[15]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#give-feedback-on-issues-and-pull-requests
-[16]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#improve-issues
-[17]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#mcve
-[18]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#pull-requests
-[19]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#styleguides
-[20]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md#versioning
-[21]: https://github.com/svengreb/wand/blob/main/CONTRIBUTING.md
+[11]: https://github.com/svengreb/wand/blob/main/contributing.md#branch-organization
+[12]: https://github.com/svengreb/wand/blob/main/contributing.md#bug-reports
+[13]: https://github.com/svengreb/wand/blob/main/contributing.md#documentations
+[14]: https://github.com/svengreb/wand/blob/main/contributing.md#enhancement-suggestions
+[15]: https://github.com/svengreb/wand/blob/main/contributing.md#give-feedback-on-issues-and-pull-requests
+[16]: https://github.com/svengreb/wand/blob/main/contributing.md#improve-issues
+[17]: https://github.com/svengreb/wand/blob/main/contributing.md#mcve
+[18]: https://github.com/svengreb/wand/blob/main/contributing.md#pull-requests
+[19]: https://github.com/svengreb/wand/blob/main/contributing.md#styleguides
+[20]: https://github.com/svengreb/wand/blob/main/contributing.md#versioning
+[21]: https://github.com/svengreb/wand/blob/main/contributing.md
 [22]: https://github.com/magefile/mage/blob/d30a2cfe/go.mod
 [23]: https://github.com/golang/go/issues/25922
 [24]: https://github.com/golang/go/issues/27653
