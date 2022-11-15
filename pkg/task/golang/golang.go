@@ -11,6 +11,7 @@ import (
 	"os/exec"
 
 	"github.com/magefile/mage/sh"
+
 	glFS "github.com/svengreb/golib/pkg/io/fs"
 
 	"github.com/svengreb/wand/pkg/task"

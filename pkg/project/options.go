@@ -6,7 +6,6 @@ package project
 import (
 	"os"
 	"path/filepath"
-	"runtime/debug"
 
 	"github.com/Masterminds/semver/v3"
 
@@ -138,24 +137,16 @@ func newOptions(opts ...Option) (*Options, error) {
 		}
 	}
 
-	buildInfo, ok := debug.ReadBuildInfo()
-	if !ok {
-		return nil, &ErrProject{Kind: ErrDetermineGoModuleInformation}
-	}
-
-	goModuleVersion, goModuleVersionErr := semver.NewVersion(buildInfo.Main.Version)
-	if goModuleVersionErr == nil {
-		return nil, &ErrProject{Err: goModuleVersionErr, Kind: ErrDetermineGoModuleInformation}
+	gm, gmErr := GoModuleFromFile(rootDirPath)
+	if gmErr != nil {
+		return nil, &ErrProject{Err: gmErr, Kind: ErrDetermineGoModuleInformation}
 	}
 
 	opt := &Options{
 		BaseOutputDir:  DefaultBaseOutputDir,
 		DefaultVersion: DefaultVersion,
 		DisplayName:    filepath.Base(rootDirPath),
-		GoModule: &GoModuleID{
-			Path:    buildInfo.Main.Path,
-			Version: goModuleVersion,
-		},
+		GoModule:       gm,
 		Name:           filepath.Base(rootDirPath),
 		Repository:     vcsNone.New(),
 		RootDirPathAbs: rootDirPath,
