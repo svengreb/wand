@@ -47,6 +47,7 @@ func (r *Runner) Run(t task.Task) error {
 				Kind: task.ErrRun,
 			}
 		}
+		return nil
 	}
 	if err := sh.RunWithV(r.opts.Env, r.opts.Exec, tExec.BuildParams()...); err != nil {
 		return &task.ErrRunner{
@@ -54,7 +55,6 @@ func (r *Runner) Run(t task.Task) error {
 			Kind: task.ErrRun,
 		}
 	}
-
 	return nil
 }
 

@@ -222,6 +222,7 @@ func (r *Runner) Run(t task.Task) error {
 				Kind: task.ErrRun,
 			}
 		}
+		return nil
 	}
 	if err := sh.RunWithV(r.opts.Env, execPath, tGM.BuildParams()...); err != nil {
 		return &task.ErrRunner{
