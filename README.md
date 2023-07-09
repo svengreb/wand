@@ -19,7 +19,7 @@ _wand_ is a toolkit for common and often recurring project processes for the tas
 The provided [API packages][74] allow users to compose their own, reusable set of tasks and helpers or built up on the [reference implementation][56].
 
 - **Adapts to any “normal“ or [“mono“][105] repository layout** — handle as many module _commands_ as you want. _wand_ uses an abstraction by managing every `main` package as _application_ so that tasks can be processed for all or just individual _commands_.
-- **Runs any `main` package of a [Go module][39] without the requirement for the user to install it beforehand** — [Go 1.16 introduced `go install` command support for the `pkg@version` module syntax][40] which is internally used by the [`gotool` task runner][81] to install executables of `main` packages into custom locations without “polluting“ a projects `go.mod` file.
+- **Runs any `main` package of a [Go module][39] without the requirement for the user to install it beforehand** — Run any command of a Go module using the [module-aware][119] `pkg@version` syntax, or optionally cache executables in a local directory within the project root, using the [`gotool` runner][93]. See the [“Command Runners“ sections below](#command-runners) for details.
 - **Comes with support for basic [Go toolchain][48] commands and popular modules from the Go ecosystem** — run common commands like `go build`, `go install` and `go test` or great tools like [gofumpt][62], [golangci-lint][60] and [gox][61] in no time.
 
 See the [API](#api) and [“Elder Wand“](#elder-wand) sections for more details. The [user guides](#user-guides) for more information about how to build your own tasks and runners and the [examples](#examples) for different repositories layouts (single or [“monorepo“][105]) and use cases.
@@ -85,24 +85,27 @@ The package already provides runners for the [Go toolchain][48] and [gotool][93]
 
 - **Go Toolchain** — to interact with the [Go toolchain][48], also known as the `go` executable, the [`golang.Runner`][80] can be used.
 - **`gotool` Go module-based executables** — to install and run [Go module-based][39] `main` packages, the [`gotool.Runner`][81] makes use of the Go 1.16 `go install` command features.
-  1. **Go Executable Installation** — [Go 1.16 introduced `go install` command support for the `pkg@version` module syntax][40] which allows to install commands without “polluting“ a projects `go.mod` file. The resulting executables are placed in the Go executable search path that is defined by the [`GOBIN` environment variable][50] (see the [`go env` command][53] to show or modify the Go toolchain environment).
+  1. **(Optional) Go Executable Installation & Caching** — [Go 1.16 introduced `go install` command support for the `pkg@version` module syntax][40] which allows to install commands without “polluting“ a projects `go.mod` file. The resulting executables are placed in the Go executable search path that is defined by the [`GOBIN` environment variable][50] (see the [`go env` command][53] to show or modify the Go toolchain environment).
      The problem is that installed executables will overwrite any previously installed executable of the same module/package regardless of the version. Therefore only one version of an executable can be installed at a time which makes it impossible to work on different projects that make use of the same executable but require different versions.
   2. **UX Before Go 1.16** — The installation concept for `main` package executables was always a somewhat controversial point which unfortunately, partly for historical reasons, did not offer an optimal and user-friendly solution until Go 1.16.
      The [`go` command][48] is a fantastic toolchain that provides many great features one would expect to be provided out-of-the-box from a modern and well designed programming language without the requirement to use a third-party solution: from compiling code, running unit/integration/benchmark tests, quality and error analysis, debugging utilities and many more.
      This did not apply for the [`go install` command][52] of Go versions less than 1.16.
      The general problem of tool dependencies was a long-time known issue/weak point of the Go toolchain and was a highly rated change request from the Go community with discussions like [golang/go#30515][25], [golang/go#25922][23] and [golang/go#27653][24] to improve this essential feature. They have been around for quite a long time without a solution that worked without introducing breaking changes and most users and the Go team agree on.
      Luckily, this topic was [finally resolved in the Go release version 1.16][40] and and [golang/go#40276][26] introduced a way to install executables in module mode outside a module.
-  3. **The Leftover Drawback** — Even though the `go install` command works totally fine to globally install executables, the problem that only a single version can be installed at a time is still left. The executable is placed in the path defined by `go env GOBIN` so the previously installed executable will be overridden. It is not possible to install multiple versions of the same package and `go install` still messes up the local user environment.
-  4. **The Workaround** — To work around the leftover drawback, the [`gotool` package][93] provides a runner that uses `go install` under the hood, but allows to place the compiled executable in a custom cache directory instead of `go env GOBIN`. It checks if the executable already exists, installs it if not so, and executes it afterwards.
+  3. **UX As Of Go 1.17** — With the [introduction in Go 1.17 of running commands in module-aware mode][112] the (local) installation (and caching) of Go module executables has been made kind of obsolete since `go run` can now be used [to run Go commands][115] in module-aware by passing the package and version suffix as argument, without affecting the `main` module and not "pollute" the `go.mod` file 🎉
+     The [`pkg/task/golang/run` package][116] package provides a ready-to-use [task implementation][117]. The runner is therefore halfway obsolete, but there are still some drawbacks that are documented below.
+     As of [_wand_ version `0.9.0`][114] the default behavior is to not use a local cache directory anymore to store Gomodule-based command executable but make use of the module-aware `go run pkg@version` support!
+     To opt-in to the previous behavior set the [`WithCache` option][113] to `true` when initializing a new runner.
+  4. **The Leftover Drawback** — Even though the `go install` command works totally fine to globally install executables, the problem that only a single version can be installed at a time is still left. The executable is placed in the path defined by `go env GOBIN` so the previously installed executable will be overridden. It is not possible to install multiple versions of the same package and `go install` still messes up the local user environment.
+  5. **The Workaround** — To work around the leftover drawback, the [`gotool` package][93] provides a runner that uses `go install` under the hood, but allows to place the compiled executable in a custom cache directory instead of `go env GOBIN`. It checks if the executable already exists, installs it if not so, and executes it afterwards.
      The concept of storing dependencies locally on a per-project basis is well-known from the [`node_modules` directory][103] of the [Node][2] package manager [npm][5]. Storing executables in a cache directory within the repository (not tracked by Git) allows to use `go install` mechanisms while not affect the global user environment and executables stored in `go env GOBIN`.
      The runner achieves this by temporarily changing the `GOBIN` environment variable to the custom cache directory during the execution of `go install`.
      The only known disadvantage is the increased usage of storage disk space, but since most Go executables are small in size anyway, this is perfectly acceptable compared to the clearly outweighing advantages. Note that the runner dynamically runs executables based on the given task so the `Validate` method is a _NOOP_.
      This is currently the best workaround to…
      1. install `main` package executables locally for the current user without “polluting“ the `go.mod` file.
      2. install `main` package executables locally for the current user without overriding already installed executables of different versions.
-  5. **Future Changes** — The provided runner is still not a clean solution that uses the Go toolchain without any special logic so as soon as the following changes are made to the Go toolchain (Go 1.17 or later), the runner will be removed again:
-     - [golang/go#42088][10] — tracks the process of adding support for the Go module syntax to the `go run` command. This will allow to let the Go toolchain handle the way how compiled executable are stored, located and executed.
-     - [golang/go#44469][96] — tracks the process of making `go install` aware of the `-o` flag like the `go build` command which is the only reason why the provided runner exists.
+  6. **Future Changes** — The provided runner is still not a clean solution that uses the Go toolchain without any special logic so as soon as the following changes are made to the Go toolchain (Go 1.17 or later), the runner can be made opt-in or removed at all:
+  - [golang/go#44469][96] — tracks the process of making `go build` module-aware as well as adding support to `go install` for the `-o` flag like for the `go build` command. The second feature, [mentioned in a comment][118], would make the "install" feature of this runner in (or the whole runner at all) obsolete since commands of Go modules could be run and installed using pure Go toolchain functionality.
 
 ### Project Metadata
 
@@ -125,7 +128,8 @@ The package also already provides tasks for basic [Go toolchain][48] commands an
   - **`build`** — to run the [`build` command of the Go toolchain][49] the task of the [`build`][87] package can be used.
   - **`env`** — to run the [`env` command of the Go toolchain][51] the task of the [`env`][88] package can be used.
   - **`install`** — to run the [`install` command of the Go toolchain][52] the task of the [`install`][89] package can be used.
-  - **`test`** — to run the [`test` command of the Go toolchain][54] the task of the [`test`][90] package can be used.
+  - **`run`** — to run the [`run` command of the Go toolchain][54] the task of the [`test`][90] package can be used.
+  - **`test`** — to run the [`test` command of the Go toolchain][115] the task of the [`run`][116] package can be used.
 - **`golangci-lint`** — the [`golangcilint`][91] package provides a task for the [`github.com/golangci/golangci-lint/cmd/golangci-lint`][60] Go module command. `golangci-lint` is a fast, parallel runner for dozens of Go linters that uses caching, supports YAML configurations and has integrations with all major IDEs. The source code of `golangci-lint` is [available in the GitHub repository][28].
 - **`gox`** — the [`gox`][94] package provides a task for the [`github.com/mitchellh/gox`][61] Go module command. `gox` is a dead simple, no frills Go cross compile tool that behaves a lot like the standard [Go toolchain `build` command][49]. The source code of `gox` is [available in the GitHub repository][29].
 
@@ -139,7 +143,7 @@ In the following sections you can learn how to use the _wand_ reference implemen
 
 ### Elder Wand
 
-The [`elder`][56] package is the reference implementation of the main [`wand.Wand`][72] interface that provides common Mage tasks and stores configurations and metadata for applications of a project. Next to task methods for the Go toolchain and Go module commands, it comes with additional methods like `Bootstrap` to run initialization actions or `Validate` to ensure that the _wand_ is initialized properly.
+The [`elder`][56] package is the reference implementation of the main [`wand.Wand`][72] interface that provides common Mage tasks and stores configurations and metadata for applications of a project. Next to task methods for the Go toolchain and Go module commands, it comes with additional methods like `Validate` to ensure that the _wand_ is initialized properly and operational.
 
 Create your [_Magefile_][99], e.g `magefile.go`, and use the [`New`][57] function to initialize a new wand and register any amount of applications.
 Create a global variable of type `*elder.Elder` and assign the created “elder wand“ to make it available to all functions in your _Magefile_. Even though global variables are a bad practice and should be avoid at all, it‘s totally fine for your task automation since it is non-production code.
@@ -289,7 +293,6 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [7]: https://gradle.org
 [8]: https://maven.apache.org
 [9]: https://www.gnu.org/software/make
-[10]: https:github.com/golang/go/issues/42088
 [11]: https://github.com/svengreb/wand/blob/main/contributing.md#branch-organization
 [12]: https://github.com/svengreb/wand/blob/main/contributing.md#bug-reports
 [13]: https://github.com/svengreb/wand/blob/main/contributing.md#documentations
@@ -391,3 +394,11 @@ The guide also includes information about [minimal, complete, and verifiable exa
 [109]: https://en.wikipedia.org/wiki/PATH_(variable)
 [110]: https://en.wikipedia.org/wiki/Shell_builtin
 [111]: https://en.wikipedia.org/wiki/Version_control
+[112]: https://go.dev/doc/go1.17#go%20run
+[113]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/run#WithCache
+[114]: https://pkg.go.dev/github.com/svengreb/wand@v0.9.0
+[115]: https://pkg.go.dev/cmd/go#hdr-Compile_and_run_Go_program
+[116]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/run
+[117]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/golang/run#Task
+[118]: https://github.com/golang/go/issues/44469#issuecomment-784534876
+[119]: https://go.dev/ref/mod#mod-commands

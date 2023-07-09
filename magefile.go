@@ -2,18 +2,17 @@
 // This source code is licensed under the MIT license found in the license file.
 
 //go:build mage
-// +build mage
 
 // wand - a simple and powerful toolkit for Mage.
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/svengreb/nib"
@@ -39,24 +38,6 @@ const (
 
 	// defaultTestOutputDirName is the default output directory name for test artifacts like profiles and reports.
 	defaultTestOutputDirName = taskGoTest.DefaultOutputDirName
-
-	// goModulePathToolGofumpt is the import path for the "gofumpt" Go module command.
-	goModulePathToolGofumpt = taskGofumpt.DefaultGoModulePath
-
-	// goModulePathToolGoimports is the version for the "goimports" Go module command.
-	goModulePathToolGoimports = taskGoimports.DefaultGoModulePath
-
-	// goModulePathToolGolangCI is the version for the "golangci-lint" Go module command.
-	goModulePathToolGolangCI = taskGolangCI.DefaultGoModulePath
-
-	// goModuleVersionToolGofumpt is the version for the "gofumpt" Go module command.
-	goModuleVersionToolGofumpt = taskGofumpt.DefaultGoModuleVersion
-
-	// goModuleVersionToolGoimports is the version for the "goimports" Go module command.
-	goModuleVersionToolGoimports = taskGoimports.DefaultGoModuleVersion
-
-	// goModuleVersionToolGolangCI is the version for the "golangci-lint" Go module command.
-	goModuleVersionToolGolangCI = taskGolangCI.DefaultGoModuleVersion
 )
 
 const (
@@ -132,31 +113,6 @@ func (e env) String() string {
 	return fmt.Sprintf("%s_%s", envPrefix, envVars[e])
 }
 
-// Bootstrap runs initialization tasks and sets up the local development environment by installing required tools and
-// build dependencies.
-func Bootstrap() {
-	importPath := func(path, version string) string { return fmt.Sprintf("%s@%s", path, version) }
-	goTools := []string{
-		importPath(goModulePathToolGofumpt, goModuleVersionToolGofumpt),
-		importPath(goModulePathToolGoimports, goModuleVersionToolGoimports),
-		importPath(goModulePathToolGolangCI, goModuleVersionToolGolangCI),
-	}
-
-	ew.Infof("Installing development tools:\n")
-	for _, path := range goTools {
-		printRawf("  ↳ %s\n", path)
-	}
-	errs := ew.Bootstrap(goTools...)
-	if len(errs) > 0 {
-		for _, err := range errs {
-			ew.Errorf(err.Error())
-		}
-		ew.ExitPrintf(1, nib.FatalVerbosity, "Boostrap incomplete")
-	}
-
-	ew.Successf("Bootstrap completed")
-}
-
 // Clean removes artifacts from previous task executions.
 func Clean() {
 	ew.Infof("Removing previous test artifacts")
@@ -216,7 +172,6 @@ func Lint() {
 			ew.Infof(`Running configured "golangci-lint" linters`)
 			err := ew.GolangCILint(
 				taskGolangCI.WithVerboseOutput(true),
-				taskGolangCI.WithModuleVersion(semver.MustParse("1.43.0")),
 			)
 			if err != nil {
 				ew.ExitPrintf(1, nib.ErrorVerbosity, "Linting failed:\n  ↳ %v", err)
@@ -273,6 +228,20 @@ func UpgradeMods() {
 	if err := ew.GoModUpgrade(); err != nil {
 		ew.ExitPrintf(1, nib.ErrorVerbosity, "%s\n  ↳ %v", color.RedString("Updating outdated dependencies failed:"), err)
 	}
+}
+
+// Validate ensures that everything is properly initialized and operational.
+func Validate(mageCtx context.Context) {
+	ew.Infof("Validating that the elder wand is properly initialized and operational")
+	errs := ew.Validate()
+
+	if len(errs) != 0 {
+		for _, err := range errs {
+			ew.Errorf(err.Error())
+		}
+		ew.ExitPrintf(1, nib.FatalVerbosity, "Validation incomplete")
+	}
+	ew.Successf("Validation completed")
 }
 
 // printRawf writes a message to the underlying io.Writer of ew without any specific formatting.

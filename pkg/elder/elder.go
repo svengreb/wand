@@ -1,8 +1,12 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the license file.
 
+//go:build go1.17
+
 // Package elder is a wand reference implementation that provides common Mage tasks and stores application
 // configurations and metadata of a project.
+// Note that the elder package requires at least Go 1.17 due to the usage of specific Go command features and behaviors
+// that are required for tasks like [github.com/svengreb/wand/pkg/task/golang/run]!
 //
 // The naming is inspired by the "Elder Wand", an extremely powerful wand made of elder wood, from the fantasy novel
 // "Harry Potter". See https://en.wikipedia.org/wiki/Magical_objects_in_Harry_Potter#Elder_Wand for more details.
@@ -42,31 +46,50 @@ type Elder struct {
 	project      *project.Metadata
 }
 
-// Bootstrap runs initialization tasks to ensure the wand is operational and sets up the local development environment
-// by allowing to install executables from Go module-based "main" packages.
-// The paths must be valid Go module import paths, that can optionally include the version suffix, in the "pkg@version"
-// format. See https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool for more details about the installation
-// runner.
-// It returns a slice of errors with type *task.ErrRunner containing any error that occurs during the execution.
+// Bootstrap runs initialization tasks to ensure the wand is operational.
+//
+// NOTE(Go 1.17): As of version 0.9.0 Bootstrap is a no-op!
+// Go 1.17 finally added support to [run commands in module-aware mode] which  makes it obsolete to install the
+// executables locally but allows to [run them on-the-fly]. Support for this feature is provided by the
+// [the "run" Go task] which can be used as is in simple Mage task functions.
+// It returns a slice of errors with type [*task.ErrRunner] containing any error that occurs during the initialization.
+//
+// Deprecated: As of version 0.9.0 Bootstrap is a no-op and will be removed in version 0.10.0! To install executables
+// anyway use the [*Elder.CacheExecutables] method instead. To ensure that the wand is properly initialized and operational
+// use the [*Elder.Validate] method.
+//
+// [run commands in module-aware mode]: https://go.dev/doc/go1.17#go%20run
+// [run them on-the-fly]: https://pkg.go.dev/cmd/go#hdr-Compile_and_run_Go_program
+// [the "run" Go task]: https://pkg.go.dev/github.com/svengreb/wand@v0.9.0/pkg/task/golang/run
 func (e *Elder) Bootstrap(goModuleImportPaths ...string) []error {
-	var errs []error
-	for _, r := range []task.Runner{e.goRunner, e.goToolRunner} {
-		if err := r.Validate(); err != nil {
-			errs = append(errs, err)
-		}
-	}
+	e.Warnf(`As of version 0.9.0 the "Bootstrap"" method has been deprecated and is a no-op! It will be removed in version 0.10.0!
+	To install executables anyway use the "CacheExecutables" method instead.
+	To ensure that the wand is properly initialized and operational use the "Validate"" method.
+	`)
+	return []error{}
+}
 
+// CacheExecutables installs and caches executables from Go module-based "main" packages into a local cache within the
+// working directory. Note that this only works when the [taskGoTool.WithCache] option was set to `true`!
+// The given paths must be valid Go module import paths, that can optionally include the version suffix in the
+// "pkg@version" format. See [the documentation about the "gotool" task] for more details about the installation
+// runner.
+// It returns any error that occurs during the execution.
+// This method is a kind of workaround for the deprecated [*Elder.Bootstrap] method and allows to still cache command
+// executables locally.
+//
+// [the documentation about the "gotool" task]: https://pkg.go.dev/github.com/svengreb/wand/pkg/task/gotool
+func (e *Elder) CacheExecutables(goModuleImportPaths ...string) error {
 	for _, path := range goModuleImportPaths {
 		gm, gmErr := project.GoModuleFromImportPath(path)
 		if gmErr != nil {
-			errs = append(errs, gmErr)
+			return gmErr
 		}
 		if installErr := e.goToolRunner.Install(gm); installErr != nil {
-			errs = append(errs, installErr)
+			return installErr
 		}
 	}
-
-	return errs
+	return nil
 }
 
 // Clean is a task to remove filesystem paths, e.g. output data like artifacts and reports from previous development,
@@ -318,15 +341,19 @@ func (e *Elder) RegisterApp(name, displayName, pathRel string) error {
 }
 
 // Validate ensures that the wand is properly initialized and operational.
-// It returns an error of type *task.ErrRunner when the validation of any of the supported task fails.
-func (e *Elder) Validate() error {
-	for _, t := range []task.Runner{e.goRunner} {
-		if err := t.Validate(); err != nil {
-			return fmt.Errorf("failed to validate runner: %w", err)
+// Optionally pass the [task.Runner] that should be validated or nothing to validate all currently supported runners.
+// It returns a slice of errors that occurred during the execution.
+func (e *Elder) Validate(runners ...task.Runner) []error {
+	if len(runners) == 0 || runners == nil {
+		runners = []task.Runner{e.goRunner, e.goToolRunner}
+	}
+	var errs []error
+	for _, r := range runners {
+		if err := r.Validate(); err != nil {
+			errs = append(errs, fmt.Errorf("failed to validate runner: %w", err))
 		}
 	}
-
-	return nil
+	return errs
 }
 
 // New creates a new elder wand.
@@ -367,7 +394,8 @@ func New(opts ...Option) (*Elder, error) {
 
 	goToolRunnerOpts := append(
 		[]taskGoTool.RunnerOption{
-			taskGoTool.WithToolsBinDir(filepath.Join(e.project.Options().WandDataDir, DefaultGoToolsBinDir)),
+			taskGoTool.WithToolsBinDir(filepath.Join(e.project.Options().WandDataDir, taskGoTool.DefaultGoToolsBinDir)),
+			taskGoTool.WithQuiet(true),
 		},
 		e.opts.goToolRunnerOpts...,
 	)

@@ -1,7 +1,11 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the license file.
 
+//go:build go1.17
+
 // Package golang provides Go toolchain tasks and runner.
+// Note that this package requires at least Go 1.17 due to the usage of specific Go command features and behaviors that
+// are required for tasks like [github.com/svengreb/wand/pkg/task/golang/run]!
 //
 // See https://golang.org/cmd/go for more details.
 package golang
