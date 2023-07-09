@@ -1,6 +1,8 @@
 // Copyright (c) 2019-present Sven Greb <development@svengreb.de>
 // This source code is licensed under the MIT license found in the license file.
 
+//go:build go1.17
+
 package golang
 
 import (

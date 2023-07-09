@@ -21,9 +21,6 @@ import (
 )
 
 var (
-	// DefaultGoToolsBinDir is the default directory for compiled executables of Go module-based "main" packages.
-	DefaultGoToolsBinDir = filepath.Join(project.DefaultWandCacheDataDir, "tools", "bin")
-
 	// wandDataGitIgnoreFileName is the name for the written wandDataGitIgnoreTmpl file.
 	wandDataGitIgnoreFileName = ".gitignore"
 
